@@ -1,0 +1,31 @@
+<launch>
+    <param name="/traj_planner/steps_per_phase" type="int" value="4" />
+    <param name="/traj_controller/trajectory_index" type="int" value="11" />
+
+    <node pkg="lgp_car_real_time" type="pedestrian_tree_node" name="pedestrian_tree_node" output="screen">
+    </node>
+
+    <node pkg="lgp_car_real_time" type="pedestrian_linear_node" name="pedestrian_linear_node" output="screen">
+    </node>
+
+    <node pkg="lgp_car_real_time" type="pedestrian_linear_qp_node" name="pedestrian_linear_qp_node" output="screen">
+    </node>
+
+    <node pkg="lgp_car_real_time" type="pedestrian_tree_qp_node" name="pedestrian_tree_qp_node" output="screen">
+    </node>
+
+    <node pkg="lgp_car_real_time" type="trajectory_controller_node" name="trajectory_controller" output="screen">
+    </node>
+
+    <node pkg="lgp_car_real_time" type="gui_control_pedestrian.py" name="gui_control_pedestrian" output="screen">
+    </node>
+
+    <node pkg="lgp_car_real_time" type="pedestrian_popping_control_node" name="pedestrian" output="screen">
+    </node>
+
+    <node pkg="lgp_car_real_time" type="pedestrian_evaluation_node" name="pedestrian_evaluation_node" output="screen">
+    </node>
+
+    <include file="$(find lgp_car_real_time)/launch/display_pedestrian.launch">
+    </include>
+</launch>

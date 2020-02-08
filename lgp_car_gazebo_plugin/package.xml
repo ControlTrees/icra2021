@@ -1,0 +1,32 @@
+<package>
+  <name>lgp_car_gazebo_plugin</name>
+  <version>0.5.7</version>
+  <description>ROS plugins for LGP cars</description>
+  <maintainer email="camille.phiquepal@gmail.com">Camille Phiquepal</maintainer>
+  <license>BSD</license>
+  <author>Camille Phiquepal</author>
+  
+  <buildtool_depend>catkin</buildtool_depend>
+  
+  <build_depend>boost</build_depend>
+  <build_depend>gazebo_ros</build_depend>
+  <build_depend>gazebo_plugins</build_depend>
+  <build_depend>geometry_msgs</build_depend>
+  <build_depend>kobuki_msgs</build_depend>
+  <build_depend>nav_msgs</build_depend>
+  <build_depend>roscpp</build_depend>
+  <build_depend>sensor_msgs</build_depend>
+  <build_depend>std_msgs</build_depend>
+  <build_depend>tf</build_depend>
+
+  <run_depend>boost</run_depend>
+  <run_depend>gazebo_ros</run_depend>
+  <run_depend>gazebo_plugins</run_depend>
+  <run_depend>geometry_msgs</run_depend>
+  <run_depend>kobuki_msgs</run_depend>
+  <run_depend>nav_msgs</run_depend>
+  <run_depend>roscpp</run_depend>
+  <run_depend>sensor_msgs</run_depend>
+  <run_depend>std_msgs</run_depend>
+  <run_depend>tf</run_depend>
+</package>

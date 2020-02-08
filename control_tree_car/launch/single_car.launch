@@ -1,0 +1,10 @@
+<launch>
+    <node pkg="lgp_car_real_time" type="lane_change" name="ego_car" output="screen">
+    </node>
+
+    <node pkg="lgp_car_real_time" type="gui_control.py" name="gui_control.py" output="screen">
+    </node>
+
+    <include file="$(find lgp_car_real_time)/launch/display_single_car.launch">
+    </include>
+</launch>

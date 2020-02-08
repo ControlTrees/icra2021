@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<sdf version="1.4">
+  <world name="default">
+    <gui>
+      <camera name="user_camera">
+        <pose>-7.35 -3.59 39.73 0 1.417 0.124</pose>
+      </camera>
+    </gui>
+
+
+    <include>
+      <uri>model://ground_plane</uri>
+    </include>
+
+    <include>
+      <uri>model://sun</uri>
+    </include>
+
+    <include>
+      <name>oncoming_car</name>
+      <pose>60 3 0 0 0 3.1415</pose>
+      <uri>model://lgp_car</uri>
+      <plugin name="oncoming_car" filename="liblgp_car_gazebo_plugin.so"/>
+    </include>
+
+    <include>
+      <name>front_car</name>
+      <pose>10 0 0 0 0 0</pose>
+      <uri>model://lgp_car</uri>
+      <plugin name="front_car" filename="liblgp_car_gazebo_plugin.so"/>
+    </include>
+    
+    <include>
+      <name>lgp_car</name>
+      <uri>model://lgp_car</uri>
+      <plugin name="lgp_car" filename="liblgp_car_gazebo_plugin.so"/>
+    </include>
+
+    </world>
+</sdf>

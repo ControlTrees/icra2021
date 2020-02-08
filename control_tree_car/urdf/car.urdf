@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<robot name="lgp_car">
+  <material name="blue">
+    <color rgba="0 0 0.8 1"/>
+  </material>
+
+  <link name="lgp_car">
+    <visual>
+      <geometry>
+  	<box size="4.3 1.7 1.0"/>
+      </geometry>
+      <origin xyz="1.25 0 0.6"/>
+      <material name="blue"/>
+    </visual>
+  </link>
+</robot>

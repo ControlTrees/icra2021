@@ -1,0 +1,251 @@
+#pragma once
+
+#include <cassert>
+
+#include <unordered_set>
+#include <vector>
+#include <memory>
+
+using intA = std::vector<int>;
+using arr = std::vector<double>;
+
+struct TreePb
+{
+    std::vector<intA> varss;
+    std::vector<arr> scaless;
+    int n_steps;
+
+    static TreePb refined(const TreePb & tree, int n_steps_per_phase)
+    {
+        TreePb refined_tree;
+        refined_tree.varss = std::vector<intA>(tree.varss.size());
+        refined_tree.scaless = std::vector<arr>(tree.scaless.size());
+
+        for(auto i = 0; i < tree.varss.size(); ++i)
+        {
+            const auto & vars = tree.varss[i];
+            const auto & scales = tree.scaless[i];
+
+            intA refined_vars;
+            arr refined_scales;
+            refined_vars.reserve(vars.size() * n_steps_per_phase);
+            refined_scales.reserve(scales.size() * n_steps_per_phase);
+
+            for(auto j = 0; j < vars.size(); ++j)
+            {
+                for(auto s = 0; s < n_steps_per_phase; ++s)
+                {
+                    refined_vars.push_back(n_steps_per_phase*vars[j] + s);
+                    refined_scales.push_back(scales[j]);
+                }
+            }
+
+            refined_tree.varss[i] = refined_vars;
+            refined_tree.scaless[i] = refined_scales;
+        }
+
+        refined_tree.n_steps = n_steps_per_phase * tree.n_steps;
+
+        return refined_tree;
+    }
+
+    static std::shared_ptr<TreePb> refined(const std::shared_ptr<TreePb> & tree, int n_steps_per_phase)
+    {
+        std::shared_ptr<TreePb> refined_tree = std::make_shared<TreePb>();
+        refined_tree->varss = std::vector<intA>(tree->varss.size());
+        refined_tree->scaless = std::vector<arr>(tree->scaless.size());
+
+        for(auto i = 0; i < tree->varss.size(); ++i)
+        {
+            const auto & vars = tree->varss[i];
+            const auto & scales = tree->scaless[i];
+
+            intA refined_vars;
+            arr refined_scales;
+            refined_vars.reserve(vars.size() * n_steps_per_phase);
+            refined_scales.reserve(scales.size() * n_steps_per_phase);
+
+            for(auto j = 0; j < vars.size(); ++j)
+            {
+                for(auto s = 0; s < n_steps_per_phase; ++s)
+                {
+                    refined_vars.push_back(n_steps_per_phase*vars[j] + s);
+                    refined_scales.push_back(scales[j]);
+                }
+            }
+
+            refined_tree->varss[i] = refined_vars;
+            refined_tree->scaless[i] = refined_scales;
+        }
+
+        refined_tree->n_steps = n_steps_per_phase * tree->n_steps;
+
+        return refined_tree;
+    }
+
+    void set_n_steps()
+    {
+        // sanity check (with set size and max element)
+        int max = -1;
+        std::unordered_set<int> ids;
+        for(const auto & vars: varss)
+        {
+            for(const auto var: vars)
+            {
+                if(var > max) max = var;
+                ids.insert(var);
+            }
+        }
+
+        assert (max + 1 == ids.size());
+
+        n_steps = ids.size();
+    }
+};
+
+struct Tree2Branches2Steps : public TreePb
+{
+    Tree2Branches2Steps(double p)
+    {
+        varss.push_back({0, 1, 2, 3, 4, 5, 6, 7});
+        varss.push_back({0, 1, 8, 9, 10, 11, 12, 13});
+
+        scaless.push_back({1.0, 1.0, p, p, p, p, p, p});
+        scaless.push_back({1.0, 1.0, 1.0-p, 1.0-p, 1.0-p, 1.0-p, 1.0-p, 1.0-p});
+
+        set_n_steps();
+    }
+};
+
+struct Tree1Branch : public TreePb
+{
+    Tree1Branch()
+    {
+        varss.push_back({0, 1, 2, 3});
+
+        scaless.push_back({1.0, 1.0, 1.0, 1.0});
+
+        set_n_steps();
+    }
+};
+
+struct Tree2Branches : public TreePb
+{
+    Tree2Branches(double p)
+    {
+        varss.push_back({0, 1, 2, 3});
+        varss.push_back({0, 4, 5, 6});
+
+        scaless.push_back({1.0, p, p, p});
+        scaless.push_back({1.0, 1.0-p, 1.0-p, 1.0-p});
+
+        set_n_steps();
+    }
+};
+
+struct Tree3Branches : public TreePb
+{
+    Tree3Branches(double p, double q)
+    {
+        assert(p + q <= 1.0);
+
+        varss.push_back({0, 1, 2, 3});
+        varss.push_back({0, 4, 5, 6});
+        varss.push_back({0, 7, 8, 9});
+
+        scaless.push_back({1.0, p, p, p});
+        scaless.push_back({1.0, q, q, q});
+        scaless.push_back({1.0, 1.0 - p - q, 1.0 - p - q, 1.0 - p - q});
+
+        set_n_steps();
+    }
+};
+
+
+struct Tree4Branches : public TreePb
+{
+    Tree4Branches(double p, double q, double r)
+    {
+        assert(p + q + r <= 1.0);
+
+        varss.push_back({0, 1, 2, 3});
+        varss.push_back({0, 4, 5, 6});
+        varss.push_back({0, 7, 8, 9});
+        varss.push_back({0, 10, 11, 12});
+
+        scaless.push_back({1.0, p, p, p});
+        scaless.push_back({1.0, q, q, q});
+        scaless.push_back({1.0, r, r, r});
+        scaless.push_back({1.0, 1.0 - p - q - r, 1.0 - p - q - r, 1.0 - p - q - r});
+
+        set_n_steps();
+    }
+};
+
+struct Tree10Branches : public TreePb
+{
+    Tree10Branches()
+    {
+        varss.push_back({0, 1, 2, 3}); //1
+        varss.push_back({0, 4, 5, 6}); //2
+        varss.push_back({0, 7, 8, 9}); //3
+        varss.push_back({0, 10, 11, 12}); //4
+        varss.push_back({0, 13, 14, 15}); //5
+        varss.push_back({0, 16, 17, 18}); //6
+        varss.push_back({0, 19, 20, 21}); //7
+        varss.push_back({0, 22, 23, 24}); //8
+        varss.push_back({0, 25, 26, 27}); //9
+        varss.push_back({0, 28, 29, 30}); //10
+
+        double p = 1.0 / 10;
+        for(auto i = 0; i < 10; ++i)
+        {
+            scaless.push_back({1.0, p, p, p});
+        }
+
+        set_n_steps();
+    }
+};
+
+struct TreeNBranches : public TreePb
+{
+    TreeNBranches(int n)
+    {
+        int j = 0;
+        for(auto i = 0; i < n; ++i)
+        {
+            varss.push_back({0, ++j, ++j, ++j});
+        }
+
+        double p = 1.0 / n;
+        for(auto i = 0; i < n; ++i)
+        {
+            scaless.push_back({1.0, p, p, p});
+        }
+
+        set_n_steps();
+    }
+};
+
+struct Tree2Stages : public TreePb
+{
+    Tree2Stages(double p)
+    {
+//        assert(p + q + r <= 1.0);
+
+        varss.push_back({0, 1, 2, 3});
+        varss.push_back({0, 1, 4, 5});
+
+        varss.push_back({0, 6, 7, 8});
+        varss.push_back({0, 6, 9, 10});
+
+        scaless.push_back({1.0, 0.5, 0.25, 0.25});
+        scaless.push_back({1.0, 0.5, 0.25, 0.25});
+        scaless.push_back({1.0, 0.5, 0.25, 0.25});
+        scaless.push_back({1.0, 0.5, 0.25, 0.25});
+        //scaless.push_back({1.0, 0.5 * (1-p), 0.25 * (1-p), 0.25 * (1-p)});
+        //scaless.push_back({1.0, 0.5 * (1-p), 0.25 * (1-p), 0.25 * (1-p)});
+
+        set_n_steps();
+    }
+};

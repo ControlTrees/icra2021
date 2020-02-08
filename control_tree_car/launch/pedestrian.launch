@@ -1,0 +1,19 @@
+<launch>
+    <param name="/n_pedestrians" type="int" value="2" />
+    <param name="/n_branches" type="int" value="3" />
+    <param name="/p_crossing" type="double" value="0.25" />
+    <param name="/traj_planner/steps_per_phase" type="int" value="4" />
+    <param name="/traj_controller/trajectory_index" type="int" value="11" />
+	
+    <node pkg="control_tree_car" type="pedestrian_tree_qp_node" name="qp_node" output="screen">
+    </node>
+
+    <node pkg="control_tree_car" type="trajectory_controller_node" name="trajectory_controller" output="screen">
+    </node>
+
+    <node pkg="control_tree_car" type="pedestrian_popping_control_node" name="pedestrian" output="screen">
+    </node>
+
+    <include file="$(find control_tree_car)/launch/display_pedestrian.launch">
+    </include>
+</launch>
