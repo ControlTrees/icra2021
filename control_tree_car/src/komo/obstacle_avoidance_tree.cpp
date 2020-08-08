@@ -14,6 +14,7 @@ ObstacleAvoidanceTree::ObstacleAvoidanceTree(BehaviorManager& behavior_manager, 
     , steps_(steps_per_phase)
     , v_desired_(1.0)
     , existence_probability_(0.9)
+    , tree_(1.0, 0)
 {
     //
     circular_obstacle_ = std::shared_ptr<Car3CirclesCircularObstacle> (new Car3CirclesCircularObstacle("car_ego", obstacle_position_, 1.0, 0.0));
@@ -180,25 +181,25 @@ void ObstacleAvoidanceTree::update_tree(double p)
     tree_.add_edge(5, 6);
     tree_.add_edge(6, 7);
 
-    vars_branch_1_order_0_ = tree_.get_vars(0.0, 4.0, 4, 0, steps_);
-    vars_branch_1_order_1_ = tree_.get_vars(0.0, 4.0, 4, 1, steps_);
-    vars_branch_1_order_2_ = tree_.get_vars(0.0, 4.0, 4, 2, steps_);
+    vars_branch_1_order_0_ = tree_.get_vars({0.0, 4.0}, 4, 0, steps_);
+    vars_branch_1_order_1_ = tree_.get_vars({0.0, 4.0}, 4, 1, steps_);
+    vars_branch_1_order_2_ = tree_.get_vars({0.0, 4.0}, 4, 2, steps_);
 
-    vars_branch_2_order_0_ = tree_.get_vars(0.0, 4.0, 7, 0, steps_);
-    vars_branch_2_order_1_ = tree_.get_vars(0.0, 4.0, 7, 1, steps_);
-    vars_branch_2_order_2_ = tree_.get_vars(0.0, 4.0, 7, 2, steps_);
+    vars_branch_2_order_0_ = tree_.get_vars({0.0, 4.0}, 7, 0, steps_);
+    vars_branch_2_order_1_ = tree_.get_vars({0.0, 4.0}, 7, 1, steps_);
+    vars_branch_2_order_2_ = tree_.get_vars({0.0, 4.0}, 7, 2, steps_);
 
-    vars_all_order_0_ = tree_.get_vars(0.0, 4.0, 4, 0, steps_);
-    vars_all_order_0_.append(tree_.get_vars(1.0, 4.0, 7, 0, steps_));
+    vars_all_order_0_ = tree_.get_vars({0.0, 4.0}, 4, 0, steps_);
+    vars_all_order_0_.append(tree_.get_vars({1.0, 4.0}, 7, 0, steps_));
 
-    vars_all_order_1_ = tree_.get_vars(0.0, 4.0, 4, 1, steps_);
-    vars_all_order_1_.append(tree_.get_vars(1.0, 4.0, 7, 1, steps_));
+    vars_all_order_1_ = tree_.get_vars({0.0, 4.0}, 4, 1, steps_);
+    vars_all_order_1_.append(tree_.get_vars({1.0, 4.0}, 7, 1, steps_));
 
-    vars_all_order_2_ = tree_.get_vars(0.0, 4.0, 4, 2, steps_);
-    vars_all_order_2_.append(tree_.get_vars(1.0, 4.0, 7, 2, steps_));
+    vars_all_order_2_ = tree_.get_vars({0.0, 4.0}, 4, 2, steps_);
+    vars_all_order_2_.append(tree_.get_vars({1.0, 4.0}, 7, 2, steps_));
 
-    scales_all_ = tree_.get_scales(0.0, 4.0, 4, steps_);
-    scales_all_.append(tree_.get_scales(1.0, 4.0, 7, steps_));
+    scales_all_ = tree_.get_scales({0.0, 4.0}, 4, steps_);
+    scales_all_.append(tree_.get_scales({1.0, 4.0}, 7, steps_));
 
     assert(vars_all_order_1_.d0 == scales_all_.d0);
     assert(vars_all_order_2_.d0 == scales_all_.d0);
