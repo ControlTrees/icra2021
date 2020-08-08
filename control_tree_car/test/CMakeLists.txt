@@ -19,7 +19,7 @@ include_directories(${GTEST_INCLUDE_DIRS})
 include_directories(${EIGEN3_INCLUDE_DIR})
 
 # utility test lib
-add_library(utility_lib ${utility_lib_src})
+add_library(utility_lib STATIC ${utility_lib_src})
 target_link_libraries(utility_lib
                       qp_lib
                       pthread

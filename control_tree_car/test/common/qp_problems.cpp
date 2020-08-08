@@ -6,7 +6,7 @@
 
 #include <control_tree/qp/QP_tree_problem_CGAL.h>
 #include <control_tree/qp/QP_tree_problem_OSQP.h>
-
+#include <control_tree/qp/QP_tree_problem_DecQP.h>
 
 QP_problem create_2_branches_2_steps_constrained(double p)
 {
@@ -399,6 +399,28 @@ VectorXd QPTest::plan_CGAL(const QP_problem &pb, bool _plot)
     if(_plot) plot_XU(X, U, pb);
 
     return U;
+}
+
+VectorXd QPTest::plan_DecQP(const QP_problem &pb, bool _plot, const std::string & filename)
+{
+  QP_tree_problem_DecQP solver(pb.model, u_min, u_max);
+
+  auto start = std::chrono::high_resolution_clock::now();
+
+  const auto & U = solver.solve(pb.x0, pb.xd, pb.k, pb.tree.n_steps, pb.tree.varss, pb.tree.scaless);
+
+  auto end = std::chrono::high_resolution_clock::now();
+  execution_time_ms = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() / 1000.0;
+  //
+  std::cout << "n branches: " << pb.tree.varss.size() << " execution time (ms):" << execution_time_ms << std::endl;
+  //
+  const auto & X = pb.model.predict_trajectory(pb.x0, U, pb.tree.varss);
+
+  // plot
+  if(_plot) plot_XU(X, U, pb);
+  if(filename.size()) save_XU(X, U, pb, filename);
+
+  return U;
 }
 
 void QPTest::plot_XU(const VectorXd& X, const VectorXd& U, const QP_problem &pb) const

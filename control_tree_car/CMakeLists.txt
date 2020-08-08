@@ -14,7 +14,7 @@ catkin_package()
 #################################
 
 #find Eigen
-find_package( Eigen3 REQUIRED )
+find_package(Eigen3 REQUIRED)
 
 # Boost
 find_package(Boost 1.40.0 COMPONENTS filesystem system iostreams REQUIRED)
@@ -26,6 +26,7 @@ ${EIGEN3_INCLUDE_DIR}
 "/home/camille/Dev/mlr/share/projects/17-camille-obsTask/libs/GeometricUtilityTasks"
 "/home/camille/Dev/mlr/share/projects/17-camille-obsTask/libs/MathUtility"
 "/home/camille/Dev/mlr/share/projects/17-camille-obsTask/libs/CollisionAvoidance"
+"/home/camille/Dev/mlr/share/projects/17-camille-obsTask/libs/Optimization/include"
 ) 
 link_directories(
 "/home/camille/Dev/mlr/rai/lib"
@@ -33,6 +34,7 @@ link_directories(
 "/home/camille/Dev/mlr_build/libs/GeometricUtilityTasks"
 "/home/camille/Dev/mlr_build/libs/MathUtility"
 "/home/camille/Dev/mlr_build/libs/CollisionAvoidance"
+"/home/camille/Dev/mlr_build/libs/Optimization"
 )
 
 #CGAL
@@ -56,12 +58,15 @@ ${catkin_LIBRARIES}
 
 ## QP
 file(GLOB qp_lib_src "include/control_tree/qp/*.h" "src/qp/*.cpp")
-add_library(qp_lib SHARED ${qp_lib_src})
+add_library(qp_lib STATIC ${qp_lib_src})
 target_link_libraries(qp_lib
 ${catkin_LIBRARIES}
 core_lib
 CGAL::CGAL
 osqp::osqp
+Core
+Optim
+Optimization
 ${Boost_LIBRARIES}
  )
 

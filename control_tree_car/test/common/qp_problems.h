@@ -37,6 +37,7 @@ public:
  protected:
     VectorXd plan_OSQP(const QP_problem &pb, bool plot = false, const std::string & filename = "");
     VectorXd plan_CGAL(const QP_problem &pb, bool plot = false);
+    VectorXd plan_DecQP(const QP_problem &pb, bool plot = false, const std::string & filename = "");
 
     void plot_XU(const VectorXd& X, const VectorXd& U, const QP_problem &pb) const;
     void save_XU(const VectorXd& X, const VectorXd& U, const QP_problem &pb, const std::string & filename) const;
