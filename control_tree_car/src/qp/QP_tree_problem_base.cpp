@@ -11,8 +11,8 @@ QP_tree_problem_base::QP_tree_problem_base(const MPC_model & mpc, double u_min, 
 
 VectorXd QP_tree_problem_base::solve(const Vector2d & x0, const Vector2d & xd, const Constraints & k,
                                 int n_steps,
-                                const std::vector<intA> & varss,
-                                const std::vector<arr> & scaless)
+                                const std::vector<IntA> & varss,
+                                const std::vector<Arr> & scaless)
 {
     // build matrices
     S = mpc.get_S(n_steps, varss);

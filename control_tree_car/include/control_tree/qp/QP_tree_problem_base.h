@@ -11,8 +11,8 @@ public:
 
     VectorXd solve(const Vector2d & x0, const Vector2d & xd, const Constraints & k,
                    int n_steps,
-                   const std::vector<intA> & varss,
-                   const std::vector<arr> & scaless);
+                   const std::vector<IntA> & varss,
+                   const std::vector<Arr> & scaless);
 
     MatrixXd get_H() const {return H;}
     MatrixXd get_KA() const {return KA;}
@@ -40,7 +40,7 @@ protected:
     MatrixXd F;
     MatrixXd G;
 
-    // final matrices used by the sover
+    // final matrices used by the solver
     MatrixXd H;
     VectorXd C;
     MatrixXd KA;

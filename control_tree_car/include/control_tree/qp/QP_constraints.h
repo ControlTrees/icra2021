@@ -4,7 +4,7 @@
 
 struct Constraints
 {
-    Constraints(int n_steps, const std::vector<intA> & varss)
+    Constraints(int n_steps, const std::vector<IntA> & varss)
         : n_steps(n_steps)
         , varss(varss)
     {
@@ -16,9 +16,9 @@ struct Constraints
         xmaxs.push_back(std::make_tuple(branch, xmax, mask, varss[branch]));
     }
 
-    void add_constraint(int branch, const Eigen::Vector2d & xmax, const Eigen::Vector2d & mask, const intA & indices_branch)
+    void add_constraint(int branch, const Eigen::Vector2d & xmax, const Eigen::Vector2d & mask, const IntA & indices_branch)
     {
-        intA indices_global(indices_branch.size());
+        IntA indices_global(indices_branch.size());
 
         for(auto i = 0; i < indices_branch.size(); ++i) // local -> global
         {
@@ -33,13 +33,13 @@ struct Constraints
     static Constraints refined(const Constraints & constraints, int n_steps_per_phase)
     {
         // refine the varss
-        auto refined_varss = std::vector<intA>(constraints.varss.size());
+        auto refined_varss = std::vector<IntA>(constraints.varss.size());
 
         for(auto i = 0; i < constraints.varss.size(); ++i)
         {
             const auto & vars = constraints.varss[i];
 
-            intA refined_vars;
+            IntA refined_vars;
             refined_vars.reserve(vars.size() * n_steps_per_phase);
 
             for(auto j = 0; j < vars.size(); ++j)
@@ -54,13 +54,13 @@ struct Constraints
         }
 
         // refine the xmaxs
-       auto refined_xmaxs = std::vector<std::tuple<int, Eigen::Vector2d, Eigen::Vector2d, intA>>(constraints.xmaxs.size());
+       auto refined_xmaxs = std::vector<std::tuple<int, Eigen::Vector2d, Eigen::Vector2d, IntA>>(constraints.xmaxs.size());
 
        for(auto i = 0; i < constraints.xmaxs.size(); ++i)
        {
             const auto & indices = std::get<3>(constraints.xmaxs[i]);
 
-            intA refined_indices;
+            IntA refined_indices;
             refined_indices.reserve(indices.size() * n_steps_per_phase);
 
             for(auto j = 0; j < indices.size(); ++j)
@@ -93,6 +93,6 @@ struct Constraints
 
     int n_steps;
 
-    std::vector<intA> varss;
-    std::vector<std::tuple<int, Eigen::Vector2d, Eigen::Vector2d, intA>> xmaxs; // branch, max value and mask, indices, the values of masks should be 0 or 1
+    std::vector<IntA> varss;
+    std::vector<std::tuple<int, Eigen::Vector2d, Eigen::Vector2d, IntA>> xmaxs; // branch, max value and mask, indices, the values of masks should be 0 or 1
 };

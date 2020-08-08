@@ -25,7 +25,7 @@ VectorXd MPC_model::predict_trajectory(const Vector2d & x0, const VectorXd & U) 
     return T * x0 + S * U;
 }
 
-VectorXd MPC_model::predict_trajectory(const Vector2d & x0, const VectorXd & U, const std::vector<intA> & varss) const
+VectorXd MPC_model::predict_trajectory(const Vector2d & x0, const VectorXd & U, const std::vector<IntA> & varss) const
 {
     auto n_steps = U.rows();
 
@@ -118,9 +118,9 @@ MatrixXd MPC_model::get_Q_bar(int n_steps) const
     return Q_bar;
 }
 
-MatrixXd MPC_model::get_Q_bar(int n_steps, const std::vector<intA> & varss, const std::vector<arr> & scaless) const
+MatrixXd MPC_model::get_Q_bar(int n_steps, const std::vector<IntA> & varss, const std::vector<Arr> & scaless) const
 {
-    MatrixXd Q_bar = MatrixXd::Zero(2*n_steps, 2*n_steps); // coef velocity
+    MatrixXd Q_bar = MatrixXd::Zero(2*n_steps, 2*n_steps); // coef velocit
     assert(varss.size() == scaless.size());
 
     for(auto i = 0; i < varss.size(); ++i)
@@ -148,7 +148,7 @@ MatrixXd MPC_model::get_R_bar(int n_steps) const
     return R_bar;
 }
 
-MatrixXd MPC_model::get_R_bar(int n_steps, const std::vector<intA> & varss, const std::vector<arr> & scaless) const
+MatrixXd MPC_model::get_R_bar(int n_steps, const std::vector<IntA> & varss, const std::vector<Arr> & scaless) const
 {
     MatrixXd R_bar = MatrixXd::Zero(n_steps, n_steps);
 
@@ -182,7 +182,7 @@ MatrixXd MPC_model::get_S(int n_steps) const
     return S;
 }
 
-MatrixXd MPC_model::get_S(int n_steps, const std::vector<intA> & varss) const
+MatrixXd MPC_model::get_S(int n_steps, const std::vector<IntA> & varss) const
 {
     MatrixXd S = MatrixXd::Zero(n_steps*2, n_steps);
 
@@ -217,7 +217,7 @@ MatrixXd MPC_model::get_T(int n_steps) const
     return T;
 }
 
-MatrixXd MPC_model::get_T(int n_steps, const std::vector<intA> & varss) const
+MatrixXd MPC_model::get_T(int n_steps, const std::vector<IntA> & varss) const
 {
     MatrixXd T = MatrixXd::Zero(n_steps*2, 2);
 

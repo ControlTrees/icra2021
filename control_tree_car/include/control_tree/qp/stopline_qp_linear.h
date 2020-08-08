@@ -45,7 +45,7 @@ private:
     // target: params than can be adapted
     double v_desired_;
     double existence_probability_;
-    arr stop_position_;
+    Arr stop_position_;
 
     Vector2d x0_;
     VectorXd U_sol_;
