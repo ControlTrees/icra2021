@@ -165,7 +165,7 @@ QP_problem create_paper_1_branch_4_steps_constrained(double p)
     Constraints k(tree.n_steps, tree.varss);
     k.add_constraint(0, Vector2d(d0, 0), Vector2d(1, 0));
 
-    intA last;
+    IntA last;
     int last_index = int(tree.varss[0].size())-1;
     last.push_back(last_index);
 
@@ -214,7 +214,7 @@ QP_problem create_paper_4_branches_4_steps_constrained(double p)
     k.add_constraint(1, Vector2d(d1, 0), Vector2d(1, 0));
     k.add_constraint(2, Vector2d(d2, 0), Vector2d(1, 0));
 
-    intA last;
+    IntA last;
     int last_index = int(tree.varss[0].size())-1;
     last.push_back(last_index);
 
@@ -262,7 +262,7 @@ QP_problem create_10_branches_4_steps_constrained()
     k.add_constraint(1, Vector2d(d1, 0), Vector2d(1, 0));
     k.add_constraint(2, Vector2d(d2, 0), Vector2d(1, 0));
 
-    intA last;
+    IntA last;
     int last_index = int(tree.varss[0].size())-1;
     last.push_back(last_index);
 
@@ -313,7 +313,7 @@ QP_problem create_20_branches_4_steps_constrained()
     k.add_constraint(10, Vector2d(d2, 0), Vector2d(1, 0));
     k.add_constraint(16, Vector2d(d0, 0), Vector2d(1, 0));
 
-    intA last;
+    IntA last;
     int last_index = int(tree.varss[0].size())-1;
     last.push_back(last_index);
 
@@ -403,24 +403,24 @@ VectorXd QPTest::plan_CGAL(const QP_problem &pb, bool _plot)
 
 VectorXd QPTest::plan_DecQP(const QP_problem &pb, bool _plot, const std::string & filename)
 {
-  QP_tree_problem_DecQP solver(pb.model, u_min, u_max);
+    QP_tree_problem_DecQP solver(pb.model, u_min, u_max);
 
-  auto start = std::chrono::high_resolution_clock::now();
+    auto start = std::chrono::high_resolution_clock::now();
 
-  const auto & U = solver.solve(pb.x0, pb.xd, pb.k, pb.tree.n_steps, pb.tree.varss, pb.tree.scaless);
+    const auto & U = solver.solve(pb.x0, pb.xd, pb.k, pb.tree.n_steps, pb.tree.varss, pb.tree.scaless);
 
-  auto end = std::chrono::high_resolution_clock::now();
-  execution_time_ms = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() / 1000.0;
-  //
-  std::cout << "n branches: " << pb.tree.varss.size() << " execution time (ms):" << execution_time_ms << std::endl;
-  //
-  const auto & X = pb.model.predict_trajectory(pb.x0, U, pb.tree.varss);
+    auto end = std::chrono::high_resolution_clock::now();
+    execution_time_ms = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() / 1000.0;
+    //
+    std::cout << "n branches: " << pb.tree.varss.size() << " execution time (ms):" << execution_time_ms << std::endl;
+    //
+    const auto & X = pb.model.predict_trajectory(pb.x0, U, pb.tree.varss);
 
-  // plot
-  if(_plot) plot_XU(X, U, pb);
-  if(filename.size()) save_XU(X, U, pb, filename);
+    // plot
+    if(_plot) plot_XU(X, U, pb);
+    if(filename.size()) save_XU(X, U, pb, filename);
 
-  return U;
+    return U;
 }
 
 void QPTest::plot_XU(const VectorXd& X, const VectorXd& U, const QP_problem &pb) const
@@ -442,7 +442,7 @@ void QPTest::save_XU(const VectorXd& X, const VectorXd& U, const QP_problem &pb,
     if(pb.tree.varss.size()>1)
     {
         file << "#" << " " << "t" << " " << "common u" << std::endl;
-        intA vars;
+        IntA vars;
         for(auto i = 0; i < pb.tree.varss[0].size(); ++i)
         {
             if(pb.tree.scaless[0][i] == 1.00)
@@ -471,7 +471,7 @@ void QPTest::save_XU(const VectorXd& X, const VectorXd& U, const QP_problem &pb,
     varss[0].push_back(varss[0].size());
     for(auto i = 1; i < varss.size(); ++i)
     {
-        intA vars;
+        IntA vars;
         bool switched = false;
 
         for(auto j = 0; j < pb.tree.varss[i].size(); ++j)

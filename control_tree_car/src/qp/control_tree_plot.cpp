@@ -1,8 +1,8 @@
 #include <control_tree/qp/control_tree_plot.h>
 
 void plot(const std::function<double(int i)> & value_provider,
-          const std::vector<intA> & varss,
-          const std::vector<arr> & scaless,
+          const std::vector<IntA> & varss,
+          const std::vector<Arr> & scaless,
           const PlotAxis & axis)
 {
     TreePlot plotter(varss.size(), axis.name, axis.range);
@@ -11,8 +11,8 @@ void plot(const std::function<double(int i)> & value_provider,
 
 void save(const std::function<double(int i)> & value_provider,
           double dt,
-          const std::vector<intA> & varss,
-          const std::vector<arr> & scales,
+          const std::vector<IntA> & varss,
+          const std::vector<Arr> & scales,
           std::ostream & file)
 {
     for(const auto & vars : varss)
@@ -26,7 +26,7 @@ void save(const std::function<double(int i)> & value_provider,
 
 void save(const std::function<double(int i)> & value_provider,
           double dt,
-          const intA & vars, std::ostream & file)
+          const IntA & vars, std::ostream & file)
 {
     for(int i=0; i<vars.size(); i+=1)
     {

@@ -6,28 +6,28 @@
 #include <vector>
 #include <memory>
 
-using intA = std::vector<int>;
-using arr = std::vector<double>;
+using IntA = std::vector<int>;
+using Arr = std::vector<double>;
 
 struct TreePb
 {
-    std::vector<intA> varss;
-    std::vector<arr> scaless;
+    std::vector<IntA> varss;
+    std::vector<Arr> scaless;
     int n_steps;
 
     static TreePb refined(const TreePb & tree, int n_steps_per_phase)
     {
         TreePb refined_tree;
-        refined_tree.varss = std::vector<intA>(tree.varss.size());
-        refined_tree.scaless = std::vector<arr>(tree.scaless.size());
+        refined_tree.varss = std::vector<IntA>(tree.varss.size());
+        refined_tree.scaless = std::vector<Arr>(tree.scaless.size());
 
         for(auto i = 0; i < tree.varss.size(); ++i)
         {
             const auto & vars = tree.varss[i];
             const auto & scales = tree.scaless[i];
 
-            intA refined_vars;
-            arr refined_scales;
+            IntA refined_vars;
+            Arr refined_scales;
             refined_vars.reserve(vars.size() * n_steps_per_phase);
             refined_scales.reserve(scales.size() * n_steps_per_phase);
 
@@ -52,16 +52,16 @@ struct TreePb
     static std::shared_ptr<TreePb> refined(const std::shared_ptr<TreePb> & tree, int n_steps_per_phase)
     {
         std::shared_ptr<TreePb> refined_tree = std::make_shared<TreePb>();
-        refined_tree->varss = std::vector<intA>(tree->varss.size());
-        refined_tree->scaless = std::vector<arr>(tree->scaless.size());
+        refined_tree->varss = std::vector<IntA>(tree->varss.size());
+        refined_tree->scaless = std::vector<Arr>(tree->scaless.size());
 
         for(auto i = 0; i < tree->varss.size(); ++i)
         {
             const auto & vars = tree->varss[i];
             const auto & scales = tree->scaless[i];
 
-            intA refined_vars;
-            arr refined_scales;
+            IntA refined_vars;
+            Arr refined_scales;
             refined_vars.reserve(vars.size() * n_steps_per_phase);
             refined_scales.reserve(scales.size() * n_steps_per_phase);
 

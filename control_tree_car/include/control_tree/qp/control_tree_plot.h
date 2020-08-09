@@ -11,18 +11,18 @@ struct PlotAxis
 };
 
 void plot(const std::function<double(int i)> & value_provider,
-          const std::vector<intA> & varss,
-          const std::vector<arr> & scales,
+          const std::vector<IntA> & varss,
+          const std::vector<Arr> & scales,
           const PlotAxis & axis);
 
 void save(const std::function<double(int i)> & value_provider,
           double dt,
-          const std::vector<intA> & varss,
-          const std::vector<arr> & scales, std::ostream & file);
+          const std::vector<IntA> & varss,
+          const std::vector<Arr> & scales, std::ostream & file);
 
 void save(const std::function<double(int i)> & value_provider,
           double dt,
-          const intA & vars,
+          const IntA & vars,
           std::ostream & file);
 
 
@@ -36,8 +36,8 @@ public:
     {
     }
 
-    void update(const std::vector<intA> & varss,
-                const std::vector<arr> & scales,
+    void update(const std::vector<IntA> & varss,
+                const std::vector<Arr> & scales,
                 const std::function<double(int i)> & value_provider)
     {
         auto color_code = [](int i, double p)->std::string

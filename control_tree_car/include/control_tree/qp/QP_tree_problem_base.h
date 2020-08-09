@@ -9,6 +9,7 @@ public:
     QP_tree_problem_base(const MPC_model & mpc,
                     double u_min, double u_max);
 
+    // joint solving
     VectorXd solve(const Vector2d & x0, const Vector2d & xd, const Constraints & k,
                    int n_steps,
                    const std::vector<IntA> & varss,

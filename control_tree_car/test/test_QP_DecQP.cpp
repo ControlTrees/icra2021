@@ -7,6 +7,14 @@
 #include <control_tree/qp/control_tree_plot.h>
 #include "common/qp_problems.h"
 
+
+TEST_F(QPTest, test_2_branches_4_steps_constrained)
+{
+    auto pb = create_2_branches_4_steps_constrained();
+
+    plan_DecQP(pb, true);
+}
+
 TEST_F(QPTest, test_paper_1_branch_4_steps)
 {
     auto pb = create_paper_1_branch_4_steps_constrained();
@@ -14,7 +22,7 @@ TEST_F(QPTest, test_paper_1_branch_4_steps)
     vel_axis.range = "[0:15]";
     acc_axis.range = "[-8:3]";
 
-    auto U = plan_DecQP(pb, true, "/tmp/1_branch.dat");
+    auto U = plan_DecQP(pb, true);//, "/tmp/1_branch.dat");
 }
 
 ////////////////////////////////
