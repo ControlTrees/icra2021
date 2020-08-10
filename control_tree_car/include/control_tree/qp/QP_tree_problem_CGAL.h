@@ -2,7 +2,7 @@
 
 #include <control_tree/qp/MPC_model.h>
 #include <control_tree/qp/QP_constraints.h>
-#include <control_tree/qp/QP_tree_problem_base.h>
+#include <control_tree/qp/QP_tree_solver_base.h>
 
 #include <CGAL/QP_models.h>
 #include <CGAL/QP_functions.h>
@@ -13,7 +13,7 @@ typedef double ET;
 typedef CGAL::Quadratic_program<ET> Program;
 typedef CGAL::Quadratic_program_solution<ET> Solution;
 
-class QP_tree_problem_CGAL : public QP_tree_problem_base
+class QP_tree_problem_CGAL : public QP_tree_joint_solver_base
 {
 public:
     QP_tree_problem_CGAL(const MPC_model & mpc,

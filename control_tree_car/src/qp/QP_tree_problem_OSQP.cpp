@@ -75,7 +75,7 @@ static c_float * create_default_c_float_array(int rows, double value)
 }
 
 QP_tree_problem_OSQP::QP_tree_problem_OSQP(const MPC_model & mpc, double u_min, double u_max)
-    : QP_tree_problem_base(mpc, u_min, u_max)
+    : QP_tree_joint_solver_base(mpc, u_min, u_max)
 {
     // Workspace structures
     settings = (OSQPSettings *)c_malloc(sizeof(OSQPSettings));

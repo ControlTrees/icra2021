@@ -1,15 +1,21 @@
-#include <control_tree/qp/QP_tree_problem_base.h>
+#include <control_tree/qp/QP_tree_solver_base.h>
 
-QP_tree_problem_base::QP_tree_problem_base(const MPC_model & mpc, double u_min, double u_max)
+QP_tree_solver_base::QP_tree_solver_base(const MPC_model & mpc, double u_min, double u_max)
     : mpc(mpc)
     , u_min_(u_min)
     , u_max_(u_max)
+{
+
+}
+
+QP_tree_joint_solver_base::QP_tree_joint_solver_base(const MPC_model & mpc, double u_min, double u_max)
+    : QP_tree_solver_base(mpc, u_min, u_max)
     , control_bounds_in_A_(true)
 {
 
 }
 
-VectorXd QP_tree_problem_base::solve(const Vector2d & x0, const Vector2d & xd, const Constraints & k,
+VectorXd QP_tree_joint_solver_base::solve(const Vector2d & x0, const Vector2d & xd, const Constraints & k,
                                 int n_steps,
                                 const std::vector<IntA> & varss,
                                 const std::vector<Arr> & scaless)
@@ -29,8 +35,8 @@ VectorXd QP_tree_problem_base::solve(const Vector2d & x0, const Vector2d & xd, c
     C = (x0.transpose() * F).transpose() - (Xd.transpose() * G).transpose();
 
     /// Constraints
-    const Eigen::VectorXd & Xmax = k.getXmax();
-    const Eigen::MatrixXd & Sextract = k.getSextract();
+    const Eigen::VectorXd Xmax = k.getXmax();
+    const Eigen::MatrixXd Sextract = k.getSextract();
 
     if(!KA.rows())
     {

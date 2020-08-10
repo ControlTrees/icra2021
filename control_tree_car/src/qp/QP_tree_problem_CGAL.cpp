@@ -1,7 +1,7 @@
 #include <control_tree/qp/QP_tree_problem_CGAL.h>
 
 QP_tree_problem_CGAL::QP_tree_problem_CGAL(const MPC_model & mpc, double u_min, double u_max)
-    : QP_tree_problem_base(mpc, u_min, u_max)
+    : QP_tree_joint_solver_base(mpc, u_min, u_max)
 {
     qp = Program(CGAL::SMALLER, true, u_min, true, u_max);
 

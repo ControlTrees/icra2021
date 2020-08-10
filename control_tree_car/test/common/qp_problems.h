@@ -3,7 +3,7 @@
 #include <control_tree/qp/MPC_model.h>
 #include <control_tree/qp/QP_constraints.h>
 #include <control_tree/qp/control_tree.h>
-#include <control_tree/qp/QP_tree_problem_base.h>
+#include <control_tree/qp/QP_tree_solver_base.h>
 #include <control_tree/qp/control_tree_plot.h>
 
 #include <gtest/gtest.h>
@@ -37,6 +37,7 @@ public:
  protected:
     VectorXd plan_OSQP(const QP_problem &pb, bool plot = false, const std::string & filename = "");
     VectorXd plan_CGAL(const QP_problem &pb, bool plot = false);
+    VectorXd plan_JointQP(const QP_problem &pb, bool plot = false, const std::string & filename = "");
     VectorXd plan_DecQP(const QP_problem &pb, bool plot = false, const std::string & filename = "");
 
     void plot_XU(const VectorXd& X, const VectorXd& U, const QP_problem &pb) const;

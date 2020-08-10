@@ -2,13 +2,13 @@
 
 #include <control_tree/qp/MPC_model.h>
 #include <control_tree/qp/QP_constraints.h>
-#include <control_tree/qp/QP_tree_problem_base.h>
+#include <control_tree/qp/QP_tree_solver_base.h>
 
 #include "osqp.h"
 
 csc * create_csc_matrix(const MatrixXd & M);
 
-class QP_tree_problem_OSQP : public QP_tree_problem_base
+class QP_tree_problem_OSQP : public QP_tree_joint_solver_base
 {
 public:
     QP_tree_problem_OSQP(const MPC_model & mpc,
