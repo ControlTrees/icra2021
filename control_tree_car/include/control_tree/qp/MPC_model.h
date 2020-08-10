@@ -34,6 +34,8 @@ struct MPC_model
     MatrixXd get_T(int n_steps) const;
     MatrixXd get_T(int n_steps, const std::vector<IntA> & varss) const;
 
+    int get_dim() const { return 1; }
+
     Matrix2d A; // system model
     Vector2d B; // system model
 

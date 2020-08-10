@@ -9,12 +9,12 @@ MatrixXd Constraints::getSextract() const
 {
     // collect active constraints
     std::list< int > active_rows;
-    std::vector<int > rows_activity_flag(2 * n_steps);
+    std::vector<int> rows_activity_flag(2 * n_steps);
 
     for(auto c = 0; c < xmaxs.size(); ++c)
     {
-        const auto & mask = std::get<2>(xmaxs[c]);
-        const auto & indices = std::get<3>(xmaxs[c]);
+        const auto& mask = std::get<2>(xmaxs[c]);
+        const auto& indices = std::get<3>(xmaxs[c]);
 
         for(auto i: indices)
         {
@@ -50,9 +50,9 @@ VectorXd Constraints::getXmax() const
 
     for(auto c = 0; c < xmaxs.size(); ++c)
     {
-        auto xmax = std::get<1>(xmaxs[c]);
-        auto mask = std::get<2>(xmaxs[c]);
-        auto indices = std::get<3>(xmaxs[c]);
+        const auto& xmax = std::get<1>(xmaxs[c]);
+        const auto& mask = std::get<2>(xmaxs[c]);
+        const auto& indices = std::get<3>(xmaxs[c]);
 
         for(auto i: indices)
         {

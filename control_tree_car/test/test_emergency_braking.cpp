@@ -1,9 +1,9 @@
 #include <control_tree/qp/control_tree.h>
 
-#include <gtest/gtest.h>
-
 #include <control_tree/qp/stopline_qp_tree.h>
 #include <control_tree/qp/stopline_qp_linear.h>
+
+#include <gtest/gtest.h>
 
 using namespace std;
 

@@ -72,8 +72,8 @@ TEST(QP_constraints, test_constraints_refinement)
         EXPECT_EQ(get<3>(l.xmaxs[i]).size(), 2 * get<3>(k.xmaxs[i]).size());
     }
 
-    EXPECT_EQ(std::get<3>(l.xmaxs[0]), intA({0, 1, 2, 3, 4, 5, 6, 7}));
-    EXPECT_EQ(std::get<3>(l.xmaxs[1]), intA({12, 13}));
+    EXPECT_EQ(std::get<3>(l.xmaxs[0]), IntA({0, 1, 2, 3, 4, 5, 6, 7}));
+    EXPECT_EQ(std::get<3>(l.xmaxs[1]), IntA({12, 13}));
 }
 
 TEST(QP_constraints, test_Sextract_if_no_constraints)

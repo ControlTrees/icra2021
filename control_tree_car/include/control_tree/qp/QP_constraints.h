@@ -2,7 +2,7 @@
 
 #include <control_tree/qp/MPC_model.h>
 
-struct Constraints
+struct Constraints // specific 2d state
 {
     Constraints(int n_steps, const std::vector<IntA> & varss)
         : n_steps(n_steps)
@@ -84,8 +84,6 @@ struct Constraints
        return refined_constraints;
     }
 
-    MatrixXd reduced() const;
-
     MatrixXd getSextract() const;
     VectorXd getXmax() const;
 
@@ -94,5 +92,5 @@ struct Constraints
     int n_steps;
 
     std::vector<IntA> varss;
-    std::vector<std::tuple<int, Eigen::Vector2d, Eigen::Vector2d, IntA>> xmaxs; // branch, max value and mask, indices, the values of masks should be 0 or 1
+    std::vector<std::tuple<int, Eigen::Vector2d, Eigen::Vector2d, IntA>> xmaxs; // branch, max value and mask, global indices, branch indices, the values of masks should be 0 or 1
 };
