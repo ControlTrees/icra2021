@@ -161,22 +161,24 @@ struct Tree3Branches : public TreePb
     }
 };
 
-
-struct Tree4Branches : public TreePb
+struct Tree5Branches : public TreePb
 {
-    Tree4Branches(double p, double q, double r)
+    Tree5Branches(double p, double q, double r, double s)
     {
-        assert(p + q + r <= 1.0);
+        assert(p + q + r + s <= 1.0);
 
         varss.push_back({0, 1, 2, 3});
         varss.push_back({0, 4, 5, 6});
         varss.push_back({0, 7, 8, 9});
         varss.push_back({0, 10, 11, 12});
+        varss.push_back({0, 13, 14, 15});
 
         scaless.push_back({1.0, p, p, p});
         scaless.push_back({1.0, q, q, q});
         scaless.push_back({1.0, r, r, r});
-        scaless.push_back({1.0, 1.0 - p - q - r, 1.0 - p - q - r, 1.0 - p - q - r});
+        scaless.push_back({1.0, s, s, s});
+        double P = 1.0 - p - q - r - s;
+        scaless.push_back({1.0, P, P, P});
 
         set_n_steps();
     }
@@ -222,6 +224,29 @@ struct TreeNBranches : public TreePb
         {
             scaless.push_back({1.0, p, p, p});
         }
+
+        set_n_steps();
+    }
+
+    TreeNBranches(const std::vector<double> & ps)
+    {
+        auto n = ps.size() + 1;
+        int j = 0;
+        for(auto i = 0; i < n; ++i)
+        {
+            varss.push_back({0, ++j, ++j, ++j});
+        }
+
+        double q = 1.0;
+        for(auto i = 0; i < ps.size(); ++i)
+        {
+            scaless.push_back({1.0, ps[i], ps[i], ps[i]});
+            q -= ps[i];
+        }
+
+        assert(q >= 0.0);
+
+        scaless.push_back({1.0, q, q, q});
 
         set_n_steps();
     }

@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<sdf version="1.4">
+  <world name="default">
+    <gui>
+      <camera name="user_camera">
+        <pose>-7.35 -3.59 39.73 0 1.417 0.124</pose>
+      </camera>
+    </gui>
+
+
+    <include>
+      <uri>model://ground_plane</uri>
+    </include>
+
+    <include>
+      <uri>model://sun</uri>
+    </include>
+
+    <include>
+      <name>lgp_pedestrian_0</name>
+      <pose>50 0 0 0 0 3.1415</pose>
+      <uri>model://lgp_pedestrian</uri>
+      <plugin name="lgp_pedestrian_0" filename="liblgp_pedestrian_gazebo_plugin.so"/>
+    </include>
+
+    <include>
+      <name>lgp_pedestrian_1</name>
+      <pose>60 0 0 0 0 3.1415</pose>
+      <uri>model://lgp_pedestrian</uri>
+      <plugin name="lgp_pedestrian_1" filename="liblgp_pedestrian_gazebo_plugin.so"/>
+    </include>
+
+    <include>
+      <name>lgp_pedestrian_2</name>
+      <pose>70 0 0 0 0 3.1415</pose>
+      <uri>model://lgp_pedestrian</uri>
+      <plugin name="lgp_pedestrian_2" filename="liblgp_pedestrian_gazebo_plugin.so"/>
+    </include>
+
+    <include>
+      <name>lgp_pedestrian_3</name>
+      <pose>80 0 0 0 0 3.1415</pose>
+      <uri>model://lgp_pedestrian</uri>
+      <plugin name="lgp_pedestrian_3" filename="liblgp_pedestrian_gazebo_plugin.so"/>
+    </include>
+
+    <include>
+      <name>lgp_car</name>
+      <uri>model://lgp_car</uri>
+      <plugin name="lgp_car" filename="liblgp_car_gazebo_plugin.so"/>
+    </include>
+
+    </world>
+</sdf>

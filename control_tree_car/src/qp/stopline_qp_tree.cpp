@@ -111,7 +111,7 @@ TimeCostPair StopLineQPTree::plan()
 
     auto end = std::chrono::high_resolution_clock::now();
     float execution_time_us = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
-    //ROS_INFO( "[tree qp] execution time (ms): %f", execution_time_us / 1000 );
+    ROS_INFO( "[tree qp] execution time (ms): %f", execution_time_us / 1000 );
 
     auto print_pb = [&]()
     {
@@ -231,42 +231,12 @@ std::vector<nav_msgs::Path> StopLineQPTree::get_trajectories()
 
 void StopLineQPTree::create_tree()
 {
-    // build problem structure
-    switch(n_branches_)
-    {
-        case 1:
-        {
-            tree_ = TreePb::refined(std::make_shared<Tree1Branch>(), steps_);
+    auto p = fuse_probabilities(stoplines_, n_branches_);
 
-            break;
-        }
-        case 2:
-        {
-            auto p = fuse_probabilities(stoplines_, 1);
+    tree_ = TreePb::refined(std::make_shared<TreeNBranches>(p), steps_);
 
-            tree_ = TreePb::refined(std::make_shared<Tree2Branches>(p[0]), steps_);
-
-            //ROS_INFO_STREAM("build tree 2 branches " << p[0] );
-
-            break;
-        }
-        case 3:
-        {
-            auto p = fuse_probabilities(stoplines_, 2);
-
-            tree_ = TreePb::refined(std::make_shared<Tree3Branches>(p[0], p[1]), steps_);
-            //ROS_INFO_STREAM("stoplines probabilit: "  << stoplines_[0].p << " " << stoplines_[1].p);
-            //ROS_INFO_STREAM("build tree 3 branches "  << p[0] << " " << p[1] << " " << 1 - p[0] - p[1] );
-
-            break;
-        }
-        default:
-        {
-            ROS_ERROR_STREAM( "number of branches not supported!" );
-
-            break;
-        }
-    }
+    //ROS_INFO_STREAM("stoplines probabilit: "  << stoplines_[0].p << " " << stoplines_[1].p);
+    //            //ROS_INFO_STREAM("build tree 3 branches "  << p[0] << " " << p[1] << " " << 1 - p[0] - p[1] );
 }
 
 bool StopLineQPTree::valid(const VectorXd & U, const VectorXd & X) const

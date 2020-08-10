@@ -1,13 +1,9 @@
 #pragma once
 
-#include <control_tree/qp/MPC_model.h>
 #include <control_tree/qp/QP_constraints.h>
-#include <control_tree/qp/QP_tree_solver_base.h>
 #include <Core/array.h>
 
 #include <unordered_map>
-
-#include <Optimization/qp_lagrangian.h>
 
 arr convert(const MatrixXd& M);
 VectorXd convert(const arr& v);

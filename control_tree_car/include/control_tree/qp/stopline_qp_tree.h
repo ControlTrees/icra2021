@@ -25,7 +25,8 @@
 #include <control_tree/qp/QP_tree_problem_DecQP.h>
 
 //typedef QP_tree_problem_OSQP QP_tree_problem_solver_type;
-typedef QP_tree_problem_JointQP QP_tree_problem_solver_type;
+//typedef QP_tree_problem_JointQP QP_tree_problem_solver_type;
+typedef QP_tree_problem_DecQP QP_tree_problem_solver_type;
 
 struct Stopline
 {

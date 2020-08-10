@@ -1,4 +1,4 @@
-#include <control_tree/qp/QP_tree_problem_DecQP.h>
+#include <control_tree/qp/QP_tree_problem_DecQP_utils.h>
 
 arr convert(const MatrixXd& M)
 {

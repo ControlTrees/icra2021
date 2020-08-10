@@ -9,6 +9,27 @@
 
 #include <gtest/gtest.h>
 
+TEST(Tree, TreeNBranches)
+{
+  {
+  Tree2Branches tree(0.4);
+  TreeNBranches treen(std::vector<double>({0.4}));
+
+  EXPECT_EQ(tree.varss, treen.varss);
+  EXPECT_EQ(tree.scaless, treen.scaless);
+  EXPECT_EQ(tree.n_steps, treen.n_steps);
+  }
+
+  {
+  Tree4Branches tree(0.3, 0.35, 0.2);
+  TreeNBranches treen(std::vector<double>({0.3, 0.35, 0.2}));
+
+  EXPECT_EQ(tree.varss, treen.varss);
+  EXPECT_EQ(tree.scaless, treen.scaless);
+  EXPECT_EQ(tree.n_steps, treen.n_steps);
+  }
+}
+
 TEST(VarsMasks, Compress)
 {
   IntA var0 {0, 1, 2, 3};
