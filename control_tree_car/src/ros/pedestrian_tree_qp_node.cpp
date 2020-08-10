@@ -25,9 +25,13 @@ int main(int argc, char **argv)
 
     tf::TransformListener tf_listener;
     n.getParam("/traj_planner/steps_per_phase", steps_per_phase);
-    ros::Publisher trajectory_publisher_1 = n.advertise<nav_msgs::Path>("/traj_planner/trajectory_11", 1000);
-    ros::Publisher trajectory_publisher_2 = n.advertise<nav_msgs::Path>("/traj_planner/trajectory_12", 1000);
-    ros::Publisher trajectory_publisher_3 = n.advertise<nav_msgs::Path>("/traj_planner/trajectory_13", 1000);
+
+    std::vector<ros::Publisher> traj_publishers;
+    for(auto i = 0; i < n_branches; ++i)
+    {
+      const std::string name = "/traj_planner/trajectory_1" + std::to_string(i+1);
+      traj_publishers.push_back(n.advertise<nav_msgs::Path>(name, 1000));
+    }
     //ros::Publisher ctrl_publisher = n.advertise<geometry_msgs::Twist>("/lgp_car/vel_cmd", 1000);
     ros::Publisher border_publisher = n.advertise<visualization_msgs::Marker>("/environment/center_line", 1000);
 
@@ -62,13 +66,12 @@ int main(int argc, char **argv)
     {
         manager.plan();
 
-        std::vector<nav_msgs::Path> trajectories = manager.get_trajectories();
-        trajectory_publisher_1.publish(trajectories[0]);
-        if(trajectories.size() > 1)
-            trajectory_publisher_2.publish(trajectories[1]);
-        if(trajectories.size() > 2)
-            trajectory_publisher_3.publish(trajectories[2]);
+        const std::vector<nav_msgs::Path> trajectories = manager.get_trajectories();
 
+        for(auto i = 0; i < n_branches; ++i)
+        {
+          traj_publishers[i].publish(trajectories[i]);
+        }
         //ctrl_publisher.publish(manager.get_ctrl());
 
         if((i - 10) % 50 == 0)

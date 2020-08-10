@@ -161,23 +161,21 @@ struct Tree3Branches : public TreePb
     }
 };
 
-struct Tree5Branches : public TreePb
+struct Tree4Branches : public TreePb
 {
-    Tree5Branches(double p, double q, double r, double s)
+    Tree4Branches(double p, double q, double r)
     {
-        assert(p + q + r + s <= 1.0);
+        assert(p + q + r <= 1.0);
 
         varss.push_back({0, 1, 2, 3});
         varss.push_back({0, 4, 5, 6});
         varss.push_back({0, 7, 8, 9});
         varss.push_back({0, 10, 11, 12});
-        varss.push_back({0, 13, 14, 15});
 
         scaless.push_back({1.0, p, p, p});
         scaless.push_back({1.0, q, q, q});
         scaless.push_back({1.0, r, r, r});
-        scaless.push_back({1.0, s, s, s});
-        double P = 1.0 - p - q - r - s;
+        double P = 1.0 - p - q - r;
         scaless.push_back({1.0, P, P, P});
 
         set_n_steps();
@@ -256,8 +254,6 @@ struct Tree2Stages : public TreePb
 {
     Tree2Stages(double p)
     {
-//        assert(p + q + r <= 1.0);
-
         varss.push_back({0, 1, 2, 3});
         varss.push_back({0, 1, 4, 5});
 
