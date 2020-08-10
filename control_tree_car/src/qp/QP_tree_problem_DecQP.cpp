@@ -5,7 +5,7 @@
 
 QP_tree_problem_JointQP::QP_tree_problem_JointQP(const MPC_model & mpc, double u_min, double u_max)
     : QP_tree_joint_solver_base(mpc, u_min, u_max)
-    , options(PARALLEL, true, NOOPT, false)
+    , options(PARALLEL, false, NOOPT, false)
 {
   options.opt.verbose = 0;
 }
@@ -24,7 +24,6 @@ VectorXd QP_tree_problem_JointQP::call_solver()
 
     arr x = zeros(P.d0);
 
-    DecOptConfig options(PARALLEL, false, NOOPT, false);
     DecOptConstrained<QP_Problem> opt(x, pbs, {}, options);
 
     opt.run();
