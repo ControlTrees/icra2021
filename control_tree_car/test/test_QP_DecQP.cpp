@@ -102,7 +102,6 @@ TEST_F(QPTest, test_N_branches)
     }
 }
 
-
 ////////////////////////////////
 int main(int argc, char **argv)
 {
