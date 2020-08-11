@@ -1,8 +1,8 @@
 <launch>
 
-  <arg name="model" default="$(find lgp_car_real_time)/urdf/car.urdf"/>
+  <arg name="model" default="$(find control_tree_car)/urdf/car.urdf"/>
   <arg name="gui" default="true" />
-  <arg name="rvizconfig" default="$(find lgp_car_real_time)/rviz/obstacle_avoidance.rviz" />
+  <arg name="rvizconfig" default="$(find control_tree_car)/rviz/obstacle_avoidance.rviz" />
 
   <param name="robot_description" command="$(find xacro)/xacro --inorder $(arg model)" />
   <param name="use_gui" value="$(arg gui)"/>
