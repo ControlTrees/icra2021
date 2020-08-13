@@ -84,7 +84,7 @@ TimeCostPair StopLineQPTree::plan()
     Constraints k(tree_->n_steps, tree_->varss);
     for(auto i = 0; i < (n_branches_ > 1 ? n_branches_ - 1 : 1); ++i)
     {
-        //ROS_INFO_STREAM( i << " th stopline " << stoplines_[i].x);
+        ROS_INFO_STREAM( i << " th stopline " << stoplines_[i].x);
 
         double xmax = 0;
         if( stoplines_[i].p < 0.01
@@ -233,7 +233,10 @@ void StopLineQPTree::create_tree()
 {
     auto p = fuse_probabilities(stoplines_, n_branches_);
 
-    tree_ = TreePb::refined(std::make_shared<TreeNBranches>(p), steps_);
+    if(n_branches_ == 1)
+      tree_ =  TreePb::refined(std::make_shared<Tree1Branch>(), steps_);
+    else
+      tree_ = TreePb::refined(std::make_shared<TreeNBranches>(p), steps_);
 
     //ROS_INFO_STREAM("stoplines probabilit: "  << stoplines_[0].p << " " << stoplines_[1].p);
     //            //ROS_INFO_STREAM("build tree 3 branches "  << p[0] << " " << p[1] << " " << 1 - p[0] - p[1] );

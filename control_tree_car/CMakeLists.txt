@@ -78,6 +78,8 @@ ${catkin_LIBRARIES}
  core_lib
  Core
  Geo
+ Optim
+ Optimization
  Kin
  KOMO
  GeometricUtilityTasks

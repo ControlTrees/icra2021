@@ -7,7 +7,7 @@
 
 class Objective;
 
-struct OdometryState // TODO -> put in common part
+struct OdometryState
 {
     double x{0};
     double y{0};

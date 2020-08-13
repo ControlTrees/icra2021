@@ -61,7 +61,7 @@ TEST_F(QPTest, test_N_branches)
 {
     std::ofstream file("/tmp/execution_time.dat");
     file << "#" << " " << "n" << " " << "execution time (ms)" << std::endl;
-    for(auto i = 30; i <= 30; ++i)
+    for(auto i = 1; i <= 100; ++i)
     {
         auto pb = create_N_branches_4_steps_constrained(i);
         plan_DecQP(pb, false);

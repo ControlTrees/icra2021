@@ -1,9 +1,9 @@
 <launch>
     <param name="/traj_planner/steps_per_phase" type="int" value="4" />
     <param name="/p_obstacle" type="double" value="0.45" />
-    <param name="/traj_controller/trajectory_index" type="int" value="0" />
+    <param name="/traj_controller/trajectory_index" type="int" value="1" />
 
-    <node pkg="control_tree_car" type="obstacle_avoidance_linear_node" name="obstacle_avoidance" output="screen">
+    <node pkg="control_tree_car" type="obstacle_avoidance_tree_node" name="obstacle_avoidance" output="screen">
     </node>
 
     <node pkg="control_tree_car" type="gui_control_obstacle_avoidance.py" name="gui_control_obstacle_avoidance" output="screen">

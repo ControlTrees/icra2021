@@ -33,6 +33,7 @@ foreach(test ${tests})
                           qp_lib
                           core_lib
                           utility_lib
+                          komo_lib
                           gtest
                           pthread
                           )

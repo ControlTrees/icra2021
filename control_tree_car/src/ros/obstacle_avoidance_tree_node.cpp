@@ -3,7 +3,11 @@
 
 #include <control_tree/core/behavior_manager.h>
 #include <control_tree/komo/obstacle_avoidance_tree.h>
+#include <control_tree/komo/obstacle_avoidance_dec.h>
 #include <control_tree/ros/obstacle_common.h>
+
+//typedef ObstacleAvoidanceTree BehaviorType;
+typedef ObstacleAvoidanceDec BehaviorType;
 
 int main(int argc, char **argv)
 {
@@ -27,7 +31,7 @@ int main(int argc, char **argv)
     BehaviorManager manager;
 
     // instanciate behaviors
-    auto obstacle_avoidance_tree = std::shared_ptr<ObstacleAvoidanceTree>(new ObstacleAvoidanceTree(manager, steps_per_phase));
+    auto obstacle_avoidance_tree = std::shared_ptr<BehaviorType>(new BehaviorType(manager, steps_per_phase));
     manager.register_behavior("ObstacleAvoidanceTree", obstacle_avoidance_tree);
     manager.set_current_behavior("ObstacleAvoidanceTree");
 
@@ -37,10 +41,10 @@ int main(int argc, char **argv)
 
     // connect behaviors
     boost::function<void(const std_msgs::Float32::ConstPtr& msg)> speed_callback_tree =
-            boost::bind(&ObstacleAvoidanceTree::desired_speed_callback, obstacle_avoidance_tree.get(), _1);
+            boost::bind(&BehaviorType::desired_speed_callback, obstacle_avoidance_tree.get(), _1);
 
     boost::function<void(const visualization_msgs::Marker::ConstPtr& msg)> obstacle_callback_tree =
-            boost::bind(&ObstacleAvoidanceTree::obstacle_callback, obstacle_avoidance_tree.get(), _1);
+            boost::bind(&BehaviorType::obstacle_callback, obstacle_avoidance_tree.get(), _1);
 
     auto speed_tree = n.subscribe("/gui_control/lgp_car/desired_speed", 1000, speed_callback_tree);
     auto obstacle_tree = n.subscribe("/lgp_obstacle_belief/marker", 1000, obstacle_callback_tree);

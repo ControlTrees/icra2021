@@ -79,11 +79,11 @@ TimeCostPair ObstacleAvoidanceLinear::plan()
     // init
     auto o = manager_.odometry();
     set_komo_start(komo_, o, steps_);
+    komo_->reset();
 
     // run
     auto start = std::chrono::high_resolution_clock::now();
 
-    komo_->reset();
     komo_->run();
 
     //komo_->getReport(true);
@@ -91,7 +91,7 @@ TimeCostPair ObstacleAvoidanceLinear::plan()
     auto end = std::chrono::high_resolution_clock::now();
     float execution_time_us = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
 
-    //ROS_INFO( "[linear] execution time (ms): %f", execution_time_us / 1000 );
+    ROS_INFO( "[linear] execution time (ms): %f", execution_time_us / 1000 );
 
     // evaluate costs
     auto Gs = get_traj_start(komo_->configurations);
@@ -115,7 +115,7 @@ std::vector<nav_msgs::Path> ObstacleAvoidanceLinear::get_trajectories()
 
     for(auto k = 0; k < komo_->configurations.d0 - 2; ++k)
     {
-        auto kin = komo_->configurations(k+2); // order 2
+        const auto& kin = komo_->configurations(k+2); // order 2
         msg_1.poses.push_back(kin_to_pose_msg(kin));
     }
 

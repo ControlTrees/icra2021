@@ -52,14 +52,13 @@ ObstacleAvoidanceTree::ObstacleAvoidanceTree(BehaviorManager& behavior_manager, 
     komo_->reset(0);
 
     // debug
-    std::cout << "///" << std::endl;
-    std::cout << vars_branch_1_order_1_ << std::endl;
-    std::cout << "---" << std::endl;
-    std::cout << vars_branch_2_order_1_ << std::endl;
-    std::cout << "---" << std::endl;
-    std::cout << vars_all_order_1_ << std::endl;
+//    std::cout << "///" << std::endl;
+//    std::cout << vars_branch_1_order_1_ << std::endl;
+//    std::cout << "---" << std::endl;
+//    std::cout << vars_branch_2_order_1_ << std::endl;
+//    std::cout << "---" << std::endl;
+//    std::cout << vars_all_order_1_ << std::endl;
 }
-
 
 void ObstacleAvoidanceTree::desired_speed_callback(const std_msgs::Float32::ConstPtr& msg)
 {
@@ -130,7 +129,7 @@ TimeCostPair ObstacleAvoidanceTree::plan()
     auto end = std::chrono::high_resolution_clock::now();
     float execution_time_us = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
 
-    //ROS_INFO( "[tree] execution time (ms): %f", execution_time_us / 1000 );
+    ROS_INFO( "[tree] execution time (ms): %f", execution_time_us / 1000 );
 
     // evaluate costs
     auto Gs = get_traj_start(komo_->configurations);
@@ -153,7 +152,7 @@ std::vector<nav_msgs::Path> ObstacleAvoidanceTree::get_trajectories()
 
     for(const auto k: vars_branch_1_order_0_)
     {
-        auto kin = komo_->configurations(k+2); // order 2
+        const auto& kin = komo_->configurations(k+2); // order 2
         msg_1.poses.push_back(kin_to_pose_msg(kin));
     }
 
@@ -163,7 +162,7 @@ std::vector<nav_msgs::Path> ObstacleAvoidanceTree::get_trajectories()
 
     for(const auto k: vars_branch_2_order_0_)
     {
-        auto kin = komo_->configurations(k+2); // order 2
+        const auto& kin = komo_->configurations(k+2); // order 2
         msg_2.poses.push_back(kin_to_pose_msg(kin));
     }
 

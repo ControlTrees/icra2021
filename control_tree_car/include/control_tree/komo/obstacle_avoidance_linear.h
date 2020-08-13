@@ -39,6 +39,8 @@ public:
 
     std::vector<nav_msgs::Path> get_trajectories();
 
+    void set_optim_callback(const std::function<void()>& _) {}
+
 private:
     // params
     rai::KinematicWorld kin_;
