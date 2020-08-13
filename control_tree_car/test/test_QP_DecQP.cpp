@@ -2,10 +2,11 @@
 
 #include <chrono>
 
-#include <control_tree/qp/control_tree.h>
 #include <control_tree/qp/control_tree_plot.h>
 #include <control_tree/qp/QP_tree_problem_DecQP.h>
 #include "common/qp_problems.h"
+
+#include <control_tree/core/control_tree.h>
 
 #include <gtest/gtest.h>
 

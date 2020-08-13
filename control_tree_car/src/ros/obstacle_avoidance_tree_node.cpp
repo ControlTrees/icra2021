@@ -43,7 +43,7 @@ int main(int argc, char **argv)
     boost::function<void(const std_msgs::Float32::ConstPtr& msg)> speed_callback_tree =
             boost::bind(&BehaviorType::desired_speed_callback, obstacle_avoidance_tree.get(), _1);
 
-    boost::function<void(const visualization_msgs::Marker::ConstPtr& msg)> obstacle_callback_tree =
+    boost::function<void(const visualization_msgs::MarkerArray::ConstPtr& msg)> obstacle_callback_tree =
             boost::bind(&BehaviorType::obstacle_callback, obstacle_avoidance_tree.get(), _1);
 
     auto speed_tree = n.subscribe("/gui_control/lgp_car/desired_speed", 1000, speed_callback_tree);

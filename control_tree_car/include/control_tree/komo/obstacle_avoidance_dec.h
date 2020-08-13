@@ -16,6 +16,7 @@
 #include "nav_msgs/Odometry.h"
 #include "nav_msgs/Path.h"
 #include <visualization_msgs/Marker.h>
+#include <visualization_msgs/MarkerArray.h>
 
 #include <KOMO/komo.h>
 #include <komo_wrapper.h>
@@ -29,6 +30,12 @@
 #include <Optimization/decentralized_optimizer.h>
 #include <Optimization/decentralized_lagrangian.h>
 
+struct Obstacle
+{
+  arr position;
+  double p;
+};
+
 class ObstacleAvoidanceDec : public BehaviorBase
 {
 public:
@@ -36,7 +43,7 @@ public:
 
     void desired_speed_callback(const std_msgs::Float32::ConstPtr& msg);
 
-    void obstacle_callback(const visualization_msgs::Marker::ConstPtr& msg);
+    void obstacle_callback(const visualization_msgs::MarkerArray::ConstPtr& msg);
 
     TimeCostPair plan();
 
@@ -44,19 +51,20 @@ public:
 
     void set_optim_callback(const std::function<void()>& callback) { options_.callback = callback; }
 private:
-    void update_tree(double p);
+    void init_tree();
+    void update_groundings();
     void init_optimization_variable();
 
 private:
     // params
-    const uint N_; // number of branches
+    const uint n_obstacles_; // number of obstacles
+    const uint n_branches_; // number of branches
     rai::KinematicWorld kin_;
     const uint steps_;
 
     // target: params than can be adapted
     double v_desired_;
-    double existence_probability_;
-    arr obstacle_position_;
+    std::vector<Obstacle> obstacles_;
 
     // objectives
     struct Objectives
@@ -67,16 +75,14 @@ private:
       Objective * car_kin_{0};
       std::shared_ptr<Car3CirclesCircularObstacle> circular_obstacle_;
       Objective * collision_avoidance_{0};
-      arr scales_;
+
+      void apply_scales(const arr& scales);
     };
 
     std::vector<Objectives> objectivess_;
 
     // state;
-    mp::TreeBuilder tree_;
-    intA vars_branch_order_0_;
-    intA vars_branch_order_1_;
-    intA vars_branch_order_2_;
+    mp::TreeBuilder komo_tree_;
 
     std::vector<std::shared_ptr<KOMO>> komos_;
     std::vector<std::shared_ptr<KOMO::Conv_MotionProblem_GraphProblem>> converters_;
@@ -85,6 +91,11 @@ private:
 
     arr x_;
     std::vector<arr> xmasks_;
+    intA vars_branch_order_0_;
+    intA vars_branch_order_1_;
+    intA vars_branch_order_2_;
 };
 
+std::vector<double> fuse_probabilities(const std::vector<Obstacle>&, std::vector<std::vector<bool>> &);
+void convert(uint n_branches, mp::TreeBuilder& komo_tree_);
 

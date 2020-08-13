@@ -1,8 +1,8 @@
 #pragma once
 
+#include <control_tree/core/control_tree.h>
 #include <control_tree/qp/MPC_model.h>
 #include <control_tree/qp/QP_constraints.h>
-#include <control_tree/qp/control_tree.h>
 #include <control_tree/qp/QP_tree_solver_base.h>
 #include <control_tree/qp/control_tree_plot.h>
 

@@ -23,7 +23,7 @@
 #include <axis_bound.h>
 #include <circular_obstacle.h>
 
-#include <visualization_msgs/Marker.h>
+#include <visualization_msgs/MarkerArray.h>
 
 class ObstacleAvoidanceTree : public BehaviorBase
 {
@@ -32,7 +32,7 @@ public:
 
     void desired_speed_callback(const std_msgs::Float32::ConstPtr& msg);
 
-    void obstacle_callback(const visualization_msgs::Marker::ConstPtr& msg);
+    void obstacle_callback(const visualization_msgs::MarkerArray::ConstPtr& msg);
 
     TimeCostPair plan();
 

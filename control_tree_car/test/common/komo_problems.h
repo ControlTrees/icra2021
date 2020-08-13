@@ -9,16 +9,17 @@
 
 nav_msgs::Odometry::Ptr create_odo(double x, double y, double vx);
 std_msgs::Float32::Ptr create_desired_speed(double v);
-visualization_msgs::Marker::Ptr create_obstacles(double x, double y, double alpha);
+visualization_msgs::MarkerArray::Ptr create_obstacles(double x, double y, double alpha);
 
 struct Scenario
 {
   nav_msgs::Odometry::Ptr odo;
   std_msgs::Float32::Ptr desired_velocity;
-  visualization_msgs::Marker::Ptr obstacles;
+  visualization_msgs::MarkerArray::Ptr obstacles;
 };
 
 Scenario create_scenario_1();
+Scenario create_scenario_2();
 
 template<typename T>
 void plan_impl(const Scenario & scenario, BehaviorManager& manager, T& behavior, bool _plot, bool _plot_debug)

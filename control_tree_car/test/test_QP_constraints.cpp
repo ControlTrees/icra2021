@@ -1,9 +1,9 @@
+#include <control_tree/core/control_tree.h>
+
 #include <control_tree/qp/QP_constraints.h>
 
 #include <chrono>
 #include <gtest/gtest.h>
-
-#include <control_tree/qp/control_tree.h>
 
 using namespace std;
 

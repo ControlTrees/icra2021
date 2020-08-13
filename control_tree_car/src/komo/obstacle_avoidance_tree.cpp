@@ -67,15 +67,15 @@ void ObstacleAvoidanceTree::desired_speed_callback(const std_msgs::Float32::Cons
     v_desired_ = msg->data;
 }
 
-void ObstacleAvoidanceTree::obstacle_callback(const visualization_msgs::Marker::ConstPtr& msg)
+void ObstacleAvoidanceTree::obstacle_callback(const visualization_msgs::MarkerArray::ConstPtr& msg)
 {
     //ROS_INFO( "update obstacle_belief.." );
 
     /// position and geometry
-    obstacle_position_ = {msg->pose.position.x, msg->pose.position.y, 0};
+    obstacle_position_ = {msg->markers.front().pose.position.x, msg->markers.front().pose.position.y, 0};
 
     /// existance probability
-    existence_probability_ = msg->color.a;
+    existence_probability_ = msg->markers.front().color.a;
 
     // clamp
     const double min = 0.1; // hack -> to change

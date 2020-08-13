@@ -1,7 +1,7 @@
 #pragma once
 
 #include <control_tree/core/utility.h>
-#include <control_tree/qp/control_tree.h>
+#include <control_tree/core/control_tree.h>
 
 #include "nav_msgs/Path.h"
 

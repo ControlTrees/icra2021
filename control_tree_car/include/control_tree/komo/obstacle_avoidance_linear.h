@@ -14,7 +14,7 @@
 #include "std_msgs/Float32.h"
 #include "nav_msgs/Odometry.h"
 #include "nav_msgs/Path.h"
-#include <visualization_msgs/Marker.h>
+#include <visualization_msgs/MarkerArray.h>
 
 #include <KOMO/komo.h>
 
@@ -33,7 +33,7 @@ public:
 
     void desired_speed_callback(const std_msgs::Float32::ConstPtr& msg);
 
-    void obstacle_callback(const visualization_msgs::Marker::ConstPtr& msg);
+    void obstacle_callback(const visualization_msgs::MarkerArray::ConstPtr& msg);
 
     TimeCostPair plan();
 

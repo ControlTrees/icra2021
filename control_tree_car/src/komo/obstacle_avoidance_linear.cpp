@@ -40,15 +40,15 @@ void ObstacleAvoidanceLinear::desired_speed_callback(const std_msgs::Float32::Co
     v_desired_ = msg->data;
 }
 
-void ObstacleAvoidanceLinear::obstacle_callback(const visualization_msgs::Marker::ConstPtr& msg)
+void ObstacleAvoidanceLinear::obstacle_callback(const visualization_msgs::MarkerArray::ConstPtr& msg)
 {
     //ROS_INFO( "update obstacle_belief.." );
 
     /// position and geometry
-    obstacle_position_ = {msg->pose.position.x, msg->pose.position.y, 0};
+    obstacle_position_ = {msg->markers.front().pose.position.x, msg->markers.front().pose.position.y, 0};
 
     /// existance probability
-    existence_probability_ = msg->color.a;
+    existence_probability_ = msg->markers.front().color.a;
 }
 
 TimeCostPair ObstacleAvoidanceLinear::plan()

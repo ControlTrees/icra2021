@@ -10,7 +10,7 @@
 #include <ros/package.h>
 #include <tf/transform_datatypes.h>
 #include <tf/transform_listener.h>
-#include <visualization_msgs/Marker.h>
+#include <visualization_msgs/MarkerArray.h>
 #include <std_msgs/Float32.h>
 
 #include <control_tree/core/utility.h>
@@ -49,16 +49,25 @@ static double steadily_decreasing(double signed_distance)
 class Obstacle
 {
 public:
+    Obstacle(uint id)
+      : id_(id)
+    {
+
+    }
+
     virtual double existence_probability(double distance) const = 0;
     virtual Position2D get_position() const = 0;
     virtual bool is_false_positive() const = 0;
+
+    uint id_;
 };
 
 class FalsePositive : public Obstacle
 {
 public:
-    FalsePositive(const Position2D & position, double p, double certainty_distance)
-    : position_(position)
+    FalsePositive(uint id, const Position2D & position, double p, double certainty_distance)
+    : Obstacle(id)
+    , position_(position)
     , p_(p)
     , certainty_distance_(certainty_distance)
     {
@@ -95,8 +104,9 @@ private:
 class TruePositive : public Obstacle
 {
 public:
-    TruePositive(const Position2D & position, double p, double certainty_distance, tf::TransformListener & tf_listener)
-        : position_(position)
+    TruePositive(uint id, const Position2D & position, double p, double certainty_distance, tf::TransformListener & tf_listener)
+        : Obstacle(id)
+        , position_(position)
         , p_(p)
         , certainty_distance_(certainty_distance)
         , tf_listener_(tf_listener)
@@ -152,8 +162,10 @@ public:
 
     }
 
-    visualization_msgs::Marker observe_obstacle() const
+    visualization_msgs::MarkerArray observe_obstacle() const
     {
+        visualization_msgs::MarkerArray markers;
+
         visualization_msgs::Marker marker;
 
         if(obstacle_)
@@ -170,7 +182,7 @@ public:
             // obstacle position and geometry
             marker.header.stamp = ros::Time::now();
             marker.header.frame_id = "map";
-            marker.id = std::hash<std::string>()("obstacle");
+            marker.id = obstacle_->id_;//std::hash<std::string>()("obstacle");
             marker.type = visualization_msgs::Marker::CYLINDER;//;visualization_msgs::Marker::CUBE;
             marker.action = visualization_msgs::Marker::ADD;
             marker.pose.position.x = obstacle_position.x + (1.0 - existence_probability) * (scale_bias_ * bias_.x + scale_noise_ * rand_m11());
@@ -182,9 +194,11 @@ public:
             marker.color.r = 1.0;
             marker.color.g = 0.0;
             marker.color.b = 0.0;
+
+            markers.markers.push_back(marker);
         }
 
-        return marker;
+        return markers;
     }
 
     Position2D get_position(const std::string & frame_name) const
@@ -240,7 +254,7 @@ int main(int argc, char **argv)
     n.getParam("p_obstacle", p_obstacle);
 
     ros::Publisher pose_publisher = n.advertise<geometry_msgs::Pose2D>("/lgp_obstacle/pose_reset", 1000);
-    ros::Publisher marker_publisher = n.advertise<visualization_msgs::Marker>("/lgp_obstacle_belief/marker", 1000);
+    ros::Publisher marker_publisher = n.advertise<visualization_msgs::MarkerArray>("/lgp_obstacle_belief/marker", 1000);
 
     ros::Rate loop_rate(10);
 
@@ -249,7 +263,7 @@ int main(int argc, char **argv)
     ObstacleObserver observer(tf_listener);
 
     // obstacle creation
-    auto draw_new_obstacle = [&]()
+    auto draw_new_obstacle = [&](uint obstacle_id)
     {
         // draw new OBSTACLE
         ROS_INFO_STREAM("Draw new obstacle..");
@@ -268,13 +282,13 @@ int main(int argc, char **argv)
         {
             //ROS_ERROR_STREAM("CREATE TRUE POSITIVE..");
             n_obstacles++;
-            obstacle = std::shared_ptr<Obstacle>( new TruePositive({new_x, new_y}, p, certainty_distance, tf_listener) );
+            obstacle = std::shared_ptr<Obstacle>(new TruePositive(obstacle_id, {new_x, new_y}, p, certainty_distance, tf_listener) );
         }
         else
         {
             //ROS_ERROR_STREAM("CREATE FALSE POSITIVE..");
             n_non_obstacles++;
-            obstacle = std::shared_ptr<Obstacle>( new FalsePositive({new_x, new_y}, p, certainty_distance) );
+            obstacle = std::shared_ptr<Obstacle>(new FalsePositive(obstacle_id, {new_x, new_y}, p, certainty_distance) );
         }
 
         if(!obstacle->is_false_positive())
@@ -288,7 +302,6 @@ int main(int argc, char **argv)
 
         n.setParam("/n_obstacles", n_obstacles);
         n.setParam("/n_non_obstacles", n_non_obstacles);
-
 
         return obstacle;
     };
@@ -306,7 +319,7 @@ int main(int argc, char **argv)
             {
                 //ROS_ERROR_STREAM("Create first obstacle");
 
-                auto obstacle = draw_new_obstacle();
+                auto obstacle = draw_new_obstacle(obstacle_id++);
                 observer.set_obstacle(obstacle);
             }
             else
@@ -316,23 +329,20 @@ int main(int argc, char **argv)
                 const auto obstacle_position = observer.obstacle()->get_position();
                 const auto signed_dist_to_obstacle = obstacle_position.x - car_position.x;
 
-                if( observer.obstacle().get() == nullptr || signed_dist_to_obstacle < reset_x_threshold )
+                if(observer.obstacle().get() == nullptr || signed_dist_to_obstacle < reset_x_threshold)
                 {
                     //ROS_ERROR_STREAM("Create new obstacle");
 
-                    auto obstacle = draw_new_obstacle();
+                    auto obstacle = draw_new_obstacle(obstacle_id++);
                     observer.set_obstacle(obstacle);
-
-                    obstacle_id++;
                 }
             }
 
             // publish observation
-            auto marker = observer.observe_obstacle();
-            marker.id = obstacle_id;
+            auto markers = observer.observe_obstacle();
+            //marker.id = obstacle_id;
 
-            marker_publisher.publish(marker);
-
+            marker_publisher.publish(markers);
         }
         catch (tf::TransformException ex)
         {

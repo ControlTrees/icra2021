@@ -23,21 +23,22 @@ std::shared_ptr< KOMO > createKOMO(const rai::KinematicWorld & kin, uint n_phase
 
 ObstacleAvoidanceDec::ObstacleAvoidanceDec(BehaviorManager& behavior_manager, int steps_per_phase)
     : BehaviorBase(behavior_manager)
-    , N_(2)
+    , n_obstacles_(1)
+    , n_branches_(pow(2.0, n_obstacles_))
     , kin_((ros::package::getPath("control_tree_car") + "/data/LGP-real-time.g").c_str())
     , steps_(steps_per_phase)
     , v_desired_(1.0)
-    , existence_probability_(0.9)
-    , tree_(1.0, 0)
+    , obstacles_(n_obstacles_, {arr(), 0.0})
+    , komo_tree_(1.0, 0)
     , options_(PARALLEL, true, NOOPT, false)
 {
     options_.opt.verbose = 1;
 
     // optim structure
-    update_tree(existence_probability_);
+    init_tree();
 
     // komo
-    for(auto i = 0; i < N_; ++i)
+    for(auto i = 0; i < n_branches_; ++i)
     {
       // komo
       auto komo = createKOMO(kin_, 4, steps_);
@@ -46,27 +47,21 @@ ObstacleAvoidanceDec::ObstacleAvoidanceDec(BehaviorManager& behavior_manager, in
       // objectives
       Objectives objectives;
 
-      auto p = (i == 0 ? existence_probability_ : 1.0 - existence_probability_);
-      objectives.scales_ = p * ones(4 * steps_);
-
       objectives.acc_ = komo->addObjective(-123., 123., new TM_Transition(komo->world), OT_sos, NoArr, 1.0, 2);
       objectives.acc_->vars = vars_branch_order_2_;
-      objectives.acc_->scales = objectives.scales_;
 
       objectives.ax_ = komo->addObjective(-123., 123., new AxisBound("car_ego", AxisBound::Y, AxisBound::EQUAL), OT_sos, NoArr, 1.0, 0);
       objectives.ax_->vars = vars_branch_order_0_;
-      objectives.ax_->scales = objectives.scales_;
 
       objectives.vel_ = komo->addObjective(-123., 123., new AxisBound("car_ego", AxisBound::X, AxisBound::EQUAL), OT_sos, {v_desired_}, 1.0, 1);
       objectives.vel_->vars = vars_branch_order_1_;
-      objectives.vel_->scales = objectives.scales_;
 
       objectives.car_kin_ = komo->addObjective(-123., 123., new CarKinematic("car_ego"), OT_eq, NoArr, 1e2, 1);
       objectives.car_kin_->vars = vars_branch_order_1_;
 
-      if(i < N_-1)
+      if(i < n_branches_-1)
       {
-        objectives.circular_obstacle_ = std::shared_ptr<Car3CirclesCircularObstacle> (new Car3CirclesCircularObstacle("car_ego", obstacle_position_, 1.0, 0.0));
+        objectives.circular_obstacle_ = std::shared_ptr<Car3CirclesCircularObstacle> (new Car3CirclesCircularObstacle("car_ego", obstacles_[i].position, 1.0, 0.0));
 
         objectives.collision_avoidance_ = komo->addObjective(-123., 123., objectives.circular_obstacle_, OT_ineq, NoArr, 1e2, 0);
         objectives.collision_avoidance_->vars = vars_branch_order_0_;
@@ -85,43 +80,6 @@ ObstacleAvoidanceDec::ObstacleAvoidanceDec(BehaviorManager& behavior_manager, in
     }
 
     init_optimization_variable();
-
-    //komos.
-//    komo_ = std::make_shared<KOMO>();
-//    komo_->sparseOptimization = true;
-//    komo_->setModel(kin_, false);
-//    komo_->setTiming(tree_.n_nodes(), steps_, 1);
-//    komo_->verbose = 0;
-
-//    // set objectives
-//    acc_ = komo_->addObjective(-123., 123., new TM_Transition(komo_->world), OT_sos, NoArr, 1.0, 2);
-//    acc_->vars = vars_all_order_2_;
-//    acc_->scales = scales_all_;
-
-//    ax_ = komo_->addObjective(-123., 123., new AxisBound("car_ego", AxisBound::Y, AxisBound::EQUAL), OT_sos, NoArr, 1.0, 0);
-//    ax_->vars = vars_all_order_0_;
-//    ax_->scales = scales_all_;
-
-//    //vel_ = komo_->addObjective(0, -1, new VelocityAxis(komo_->world, "car_ego"), OT_sos, { v_desired_, 0, 0 }, 1.0, 1);
-//    vel_ = komo_->addObjective(-123., 123., new AxisBound("car_ego", AxisBound::X, AxisBound::EQUAL), OT_sos, {v_desired_}, 1.0, 1);
-//    vel_->vars = vars_all_order_1_;
-//    vel_->scales = scales_all_;
-
-//    car_kin_ = komo_->addObjective(-123., 123., new CarKinematic("car_ego"), OT_eq, NoArr, 1e2, 1);
-//    car_kin_->vars = vars_all_order_1_;
-
-//    collision_avoidance_ = komo_->addObjective(-123., 123., circular_obstacle_, OT_ineq, NoArr, 1e2, 0);
-//    collision_avoidance_->vars = vars_branch_1_order_0_;
-
-//    komo_->reset(0);
-
-    // debug
-//    std::cout << "///" << std::endl;
-//    std::cout << vars_branch_1_order_1_ << std::endl;
-//    std::cout << "---" << std::endl;
-//    std::cout << vars_branch_2_order_1_ << std::endl;
-//    std::cout << "---" << std::endl;
-//    std::cout << vars_all_order_1_ << std::endl;
 }
 
 
@@ -132,66 +90,53 @@ void ObstacleAvoidanceDec::desired_speed_callback(const std_msgs::Float32::Const
     v_desired_ = msg->data;
 }
 
-void ObstacleAvoidanceDec::obstacle_callback(const visualization_msgs::Marker::ConstPtr& msg)
+void ObstacleAvoidanceDec::obstacle_callback(const visualization_msgs::MarkerArray::ConstPtr& msg)
 {
     //ROS_INFO( "update obstacle_belief.." );
 
-    /// position and geometry
-    obstacle_position_ = {msg->pose.position.x, msg->pose.position.y, 0};
+    for(auto i = 0; i < msg->markers.size(); ++i)
+    {
+      /// position and geometry
+      obstacles_[i].position = {msg->markers.front().pose.position.x, msg->markers.front().pose.position.y, 0};
 
-    /// existance probability
-    existence_probability_ = msg->color.a;
+      /// existence probability
+      double p = msg->markers.front().color.a;
 
-    // clamp
-    const double min = 0.1; // hack -> to change
-    auto p = std::max(existence_probability_, min);
-    p = std::min(p, 1.0 - min);
-    //
+      // clamp
+      const double min = 0.1; // hack -> to change
+      p = std::max(p, min);
+      p = std::min(p, 1.0 - min);
+      //
 
-    update_tree(p);
+      obstacles_[i].p = p;
+    }
 }
 
 TimeCostPair ObstacleAvoidanceDec::plan()
 {
     //ROS_INFO( "ObstacleAvoidanceTree::plan.." );
 
-    if(obstacle_position_.d0 == 0)
-    {
-        ROS_INFO( "ObstacleAvoidanceTree::plan.. abort planning" );
+//      if(i < n_branches_ - 1)
+//      {
+//        objectives.circular_obstacle_->set_obstacle_position(ARR(obstacles_[i].position(0), obstacles_[i].position(1), obstacles_[i].position(2)));
 
-        return {0.0, 0.0};
-    }
+////        if(existence_probability_ < 0.01)
+////        {
+////          komos_[i]->objectives.removeValue(objectives.collision_avoidance_, false);
+////        }
+////        else if(komos_[i]->objectives.findValue(objectives.collision_avoidance_) == -1)
+////        {
+////          komos_[i]->objectives.append(objectives.collision_avoidance_);
+////        }
+//      }
+//    }
 
-    // update task maps
-    for(auto i = 0; i < N_; ++i)
-    {
-      auto& objectives = objectivess_[i];
-      auto p = (i == 0 ? existence_probability_ : 1.0 - existence_probability_);
-      objectives.scales_ = p * ones(4 * steps_);
-
-      objectives.acc_->scales = objectives.scales_;
-      objectives.vel_->scales = objectives.scales_;
-      objectives.vel_->map->target = {v_desired_};
-
-      if(i < N_ - 1)
-      {
-        objectives.circular_obstacle_->set_obstacle_position(ARR(obstacle_position_(0), obstacle_position_(1), obstacle_position_(2)));
-
-//        if(existence_probability_ < 0.01)
-//        {
-//          komos_[i]->objectives.removeValue(objectives.collision_avoidance_, false);
-//        }
-//        else if(komos_[i]->objectives.findValue(objectives.collision_avoidance_) == -1)
-//        {
-//          komos_[i]->objectives.append(objectives.collision_avoidance_);
-//        }
-      }
-    }
+    update_groundings();
 
     // update start state
     const auto o = manager_.odometry();
 
-    for(auto i = 0; i < N_; ++i)
+    for(auto i = 0; i < n_branches_; ++i)
     {
       set_komo_start(komos_[i], o, steps_);
       komos_[i]->reset();
@@ -221,10 +166,10 @@ TimeCostPair ObstacleAvoidanceDec::plan()
 std::vector<nav_msgs::Path> ObstacleAvoidanceDec::get_trajectories()
 {
     std::vector<nav_msgs::Path> trajs;
-    trajs.reserve(N_);
+    trajs.reserve(n_branches_);
 
     const auto t = ros::Time::now();
-    for(auto i = 0; i < N_; ++i)
+    for(auto i = 0; i < n_branches_; ++i)
     {
       nav_msgs::Path msg;
       msg.header.stamp = t;
@@ -242,31 +187,47 @@ std::vector<nav_msgs::Path> ObstacleAvoidanceDec::get_trajectories()
     return trajs;
 }
 
-void ObstacleAvoidanceDec::update_tree(double p)
+void ObstacleAvoidanceDec::init_tree()
 {
-    tree_.add_edge(0, 1);
-    tree_.add_edge(1, 2, p); // branch 1
-    tree_.add_edge(2, 3);
-    tree_.add_edge(3, 4);
+  convert(n_branches_, komo_tree_);
 
-    tree_.add_edge(1, 5, 1.0 - p); // branch 2
-    tree_.add_edge(5, 6);
-    tree_.add_edge(6, 7);
+  auto leaf = komo_tree_.get_leaves().front();
+  vars_branch_order_0_ = komo_tree_.get_vars({0.0, 4.0}, leaf, 0, steps_);
+  vars_branch_order_1_ = komo_tree_.get_vars({0.0, 4.0}, leaf, 1, steps_);
+  vars_branch_order_2_ = komo_tree_.get_vars({0.0, 4.0}, leaf, 2, steps_);
+}
 
-    vars_branch_order_0_ = tree_.get_vars({0.0, 4.0}, 4, 0, steps_);
-    vars_branch_order_1_ = tree_.get_vars({0.0, 4.0}, 4, 1, steps_);
-    vars_branch_order_2_ = tree_.get_vars({0.0, 4.0}, 4, 2, steps_);
+void ObstacleAvoidanceDec::update_groundings()
+{
+  std::vector<std::vector<bool>> activities;
+  const auto ps = fuse_probabilities(obstacles_, activities); // branch probabilities
+
+  for(auto i = 0; i < n_branches_; ++i)
+  {
+    auto& objectives = objectivess_[i];
+
+    // set target
+    objectives.vel_->map->target = {v_desired_};
+
+    // apply scales
+    objectives.apply_scales(ps[i] * ones(4 * steps_));
+
+    if(i < n_branches_ - 1)
+    {
+      objectives.circular_obstacle_->set_obstacle_position(ARR(obstacles_[i].position(0), obstacles_[i].position(1), obstacles_[i].position(2)));
+    }
+  }
 }
 
 void ObstacleAvoidanceDec::init_optimization_variable()
 {
   const auto dim = komos_.front()->world.q.d0;
-  const auto n_phases = tree_.n_nodes() - 1;
+  const auto n_phases = komo_tree_.n_nodes() - 1;
   const auto x_size = dim * n_phases * steps_;
 
   x_ = zeros(x_size);
 
-  mp::BranchGen gen(tree_);
+  mp::BranchGen gen(komo_tree_);
 
   while(!gen.finished())
   {
@@ -274,7 +235,7 @@ void ObstacleAvoidanceDec::init_optimization_variable()
     const auto leaves = uncompressed.get_leaves();
     CHECK_EQ(1, leaves.size(), "a branch should have one leaf");
     const auto leaf = leaves.front();
-    const auto var = tree_.get_vars({0.0, 4.0}, leaf, 0, steps_);
+    const auto var = komo_tree_.get_vars({0.0, 4.0}, leaf, 0, steps_);
 
     arr xmask = zeros(x_size);
     for(auto j: var)
@@ -289,3 +250,70 @@ void ObstacleAvoidanceDec::init_optimization_variable()
   }
 }
 
+void ObstacleAvoidanceDec::Objectives::apply_scales(const arr& scales)
+{
+  ax_->scales = scales;
+  vel_->scales = scales;
+  acc_->scales = scales;
+}
+
+std::vector<double> fuse_probabilities(const std::vector<Obstacle>& obstacles, std::vector<std::vector<bool>> & activities)
+{
+  const uint n = pow(2.0, obstacles.size());
+
+  std::vector<double> probabilities(n, 0.0);
+  activities = std::vector<std::vector<bool>>(n);
+
+  // compute activities
+  for(auto i = 0; i < obstacles.size(); ++i)
+  {
+    bool active = true;
+    uint rythm = pow(2.0, double(i));
+    for(auto j = 0; j < n; ++j)
+    {
+      if(j > 0 && j % rythm == 0)
+      {
+        active = !active;
+      }
+      activities[j].push_back(active);
+    }
+  }
+
+  // fuse
+  for(auto j = 0; j < n; ++j)
+  {
+    auto p = 1.0;
+    for(auto i = 0; i < obstacles.size(); ++i)
+    {
+      if(activities[j][i])
+        p *= obstacles[i].p;
+      else
+        p *= (1.0 - obstacles[i].p);
+    }
+
+    probabilities[j] = p;
+  }
+
+  return probabilities;
+}
+
+void convert(uint n_branches, mp::TreeBuilder& tb)
+{
+  uint j = 0;
+
+  tb.add_edge(0, 1);
+  tb.add_edge(1, 2);
+  tb.add_edge(2, 3);
+  tb.add_edge(3, 4);
+
+  j = 4;
+  for(auto i = 1; i < n_branches; ++i)
+  {
+    ++j;
+    tb.add_edge(1, j);
+    ++j;
+    tb.add_edge(j-1, j);
+    ++j;
+    tb.add_edge(j-1, j);
+  }
+}

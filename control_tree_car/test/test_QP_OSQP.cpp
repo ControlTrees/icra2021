@@ -1,11 +1,12 @@
 #include <control_tree/qp/QP_tree_problem_OSQP.h>
 
 #include <chrono>
-#include <gtest/gtest.h>
 
-#include <control_tree/qp/control_tree.h>
+#include <control_tree/core/control_tree.h>
 #include <control_tree/qp/control_tree_plot.h>
 #include "common/qp_problems.h"
+
+#include <gtest/gtest.h>
 
 
 TEST_F(QPTest, test_2_branches_2_steps_constrained)

@@ -41,7 +41,7 @@ int main(int argc, char **argv)
     boost::function<void(const std_msgs::Float32::ConstPtr& msg)> speed_callback =
             boost::bind(&ObstacleAvoidanceLinear::desired_speed_callback, obstacle_avoidance_linear.get(), _1);
 
-    boost::function<void(const visualization_msgs::Marker::ConstPtr& msg)> obstacle_callback =
+    boost::function<void(const visualization_msgs::MarkerArray::ConstPtr& msg)> obstacle_callback =
             boost::bind(&ObstacleAvoidanceLinear::obstacle_callback, obstacle_avoidance_linear.get(), _1);
 
     auto speed = n.subscribe("/gui_control/lgp_car/desired_speed", 1000, speed_callback);

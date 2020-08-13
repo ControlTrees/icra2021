@@ -27,22 +27,46 @@ std_msgs::Float32::Ptr create_desired_speed(double v)
   return desired_speed;
 }
 
-visualization_msgs::Marker::Ptr create_obstacles(double x, double y, double alpha)
+struct ObstaclesBuilder
 {
-  visualization_msgs::Marker::Ptr obstacles(new visualization_msgs::Marker());
+  ObstaclesBuilder()
+    : obstacles(new visualization_msgs::MarkerArray())
+  {
 
-  obstacles->pose.position.x = x;
-  obstacles->pose.position.y = y;
-  obstacles->color.a = alpha;
+  }
 
-  return obstacles;
-}
+  ObstaclesBuilder& add(double x, double y, double alpha)
+  {
+    visualization_msgs::Marker obstacle;
+
+    obstacle.pose.position.x = x;
+    obstacle.pose.position.y = y;
+    obstacle.color.a = alpha;
+
+    obstacles->markers.push_back(obstacle);
+
+    return *this;
+  }
+
+  visualization_msgs::MarkerArray::Ptr build() const { return obstacles;}
+
+  visualization_msgs::MarkerArray::Ptr obstacles;
+};
 
 Scenario create_scenario_1()
 {
   const auto odo = create_odo(0, 0, 5);
   const auto desired_velocity = create_desired_speed(10);
-  const auto obstacles = create_obstacles(35, 1, 0.5);
+  const auto obstacles = ObstaclesBuilder().add(35, 1, 0.5).build();
+
+  return {odo, desired_velocity, obstacles};
+}
+
+Scenario create_scenario_2()
+{
+  const auto odo = create_odo(0, 0, 5);
+  const auto desired_velocity = create_desired_speed(10);
+  const auto obstacles = ObstaclesBuilder().add(25, 1, 0.5).add(35, -1, 0).build();
 
   return {odo, desired_velocity, obstacles};
 }
