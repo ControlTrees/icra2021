@@ -17,7 +17,7 @@ ObstacleAvoidanceTree::ObstacleAvoidanceTree(BehaviorManager& behavior_manager, 
     , tree_(1.0, 0)
 {
     //
-    circular_obstacle_ = std::shared_ptr<Car3CirclesCircularObstacle> (new Car3CirclesCircularObstacle("car_ego", obstacle_position_, 1.0, 0.0));
+    circular_obstacle_ = std::shared_ptr<Car3CirclesCircularObstacle> (new Car3CirclesCircularObstacle("car_ego", {obstacle_position_}, 1.0, 0.0));
 
     // optim structure
     update_tree(existence_probability_);
@@ -103,7 +103,7 @@ TimeCostPair ObstacleAvoidanceTree::plan()
     vel_->map->target = {v_desired_};
     //vel_->map->target = {v_desired_, 0.0, 0.0};
 
-    circular_obstacle_->set_obstacle_position(ARR(obstacle_position_(0), obstacle_position_(1), obstacle_position_(2)));
+    circular_obstacle_->set_obstacle_positions({ARR(obstacle_position_(0), obstacle_position_(1), obstacle_position_(2))});
 
     if( existence_probability_ < 0.01 )
     {

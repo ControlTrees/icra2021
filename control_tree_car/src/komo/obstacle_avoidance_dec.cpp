@@ -19,25 +19,42 @@ std::shared_ptr< KOMO > createKOMO(const rai::KinematicWorld & kin, uint n_phase
 
   return komo;
 }
+
+std::vector<arr> get_relevant_obstacles(const std::vector<Obstacle> & obstacles, const std::vector<bool>& activities)
+{
+  std::vector<arr> obs;
+  for(auto j = 0; j < activities.size(); ++j)
+  {
+    if(activities[j])
+    {
+      obs.push_back(obstacles[j].position);
+    }
+  }
+  return obs;
+}
+
 }
 
 ObstacleAvoidanceDec::ObstacleAvoidanceDec(BehaviorManager& behavior_manager, int steps_per_phase)
     : BehaviorBase(behavior_manager)
-    , n_obstacles_(1)
+    , n_obstacles_(2)
     , n_branches_(pow(2.0, n_obstacles_))
     , kin_((ros::package::getPath("control_tree_car") + "/data/LGP-real-time.g").c_str())
     , steps_(steps_per_phase)
     , v_desired_(1.0)
-    , obstacles_(n_obstacles_, {arr(), 0.0})
+    , obstacles_(n_obstacles_, {arr{-10, 0, 0}, 0.0})
     , komo_tree_(1.0, 0)
     , options_(PARALLEL, true, NOOPT, false)
 {
-    options_.opt.verbose = 1;
+    options_.opt.verbose = 0;
 
     // optim structure
     init_tree();
 
     // komo
+    std::vector<std::vector<bool>> activities;
+    fuse_probabilities(obstacles_, activities); // branch probabilities
+
     for(auto i = 0; i < n_branches_; ++i)
     {
       // komo
@@ -59,9 +76,11 @@ ObstacleAvoidanceDec::ObstacleAvoidanceDec(BehaviorManager& behavior_manager, in
       objectives.car_kin_ = komo->addObjective(-123., 123., new CarKinematic("car_ego"), OT_eq, NoArr, 1e2, 1);
       objectives.car_kin_->vars = vars_branch_order_1_;
 
-      if(i < n_branches_-1)
+      std::vector<arr> obs = get_relevant_obstacles(obstacles_, activities[i]);
+
+      if(!obs.empty())
       {
-        objectives.circular_obstacle_ = std::shared_ptr<Car3CirclesCircularObstacle> (new Car3CirclesCircularObstacle("car_ego", obstacles_[i].position, 1.0, 0.0));
+        objectives.circular_obstacle_ = std::shared_ptr<Car3CirclesCircularObstacle> (new Car3CirclesCircularObstacle("car_ego", obs, 1.0, 0.0));
 
         objectives.collision_avoidance_ = komo->addObjective(-123., 123., objectives.circular_obstacle_, OT_ineq, NoArr, 1e2, 0);
         objectives.collision_avoidance_->vars = vars_branch_order_0_;
@@ -97,7 +116,7 @@ void ObstacleAvoidanceDec::obstacle_callback(const visualization_msgs::MarkerArr
     for(auto i = 0; i < msg->markers.size(); ++i)
     {
       /// position and geometry
-      obstacles_[i].position = {msg->markers.front().pose.position.x, msg->markers.front().pose.position.y, 0};
+      obstacles_[i].position = {msg->markers[i].pose.position.x, msg->markers[i].pose.position.y, 0};
 
       /// existence probability
       double p = msg->markers.front().color.a;
@@ -116,24 +135,8 @@ TimeCostPair ObstacleAvoidanceDec::plan()
 {
     //ROS_INFO( "ObstacleAvoidanceTree::plan.." );
 
-//      if(i < n_branches_ - 1)
-//      {
-//        objectives.circular_obstacle_->set_obstacle_position(ARR(obstacles_[i].position(0), obstacles_[i].position(1), obstacles_[i].position(2)));
-
-////        if(existence_probability_ < 0.01)
-////        {
-////          komos_[i]->objectives.removeValue(objectives.collision_avoidance_, false);
-////        }
-////        else if(komos_[i]->objectives.findValue(objectives.collision_avoidance_) == -1)
-////        {
-////          komos_[i]->objectives.append(objectives.collision_avoidance_);
-////        }
-//      }
-//    }
-
     update_groundings();
-
-    // update start state
+   // update start state
     const auto o = manager_.odometry();
 
     for(auto i = 0; i < n_branches_; ++i)
@@ -212,9 +215,11 @@ void ObstacleAvoidanceDec::update_groundings()
     // apply scales
     objectives.apply_scales(ps[i] * ones(4 * steps_));
 
-    if(i < n_branches_ - 1)
+    std::vector<arr> obs = get_relevant_obstacles(obstacles_, activities[i]);
+
+    if(!obs.empty())
     {
-      objectives.circular_obstacle_->set_obstacle_position(ARR(obstacles_[i].position(0), obstacles_[i].position(1), obstacles_[i].position(2)));
+      objectives.circular_obstacle_->set_obstacle_positions(obs);
     }
   }
 }

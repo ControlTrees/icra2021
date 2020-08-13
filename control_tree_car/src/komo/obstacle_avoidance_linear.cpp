@@ -12,7 +12,7 @@ ObstacleAvoidanceLinear::ObstacleAvoidanceLinear(BehaviorManager& behavior_manag
     , existence_probability_(0.9)
 {
     //
-    circular_obstacle_ = std::shared_ptr<Car3CirclesCircularObstacle> (new Car3CirclesCircularObstacle("car_ego", obstacle_position_, 1.0, 0.0));
+    circular_obstacle_ = std::shared_ptr<Car3CirclesCircularObstacle> (new Car3CirclesCircularObstacle("car_ego", {obstacle_position_}, 1.0, 0.0));
 
     // komo
     komo_ = std::make_shared<KOMO>();
@@ -65,7 +65,7 @@ TimeCostPair ObstacleAvoidanceLinear::plan()
     // update task maps
     //vel_->map->target = {v_desired_, 0.0, 0.0};
     vel_->map->target = {v_desired_};
-    circular_obstacle_->set_obstacle_position(ARR(obstacle_position_(0), obstacle_position_(1), obstacle_position_(2)));
+    circular_obstacle_->set_obstacle_positions({ARR(obstacle_position_(0), obstacle_position_(1), obstacle_position_(2))});
 
     if( existence_probability_ < 0.01 )
     {

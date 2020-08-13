@@ -51,11 +51,12 @@ TEST_F(KomoDecTest, scenario_1)
   plan(pb, false);
 }
 
-TEST_F(KomoDecTest, DISABLED_scenario_2)
+TEST_F(KomoDecTest, scenario_2)
 {
   auto pb = create_scenario_2();
 
   plan(pb, true);
+  plan(pb, false);
 }
 
 ////////////////////////////////
