@@ -27,7 +27,10 @@ std::vector<arr> get_relevant_obstacles(const std::vector<Obstacle> & obstacles,
   {
     if(activities[j])
     {
-      obs.push_back(obstacles[j].position);
+      if(obstacles[j].p >= 0.01)
+        obs.push_back(obstacles[j].position);
+      else
+        obs.push_back({-10.0, 0, 0});
     }
   }
   return obs;
@@ -38,7 +41,7 @@ std::vector<arr> get_relevant_obstacles(const std::vector<Obstacle> & obstacles,
 ObstacleAvoidanceDec::ObstacleAvoidanceDec(BehaviorManager& behavior_manager, int n_obstacles, int steps_per_phase)
     : BehaviorBase(behavior_manager)
     , n_obstacles_(n_obstacles)
-    , n_branches_(pow(2.0, n_obstacles_))
+    , n_branches_(n_branches(n_obstacles))
     , kin_((ros::package::getPath("control_tree_car") + "/data/LGP-real-time.g").c_str())
     , steps_(steps_per_phase)
     , v_desired_(1.0)
@@ -111,7 +114,7 @@ void ObstacleAvoidanceDec::desired_speed_callback(const std_msgs::Float32::Const
 
 void ObstacleAvoidanceDec::obstacle_callback(const visualization_msgs::MarkerArray::ConstPtr& msg)
 {
-    //ROS_INFO( "update obstacle_belief.." );
+    CHECK_EQ(msg->markers.size(), obstacles_.size(), "number of obstacles are not consistent");
 
     for(auto i = 0; i < msg->markers.size(); ++i)
     {
@@ -121,12 +124,6 @@ void ObstacleAvoidanceDec::obstacle_callback(const visualization_msgs::MarkerArr
       /// existence probability
       double p = msg->markers[i].color.a;
 
-//      // clamp
-//      const double min = 0.1; // hack -> to change
-//      p = std::max(p, min);
-//      p = std::min(p, 1.0 - min);
-//      //
-
       obstacles_[i].p = p;
 
       //std::cout << "obstacle.p=" << p << " orig=" << msg->markers[i].color.a << std::endl;
@@ -135,7 +132,7 @@ void ObstacleAvoidanceDec::obstacle_callback(const visualization_msgs::MarkerArr
 
 TimeCostPair ObstacleAvoidanceDec::plan()
 {
-    //ROS_INFO( "ObstacleAvoidanceTree::plan.." );
+    ROS_INFO( "ObstacleAvoidanceDec::plan.." );
 
     update_groundings();
    // update start state
@@ -224,10 +221,6 @@ void ObstacleAvoidanceDec::update_groundings()
 
     if(!obs.empty())
     {
-      if(ps[i] <= 0.0)
-      {
-          obs.front()(0) = -10; // artificially deactivate constraint, hack!!
-      }
       objectives.circular_obstacle_->set_obstacle_positions(obs);
     }
   }

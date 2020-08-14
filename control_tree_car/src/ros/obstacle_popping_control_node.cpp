@@ -136,7 +136,7 @@ public:
     {
         tf::StampedTransform transform;
 
-        tf_listener_.lookupTransform("/map", "/lgp_obstacle",
+        tf_listener_.lookupTransform("/map", "/lgp_obstacle_" + std::to_string(id_),
                                      ros::Time(0), transform);
 
         return Position2D{ transform(tf::Vector3(0,0,0)).x(), transform(tf::Vector3(0,0,0)).y() };
@@ -163,17 +163,21 @@ public:
 
     }
 
-    visualization_msgs::MarkerArray observe_obstacle() const
+    visualization_msgs::MarkerArray observe_obstacles() const
     {
         visualization_msgs::MarkerArray markers;
 
         const auto car_position = get_car_position();
 
-        for(const auto& obstacle: obstacles_)
+        //ROS_INFO_STREAM("Observe...");
+
+        for(auto i = 0; i < obstacles_.size(); ++i)
         {
+            const auto& obstacle = obstacles_[i];
+
             visualization_msgs::Marker marker;
 
-            if(obstacle)
+            if(obstacle.get())
             {
                 const auto obstacle_position = obstacle->get_position();
                 const auto signed_dist_to_obstacle = obstacle_position.x - car_position.x;
@@ -189,7 +193,7 @@ public:
                 marker.pose.position.y = obstacle_position.y + (1.0 - existence_probability) * (scale_bias_ * bias_.y + scale_noise_ * rand_m11());
                 marker.scale.x = 1.0; // diameter
                 marker.scale.y = 1.0;
-                marker.scale.z = 1.0;
+                marker.scale.z = 1.0 + i;
                 marker.color.a = existence_probability;
                 marker.color.r = 1.0;
                 marker.color.g = 0.0;
@@ -197,9 +201,11 @@ public:
 
                 markers.markers.push_back(marker);
 
-                //ROS_INFO("Obstacle existence probability: %f", existence_probability);
+                //ROS_INFO("Obstacle existence probability: %f %d", existence_probability, obstacle->id_);
             }
         }
+
+        //ROS_INFO_STREAM("Finished Observe...");
 
         return markers;
     }
@@ -260,9 +266,14 @@ int main(int argc, char **argv)
     tf::TransformListener tf_listener;
 
     int N = 1; // number of obsatcles
+    n.getParam("n_obstacles", N);
     n.getParam("p_obstacle", p_obstacle);
 
-    ros::Publisher pose_publisher = n.advertise<geometry_msgs::Pose2D>("/lgp_obstacle/pose_reset", 1000);
+    std::vector<ros::Publisher> new_pose_publishers;
+    for(auto i = 0; i < N; ++i)
+    {
+        new_pose_publishers.push_back(n.advertise<geometry_msgs::Pose2D>("/lgp_obstacle_" + std::to_string(i) + "/pose_reset", 1000));
+    }
     ros::Publisher marker_publisher = n.advertise<visualization_msgs::MarkerArray>("/lgp_obstacle_belief/marker_array", 1000);
 
     ros::Rate loop_rate(10);
@@ -275,8 +286,6 @@ int main(int argc, char **argv)
     auto draw_new_obstacle = [&](uint obstacle_id)
     {
         // draw new OBSTACLE
-        ROS_INFO_STREAM("Draw new obstacle..");
-
         std::shared_ptr<Obstacle> obstacle;
 
         const auto car_position = observer.get_car_position();
@@ -289,13 +298,13 @@ int main(int argc, char **argv)
         const double q = rand_01();
         if(q <= p)
         {
-            //ROS_ERROR_STREAM("CREATE TRUE POSITIVE..");
+            //ROS_INFO_STREAM("CREATE TRUE POSITIVE..");
             n_obstacles++;
             obstacle = std::shared_ptr<Obstacle>(new TruePositive(obstacle_id, {new_x, new_y}, p, certainty_distance, tf_listener) );
         }
         else
         {
-            //ROS_ERROR_STREAM("CREATE FALSE POSITIVE..");
+            //ROS_INFO_STREAM("CREATE FALSE POSITIVE..");
             n_non_obstacles++;
             obstacle = std::shared_ptr<Obstacle>(new FalsePositive(obstacle_id, {new_x, new_y}, p, certainty_distance) );
         }
@@ -306,51 +315,22 @@ int main(int argc, char **argv)
             msg.x = new_x;
             msg.y = new_y;
 
-            pose_publisher.publish(msg);
+            new_pose_publishers[obstacle_id].publish(msg);
         }
 
-        n.setParam("/n_obstacles", n_obstacles);
-        n.setParam("/n_non_obstacles", n_non_obstacles);
+        n.setParam("/n_total_obstacles", n_obstacles);
+        n.setParam("/n_total_non_obstacles", n_non_obstacles);
 
         return obstacle;
     };
-
-    int obstacle_id = 0;
 
     while(ros::ok())
     {
         // observe car and reset if necessary
         try
         {
-            //ROS_INFO_STREAM("Existing obstacle?.." << observer.obstacle().get());
+            //ROS_INFO_STREAM("................");
 
-        // purge old
-//        for(auto i = 0; i < N; ++i)
-//        {
-//            auto pedestrian = observer.pedestrian(i);
-
-//            if(pedestrian && pedestrian->is_done(ros::Time::now().toSec(), car_position.x))
-//            {
-//                observer.erase(i);
-//            }
-//        }
-
-//        // recreate new
-//        for(auto i = 0; i < N; ++i)
-//        {
-//            if(!observer.pedestrian(i))
-//            {
-//                auto pedestrian = draw_new_pedestrian(p_crossing, i, car_position, tf_listener, pose_publishers[i], ctrl_publishers[i]);
-//                observer.replace_pedestrian(i, pedestrian);-
-
-//                n.setParam("/n_crossings", n_crossings);
-//                n.setParam("/n_non_crossings", n_non_crossings);
-
-//                break; // hack, don't spawn right away because gazebo / ros doesn't always like it
-//            }
-//        }
-
-            // reset position
             const auto car_position = observer.get_car_position();
 
             // purge old
@@ -371,15 +351,15 @@ int main(int argc, char **argv)
             // recreate new
             for(auto i = 0; i < N; ++i)
             {
-                if(!observer.obstacle(i))
+                if(!observer.obstacle(i).get())
                 {
-                    auto obstacle = draw_new_obstacle(obstacle_id++);
+                    auto obstacle = draw_new_obstacle(i);
                     observer.set_obstacle(i, obstacle);
                 }
             }
 
             // publish observation
-            auto markers = observer.observe_obstacle();
+            auto markers = observer.observe_obstacles();
             //marker.id = obstacle_id;
 
             marker_publisher.publish(markers);
@@ -389,6 +369,7 @@ int main(int argc, char **argv)
             ROS_ERROR("%s",ex.what());
             ros::Duration(1.0).sleep();
         }
+
         ros::spinOnce();
 
         loop_rate.sleep();

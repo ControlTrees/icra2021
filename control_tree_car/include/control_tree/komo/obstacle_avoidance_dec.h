@@ -50,6 +50,8 @@ public:
     std::vector<nav_msgs::Path> get_trajectories();
 
     void set_optim_callback(const std::function<void()>& callback) { options_.callback = callback; }
+
+    static uint n_branches(uint n_obstacles) { return pow(2.0, n_obstacles); }
 private:
     void init_tree();
     void update_groundings();

@@ -1,6 +1,7 @@
 <launch>
     <param name="/traj_planner/steps_per_phase" type="int" value="4" />
     <param name="/p_obstacle" type="double" value="0.45" />
+    <param name="/n_obstacles" type="int" value="2" />
     <param name="/traj_controller/trajectory_index" type="int" value="1" />
 
     <node pkg="control_tree_car" type="obstacle_avoidance_tree_node" name="obstacle_avoidance" output="screen">

@@ -24,6 +24,13 @@
     </include>
 
     <include>
+      <name>lgp_obstacle_1</name>
+      <pose>-10 0 0 0 0 3.1415</pose>
+      <uri>model://lgp_obstacle</uri>
+      <plugin name="lgp_obstacle" filename="liblgp_car_gazebo_plugin.so"/>
+    </include>
+
+    <include>
       <name>lgp_car</name>
       <uri>model://lgp_car</uri>
       <plugin name="lgp_car" filename="liblgp_car_gazebo_plugin.so"/>

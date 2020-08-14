@@ -21,18 +21,24 @@ int main(int argc, char **argv)
     ros::NodeHandle n;
     tf::TransformListener tf_listener;
 
-    uint n_obstacles = 1; // TODO change here
+    int n_obstacles = 1; // TODO change here
     n.getParam("/traj_planner/steps_per_phase", steps_per_phase);
     n.getParam("p_obstacle", p_obstacle);
+    n.getParam("n_obstacles", n_obstacles);
 
-    ros::Publisher trajectory_publisher_1 = n.advertise<nav_msgs::Path>("/traj_planner/trajectory_1", 1000);
-    ros::Publisher trajectory_publisher_2 = n.advertise<nav_msgs::Path>("/traj_planner/trajectory_2", 1000);
+    std::vector<ros::Publisher> trajectory_publishers;
+    for(auto i = 0; i < BehaviorType::n_branches(n_obstacles); ++i)
+    {
+        trajectory_publishers.push_back(
+                    n.advertise<nav_msgs::Path>("/traj_planner/trajectory_" + std::to_string(i + 1), 1000)
+                    );
+    }
     ros::Publisher centerline_publisher = n.advertise<visualization_msgs::Marker>("/environment/center_line", 1000);
 
     BehaviorManager manager;
 
     // instanciate behaviors
-    auto obstacle_avoidance_tree = std::shared_ptr<BehaviorType>(new BehaviorType(manager, 1, steps_per_phase));
+    auto obstacle_avoidance_tree = std::shared_ptr<BehaviorType>(new BehaviorType(manager, n_obstacles, steps_per_phase));
     manager.register_behavior("ObstacleAvoidanceTree", obstacle_avoidance_tree);
     manager.set_current_behavior("ObstacleAvoidanceTree");
 
@@ -61,8 +67,10 @@ int main(int argc, char **argv)
         manager.plan();
 
         std::vector<nav_msgs::Path> trajectories = manager.get_trajectories();
-        trajectory_publisher_1.publish(trajectories[0]);
-        trajectory_publisher_2.publish(trajectories[1]);
+        for(auto i = 0; i < trajectories.size(); ++i)
+        {
+            trajectory_publishers[i].publish(trajectories[i]);
+        }
 
         if((i - 10) % 50 == 0)
         {
