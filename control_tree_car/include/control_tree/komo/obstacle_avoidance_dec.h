@@ -39,7 +39,7 @@ struct Obstacle
 class ObstacleAvoidanceDec : public BehaviorBase
 {
 public:
-    ObstacleAvoidanceDec(BehaviorManager&, int steps_per_phase);
+    ObstacleAvoidanceDec(BehaviorManager&, int n_obstacles, int steps_per_phase);
 
     void desired_speed_callback(const std_msgs::Float32::ConstPtr& msg);
 

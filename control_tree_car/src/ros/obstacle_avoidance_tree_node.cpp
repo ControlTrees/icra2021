@@ -21,6 +21,7 @@ int main(int argc, char **argv)
     ros::NodeHandle n;
     tf::TransformListener tf_listener;
 
+    uint n_obstacles = 1; // TODO change here
     n.getParam("/traj_planner/steps_per_phase", steps_per_phase);
     n.getParam("p_obstacle", p_obstacle);
 
@@ -31,7 +32,7 @@ int main(int argc, char **argv)
     BehaviorManager manager;
 
     // instanciate behaviors
-    auto obstacle_avoidance_tree = std::shared_ptr<BehaviorType>(new BehaviorType(manager, steps_per_phase));
+    auto obstacle_avoidance_tree = std::shared_ptr<BehaviorType>(new BehaviorType(manager, 1, steps_per_phase));
     manager.register_behavior("ObstacleAvoidanceTree", obstacle_avoidance_tree);
     manager.set_current_behavior("ObstacleAvoidanceTree");
 
@@ -47,7 +48,7 @@ int main(int argc, char **argv)
             boost::bind(&BehaviorType::obstacle_callback, obstacle_avoidance_tree.get(), _1);
 
     auto speed_tree = n.subscribe("/gui_control/lgp_car/desired_speed", 1000, speed_callback_tree);
-    auto obstacle_tree = n.subscribe("/lgp_obstacle_belief/marker", 1000, obstacle_callback_tree);
+    auto obstacle_tree = n.subscribe("/lgp_obstacle_belief/marker_array", 1000, obstacle_callback_tree);
 
     ros::Rate loop_rate(10);
 

@@ -18,8 +18,9 @@ struct Scenario
   visualization_msgs::MarkerArray::Ptr obstacles;
 };
 
-Scenario create_scenario_1();
+Scenario create_scenario_1(double p);
 Scenario create_scenario_2();
+Scenario create_scenario_3();
 
 template<typename T>
 void plan_impl(const Scenario & scenario, BehaviorManager& manager, T& behavior, bool _plot, bool _plot_debug)
@@ -102,7 +103,7 @@ public:
   {
     ros::Time::init();
 
-    behavior = std::make_shared<ObstacleAvoidanceDec>(manager, 4);
+    behavior = std::make_shared<ObstacleAvoidanceDec>(manager, n_obstacles, 4);
 
     manager.register_behavior("collision_avoidance", behavior);
     manager.set_current_behavior("collision_avoidance");
@@ -115,4 +116,32 @@ public:
 
   BehaviorManager manager;
   std::shared_ptr<ObstacleAvoidanceDec> behavior;
+  int n_obstacles = 2;
+};
+
+class KomoDecTest1Obstacle : public KomoDecTest
+{
+   public:
+    KomoDecTest1Obstacle()
+    {
+        n_obstacles = 1;
+    }
+};
+
+class KomoDecTest2Obstacle : public KomoDecTest
+{
+  public:
+    KomoDecTest2Obstacle()
+    {
+        n_obstacles = 2;
+    }
+};
+
+class KomoDecTest3Obstacle : public KomoDecTest
+{
+  public:
+    KomoDecTest3Obstacle()
+    {
+        n_obstacles = 3;
+    }
 };

@@ -35,9 +35,9 @@ std::vector<arr> get_relevant_obstacles(const std::vector<Obstacle> & obstacles,
 
 }
 
-ObstacleAvoidanceDec::ObstacleAvoidanceDec(BehaviorManager& behavior_manager, int steps_per_phase)
+ObstacleAvoidanceDec::ObstacleAvoidanceDec(BehaviorManager& behavior_manager, int n_obstacles, int steps_per_phase)
     : BehaviorBase(behavior_manager)
-    , n_obstacles_(2)
+    , n_obstacles_(n_obstacles)
     , n_branches_(pow(2.0, n_obstacles_))
     , kin_((ros::package::getPath("control_tree_car") + "/data/LGP-real-time.g").c_str())
     , steps_(steps_per_phase)
@@ -119,15 +119,17 @@ void ObstacleAvoidanceDec::obstacle_callback(const visualization_msgs::MarkerArr
       obstacles_[i].position = {msg->markers[i].pose.position.x, msg->markers[i].pose.position.y, 0};
 
       /// existence probability
-      double p = msg->markers.front().color.a;
+      double p = msg->markers[i].color.a;
 
-      // clamp
-      const double min = 0.1; // hack -> to change
-      p = std::max(p, min);
-      p = std::min(p, 1.0 - min);
-      //
+//      // clamp
+//      const double min = 0.1; // hack -> to change
+//      p = std::max(p, min);
+//      p = std::min(p, 1.0 - min);
+//      //
 
       obstacles_[i].p = p;
+
+      //std::cout << "obstacle.p=" << p << " orig=" << msg->markers[i].color.a << std::endl;
     }
 }
 
@@ -213,12 +215,19 @@ void ObstacleAvoidanceDec::update_groundings()
     objectives.vel_->map->target = {v_desired_};
 
     // apply scales
-    objectives.apply_scales(ps[i] * ones(4 * steps_));
+    double s = std::max(0.2, ps[i]); // min value here to keep the problem weel conditioned
 
+    objectives.apply_scales(s * ones(4 * steps_));
+
+    // update collision avoidance
     std::vector<arr> obs = get_relevant_obstacles(obstacles_, activities[i]);
 
     if(!obs.empty())
     {
+      if(ps[i] <= 0.0)
+      {
+          obs.front()(0) = -10; // artificially deactivate constraint, hack!!
+      }
       objectives.circular_obstacle_->set_obstacle_positions(obs);
     }
   }
@@ -257,9 +266,11 @@ void ObstacleAvoidanceDec::init_optimization_variable()
 
 void ObstacleAvoidanceDec::Objectives::apply_scales(const arr& scales)
 {
-  ax_->scales = scales;
-  vel_->scales = scales;
-  acc_->scales = scales;
+  const double surscale = 1.5;
+
+  ax_->scales = surscale * scales;
+  vel_->scales = surscale * scales;
+  acc_->scales = surscale * scales;
 }
 
 std::vector<double> fuse_probabilities(const std::vector<Obstacle>& obstacles, std::vector<std::vector<bool>> & activities)

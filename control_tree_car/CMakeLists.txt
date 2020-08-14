@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 project(control_tree_car)
 
-set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_BUILD_TYPE Release)
 
 ## Find catkin and any catkin packages
 find_package(catkin REQUIRED COMPONENTS roscpp rospy roslib std_msgs nav_msgs sensor_msgs tf)
