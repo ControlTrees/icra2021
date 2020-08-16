@@ -93,7 +93,9 @@ private:
 
     arr x_;
     std::vector<arr> xmasks_;
-    intA vars_branch_order_0_;
+    std::vector<intA> vars_; // uncompressed vars (dual of xmasks)
+
+    intA vars_branch_order_0_; // comressed var (hence all the same)
     intA vars_branch_order_1_;
     intA vars_branch_order_2_;
 };

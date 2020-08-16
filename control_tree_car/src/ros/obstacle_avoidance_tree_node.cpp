@@ -5,6 +5,7 @@
 #include <control_tree/komo/obstacle_avoidance_tree.h>
 #include <control_tree/komo/obstacle_avoidance_dec.h>
 #include <control_tree/ros/obstacle_common.h>
+#include <control_tree/ros/common.h>
 
 //typedef ObstacleAvoidanceTree BehaviorType;
 typedef ObstacleAvoidanceDec BehaviorType;
@@ -33,7 +34,7 @@ int main(int argc, char **argv)
                     n.advertise<nav_msgs::Path>("/traj_planner/trajectory_" + std::to_string(i + 1), 1000)
                     );
     }
-    ros::Publisher centerline_publisher = n.advertise<visualization_msgs::Marker>("/environment/center_line", 1000);
+    ros::Publisher road_publisher = n.advertise<visualization_msgs::MarkerArray>("/environment/road_model_array", 1000);
 
     BehaviorManager manager;
 
@@ -81,7 +82,8 @@ int main(int argc, char **argv)
 
                 car_x = transform(tf::Vector3(0,0,0)).x();
 
-                centerline_publisher.publish(create_center_line(transform(tf::Vector3(0,0,0)).x()));
+                auto markers = RoadModelBuilder(car_x).add_center_line().add_road_border().build();
+                road_publisher.publish(markers);
             }
             catch (tf::TransformException ex)
             {

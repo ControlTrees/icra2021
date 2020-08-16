@@ -22,6 +22,19 @@ struct Position2D
     double y;
 };
 
+struct Vector2D
+{
+    double x;
+    double y;
+};
+
+struct Pose2D
+{
+    double x;
+    double y;
+    double yaw;
+};
+
 class Evaluator
 {
 public:
@@ -46,3 +59,6 @@ double rand_m11();
 OdometryState odometry_state_from_msg(const nav_msgs::Odometry::ConstPtr& msg);
 double get_yaw_from_quaternion(const geometry_msgs::Quaternion & quat);
 double calculateDifferenceBetweenAngles(double target, double source);
+
+bool near(const Pose2D & a, const Pose2D & b, double eps = 0.0001);
+Pose2D project_on_trajectory(const Pose2D & p, std::vector<Pose2D> trajectory, int & index, double & mu);

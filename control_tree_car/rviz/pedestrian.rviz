@@ -10,7 +10,6 @@ Panels:
         - /Grid1/Offset1
         - /Odometry1/Shape1
         - /Pedestrian1
-        - /Centerline1
         - /Pedestrian_prediction1/Namespaces1
         - /trajectory_111/Offset1
         - /trajectory_131/Offset1
@@ -103,34 +102,6 @@ Visualization Manager:
           Value: true
         lgp_pedestrian_1_axis_aligned:
           Value: true
-        lgp_pedestrian_2:
-          Value: true
-        lgp_pedestrian_2_axis_aligned:
-          Value: true
-        lgp_pedestrian_3:
-          Value: true
-        lgp_pedestrian_3_axis_aligned:
-          Value: true
-        lgp_pedestrian_4:
-          Value: true
-        lgp_pedestrian_4_axis_aligned:
-          Value: true
-        lgp_pedestrian_5:
-          Value: true
-        lgp_pedestrian_5_axis_aligned:
-          Value: true
-        lgp_pedestrian_6:
-          Value: true
-        lgp_pedestrian_6_axis_aligned:
-          Value: true
-        lgp_pedestrian_7:
-          Value: true
-        lgp_pedestrian_7_axis_aligned:
-          Value: true
-        lgp_pedestrian_8:
-          Value: true
-        lgp_pedestrian_8_axis_aligned:
-          Value: true
         map:
           Value: true
       Marker Scale: 0.5
@@ -151,34 +122,6 @@ Visualization Manager:
           lgp_pedestrian_1:
             {}
           lgp_pedestrian_1_axis_aligned:
-            {}
-          lgp_pedestrian_2:
-            {}
-          lgp_pedestrian_2_axis_aligned:
-            {}
-          lgp_pedestrian_3:
-            {}
-          lgp_pedestrian_3_axis_aligned:
-            {}
-          lgp_pedestrian_4:
-            {}
-          lgp_pedestrian_4_axis_aligned:
-            {}
-          lgp_pedestrian_5:
-            {}
-          lgp_pedestrian_5_axis_aligned:
-            {}
-          lgp_pedestrian_6:
-            {}
-          lgp_pedestrian_6_axis_aligned:
-            {}
-          lgp_pedestrian_7:
-            {}
-          lgp_pedestrian_7_axis_aligned:
-            {}
-          lgp_pedestrian_8:
-            {}
-          lgp_pedestrian_8_axis_aligned:
             {}
       Update Interval: 0
       Value: true
@@ -308,46 +251,12 @@ Visualization Manager:
       Topic: /lgp_car/target_pose
       Unreliable: false
       Value: true
-    - Class: rviz/Marker
-      Enabled: true
-      Marker Topic: /environment/center_line
-      Name: Centerline
-      Namespaces:
-        "": true
-      Queue Size: 100
-      Value: true
     - Class: rviz/MarkerArray
       Enabled: true
       Marker Topic: /lgp_pedestrian_belief/marker_array
       Name: Pedestrian_prediction
       Namespaces:
-        pedestrian_continue_prediction_0: true
-        pedestrian_continue_prediction_1: true
-        pedestrian_continue_prediction_2: true
-        pedestrian_continue_prediction_3: true
-        pedestrian_continue_prediction_4: true
-        pedestrian_continue_prediction_5: true
-        pedestrian_continue_prediction_6: true
-        pedestrian_continue_prediction_7: true
-        pedestrian_continue_prediction_8: true
-        pedestrian_crossing_prediction_0: true
-        pedestrian_crossing_prediction_1: true
-        pedestrian_crossing_prediction_2: true
-        pedestrian_crossing_prediction_3: true
-        pedestrian_crossing_prediction_4: true
-        pedestrian_crossing_prediction_5: true
-        pedestrian_crossing_prediction_6: true
-        pedestrian_crossing_prediction_7: true
-        pedestrian_crossing_prediction_8: true
-        pedestrian_mesh_0: true
-        pedestrian_mesh_1: true
-        pedestrian_mesh_2: true
-        pedestrian_mesh_3: true
-        pedestrian_mesh_4: true
-        pedestrian_mesh_5: true
-        pedestrian_mesh_6: true
-        pedestrian_mesh_7: true
-        pedestrian_mesh_8: true
+        {}
       Queue Size: 100
       Value: true
     - Alpha: 1
@@ -603,6 +512,14 @@ Visualization Manager:
       Topic: /traj_planner/trajectory_110
       Unreliable: false
       Value: true
+    - Class: rviz/MarkerArray
+      Enabled: true
+      Marker Topic: /environment/road_model_array
+      Name: RoadModel
+      Namespaces:
+        "": true
+      Queue Size: 100
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -643,10 +560,10 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Pitch: 0.404797852
+      Pitch: 0.404797792
       Target Frame: lgp_car
       Value: XYOrbit (rviz)
-      Yaw: 3.14540601
+      Yaw: 3.11540914
     Saved: ~
 Window Geometry:
   Displays:

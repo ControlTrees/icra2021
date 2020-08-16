@@ -78,7 +78,7 @@ TimeCostPair ObstacleAvoidanceLinear::plan()
 
     // init
     auto o = manager_.odometry();
-    set_komo_start(komo_, o, steps_);
+    shift_komos(komo_, o, steps_);
     komo_->reset();
 
     // run

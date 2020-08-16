@@ -20,7 +20,7 @@
 // constraints lateral instead of centerline?
 
 // params
-const double lane_width = 3.0; // aka target_y
+const double lane_width = 3.5;
 const double reset_x_threshold = -5.0;
 const double distance_ahead = 28;
 const double vanishing_false_positive_distance = 10.0;
@@ -278,7 +278,6 @@ int main(int argc, char **argv)
 
     ros::Rate loop_rate(10);
 
-
     // loop variables
     ObstacleObserver observer(tf_listener, N);
 
@@ -289,8 +288,9 @@ int main(int argc, char **argv)
         std::shared_ptr<Obstacle> obstacle;
 
         const auto car_position = observer.get_car_position();
-        const double new_x = car_position.x + distance_ahead + rand_m11() * lane_width;
-        const double new_y = rand_m11() * lane_width * 0.5;
+        const double new_x = car_position.x + distance_ahead + rand_m11() * distance_ahead * 0.5;
+        //const double new_y = rand_m11() * lane_width * 0.5;
+        const double new_y = rand_m11() > 0 ?  lane_width * 0.5 - 0.5 * rand_01() : -lane_width * 0.5 + 0.5 * rand_01() ;
         const double exponent = log(p_obstacle) / log(0.5);
         const double p = pow(rand_01(), exponent);
         const double certainty_distance = 10 + ( distance_ahead - 5 ) * rand_01() * rand_01();

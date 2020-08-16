@@ -50,6 +50,7 @@ ObstacleAvoidanceDec::ObstacleAvoidanceDec(BehaviorManager& behavior_manager, in
     , options_(PARALLEL, true, NOOPT, false)
 {
     options_.opt.verbose = 0;
+    //options_.opt.aulaMuInc = 1;
 
     // optim structure
     init_tree();
@@ -132,26 +133,36 @@ void ObstacleAvoidanceDec::obstacle_callback(const visualization_msgs::MarkerArr
 
 TimeCostPair ObstacleAvoidanceDec::plan()
 {
-    ROS_INFO( "ObstacleAvoidanceDec::plan.." );
-
     update_groundings();
-   // update start state
+
+    // update the komos based on new pose (important for efficiency)
     const auto o = manager_.odometry();
 
     for(auto i = 0; i < n_branches_; ++i)
     {
-      set_komo_start(komos_[i], o, steps_);
+      // update komos
+      shift_komos(komos_[i], o, steps_);
+
+      // Note: updating the dual seems very difficult and doesn't lead to good results!
+      // update dual
+      //const auto dual_dim_per_step = converters_[i]->dimPhi / steps_ / 4; // 4 phases
+      //shift_dual(dual_state_, dual_dim_per_step, index-2);
+
       komos_[i]->reset();
     }
+
+    // update the optim variable (since komos have been changed)
+    update_x(x_, komos_, vars_);
 
     // run
     auto start = std::chrono::high_resolution_clock::now();
 
     DecOptConstrained<ConstrainedProblem> opt(x_, constrained_problems_, xmasks_, options_);
+
     opt.run();
 
-//    //komo_->getReport(true);
-//    //komo_->plotTrajectory();
+    //komo_->getReport(true);
+    //komo_->plotTrajectory();
     auto end = std::chrono::high_resolution_clock::now();
     float execution_time_us = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
 
@@ -254,6 +265,7 @@ void ObstacleAvoidanceDec::init_optimization_variable()
     }
 
     xmasks_.push_back(xmask);
+    vars_.push_back(var);
   }
 }
 

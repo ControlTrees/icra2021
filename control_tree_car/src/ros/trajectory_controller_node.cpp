@@ -10,78 +10,6 @@
 
 #include <control_tree/core/utility.h>
 
-struct Vector2D
-{
-    double x;
-    double y;
-};
-
-struct Pose2D
-{
-    double x;
-    double y;
-    double yaw;
-};
-
-bool near(const Pose2D & a, const Pose2D & b, double eps = 0.0001)
-{
-    bool close = true;
-
-    close = close && fabs(a.x-b.x) < eps;
-    close = close && fabs(a.y-b.y) < eps;
-
-    return close;
-}
-
-Pose2D project_on_trajectory(const Pose2D & p, std::vector<Pose2D> trajectory, int & index, double & mu)
-{
-    using namespace Eigen;
-
-    index = -1;
-    mu = -1;
-
-    int I = 0; // number of passed valid points
-    for(auto i = 0; i < trajectory.size()-1; ++i)
-    {
-        const auto a = trajectory[i];
-        const auto b = trajectory[i+1];
-
-        if(near(a, b))  // identical points, might be the prefix
-            continue;
-
-        Vector2D n {sin(p.yaw), -cos(p.yaw)};
-        Vector2D ab {b.x - a.x, b.y - a.y};
-
-        Matrix2f A;
-        A << n.x, a.x - b.x,
-             n.y, a.y - b.y;
-
-        Vector2f B;
-        B << a.x - p.x, a.y - p.y;
-
-        if(fabs(A.determinant()) > 0.00001)
-        {
-            Vector2f S = A.inverse() * (B);
-            double lambda = S[0];
-            double _mu = S[1];
-
-            if(0.0 <= _mu && _mu < 1.0
-                    || I == 0 && _mu <= 1.0 // hack to make sure it works if the furst points were skipped
-                    || i == trajectory.size() - 2 && 0 <= _mu) // proj found
-            {
-                index = i;
-                mu = _mu;
-                return {a.x + mu * ab.x, a.y + mu * ab.y, b.yaw};
-            }
-        }
-
-        ++I;
-    }
-
-    return Pose2D{std::nan(""), std::nan(""), std::nan("")};
-}
-
-
 class TrajectoryController
 {
 public:
@@ -187,9 +115,13 @@ public:
         }
 
         w_cmd = w_cmd * (v / nominal_v);
-        if(std::fabs(w_cmd) > 0.5)
+
+        const double max_w = 1.0;
+        if(std::fabs(w_cmd) > max_w)
         {
-            w_cmd = w_cmd > 0 ? 0.5 : -0.5;
+            //std::cout << "limit omega!" << w_cmd << std::endl;
+            //v *= max_w / std::fabs(w_cmd);
+            w_cmd = w_cmd > 0 ? max_w : -max_w;
         }
 
         ///

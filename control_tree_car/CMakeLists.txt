@@ -9,9 +9,9 @@ find_package(catkin REQUIRED COMPONENTS roscpp rospy roslib std_msgs nav_msgs se
 ## Declare a catkin package
 catkin_package()
 
-#################################
+##################################
 # Locate MLR libs
-#################################
+##################################
 
 #find Eigen
 find_package(Eigen3 REQUIRED)
@@ -89,26 +89,37 @@ ${catkin_LIBRARIES}
  pthread
  )
 
+## Ros common utilities
+file(GLOB ros_common_src "include/control_tree/ros/common.h" "src/ros/common.cpp")
+add_library(ros_common_lib STATIC ${ros_common_src})
+target_link_libraries(ros_common_lib
+${catkin_LIBRARIES}
+ )
+
 ## Pedestrian
 add_executable(pedestrian_tree_qp_node src/ros/pedestrian_tree_qp_node.cpp src/ros/pedestrian_common.cpp include/control_tree/ros/pedestrian_common.h)
 target_link_libraries(pedestrian_tree_qp_node
 qp_lib
+ros_common_lib
  )
 
 add_executable(pedestrian_popping_control_node src/ros/pedestrian_popping_control_node.cpp)
 target_link_libraries(pedestrian_popping_control_node
 core_lib
+ros_common_lib
  )
 
 ## Obstacle avoidance
 add_executable(obstacle_avoidance_tree_node src/ros/obstacle_avoidance_tree_node.cpp src/ros/obstacle_common.cpp include/control_tree/ros/obstacle_common.h)
 target_link_libraries(obstacle_avoidance_tree_node
 komo_lib
+ros_common_lib
  )
 
 add_executable(obstacle_avoidance_linear_node src/ros/obstacle_avoidance_linear_node.cpp src/ros/obstacle_common.cpp include/control_tree/ros/obstacle_common.h)
 target_link_libraries(obstacle_avoidance_linear_node
 komo_lib
+ros_common_lib
  )
 
 add_executable(obstacle_popping_control_node src/ros/obstacle_popping_control_node.cpp src/ros/obstacle_common.cpp include/control_tree/ros/obstacle_common.h)

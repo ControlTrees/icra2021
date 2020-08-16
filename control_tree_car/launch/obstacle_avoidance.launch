@@ -1,6 +1,6 @@
 <launch>
     <param name="/traj_planner/steps_per_phase" type="int" value="4" />
-    <param name="/p_obstacle" type="double" value="0.45" />
+    <param name="/p_obstacle" type="double" value="0.3" />
     <param name="/n_obstacles" type="int" value="2" />
     <param name="/traj_controller/trajectory_index" type="int" value="1" />
 

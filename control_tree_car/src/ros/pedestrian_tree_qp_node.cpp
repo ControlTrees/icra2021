@@ -5,6 +5,7 @@
 #include <control_tree/core/behavior_manager.h>
 #include <control_tree/qp/stopline_qp_tree.h>
 #include <control_tree/ros/pedestrian_common.h>
+#include <control_tree/ros/common.h>
 
 int main(int argc, char **argv)
 {
@@ -33,7 +34,7 @@ int main(int argc, char **argv)
       traj_publishers.push_back(n.advertise<nav_msgs::Path>(name, 1000));
     }
     //ros::Publisher ctrl_publisher = n.advertise<geometry_msgs::Twist>("/lgp_car/vel_cmd", 1000);
-    ros::Publisher border_publisher = n.advertise<visualization_msgs::Marker>("/environment/center_line", 1000);
+    ros::Publisher road_publisher = n.advertise<visualization_msgs::MarkerArray>("/environment/road_model_array", 1000);
 
     BehaviorManager manager;
 
@@ -83,7 +84,8 @@ int main(int argc, char **argv)
 
                 car_x = transform(tf::Vector3(0,0,0)).x();
 
-                border_publisher.publish(create_road_border(car_x));
+                auto markers = RoadModelBuilder(car_x).add_road_border().build();
+                road_publisher.publish(markers);
             }
             catch (tf::TransformException ex)
             {

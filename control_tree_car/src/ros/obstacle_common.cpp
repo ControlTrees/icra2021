@@ -7,38 +7,6 @@
 
 #include <chrono>
 
-visualization_msgs::Marker create_center_line(double map_x)
-{
-    visualization_msgs::Marker marker;
-    marker.header.stamp = ros::Time::now();
-    marker.header.frame_id = "map";
-    marker.id = std::hash<std::string>()("center_line");
-    marker.type = visualization_msgs::Marker::LINE_STRIP;//;visualization_msgs::Marker::CUBE;
-    marker.action = visualization_msgs::Marker::ADD;
-    marker.pose.position.x = 0;
-    marker.pose.position.y = 0;
-    marker.scale.x = 0.1; // thickness
-    marker.color.r = 0.0;
-    marker.color.g = 0.0;
-    marker.color.b = 0.5;
-    marker.color.a = 0.5;
-
-    geometry_msgs::Point p;
-    p.x = map_x - 100;
-    p.y = 0;
-    p.z = 0;
-
-    marker.points.push_back(p);
-
-    p.x = map_x + 300;
-    p.y = 0;
-    p.z = 0;
-
-    marker.points.push_back(p);
-
-    return marker;
-}
-
 void log_to_file(std::ofstream & ofs, ros::NodeHandle & n, double car_x, int i, double cost, double time)
 {
     int n_obstacles, n_non_obstacles;
