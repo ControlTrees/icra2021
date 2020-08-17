@@ -16,35 +16,34 @@
 #include <control_tree/core/utility.h>
 
 // TODO
-// improve obstacle randomization?
 // constraints lateral instead of centerline?
 
 // params
-const double lane_width = 3.5;
-const double reset_x_threshold = -5.0;
+double lane_width = 3.5;
+const double reset_x_threshold = -0;
 const double distance_ahead = 28;
-const double vanishing_false_positive_distance = 10.0;
+//const double vanishing_false_positive_distance = 10.0;
 
 static int n_obstacles = 0;
 static int n_non_obstacles = 0;
 
-static double steadily_increasing(double signed_distance)
-{
-    const auto distance = signed_distance < 0 ? 0 : signed_distance;
+//static double steadily_increasing(double signed_distance)
+//{
+//    const auto distance = signed_distance < 0 ? 0 : signed_distance;
 
-    auto p = (distance_ahead - distance) / distance_ahead;
+//    auto p = (distance_ahead - distance) / distance_ahead;
 
-    return p;
-}
+//    return p;
+//}
 
-static double steadily_decreasing(double signed_distance)
-{
-    const auto distance = signed_distance < 0 ? 0 : signed_distance;
+//static double steadily_decreasing(double signed_distance)
+//{
+//    const auto distance = signed_distance < 0 ? 0 : signed_distance;
 
-    auto p = (std::max(0.0, distance - vanishing_false_positive_distance)) / distance_ahead;
+//    auto p = (std::max(0.0, distance - vanishing_false_positive_distance)) / distance_ahead;
 
-    return p;
-}
+//    return p;
+//}
 
 class Obstacle
 {
@@ -227,6 +226,8 @@ public:
 
     std::shared_ptr<Obstacle> obstacle(uint i) const { return obstacles_[i]; }
 
+    std::vector<std::shared_ptr<Obstacle>> obstacles() const { return obstacles_; }
+
     void reset_bias()
     {
         bias_.x = rand_m11();
@@ -253,6 +254,83 @@ private:
     const double scale_noise_;
 };
 
+static std::shared_ptr<Obstacle> draw_new_obstacle(uint obstacle_id,
+                                                   double p_obstacle,
+                                                   const ObstacleObserver& observer,
+                                                   ros::NodeHandle& n,
+                                                   std::vector<ros::Publisher> & new_pose_publishers,
+                                                   tf::TransformListener& tf_listener)
+{
+    // draw new OBSTACLE
+    std::shared_ptr<Obstacle> obstacle;
+
+    const auto car_position = observer.get_car_position();
+
+    bool position_valid = false;
+    Position2D new_position;
+
+    while(!position_valid)
+    {
+        // X
+        const double new_x = car_position.x + distance_ahead + rand_m11() * distance_ahead * 0.5;
+
+        // Y
+        //const double new_y = rand_m11() * lane_width * 0.5;
+        const double new_y = rand_m11() > 0 ?  lane_width * 0.5 - 0.5 * rand_01() : -lane_width * 0.5 + 0.5 * rand_01() ;
+
+        new_position = Position2D{new_x, new_y};
+
+        position_valid = true;
+        for(const auto& o: observer.obstacles())
+        {
+            if(o.get())
+            {
+                const auto& other = o->get_position();
+
+                const auto d = dist(new_position, other);
+
+                //std::cout << "distance:" << d << std::endl;
+
+                position_valid = position_valid && d > 8.0;
+            }
+        }
+    }
+
+    // P
+    const double exponent = log(p_obstacle) / log(0.5);
+    const double p = pow(rand_01(), exponent);
+    const double certainty_distance = 10 + ( distance_ahead - 5 ) * rand_01() * rand_01();
+
+    const double q = rand_01();
+    if(q <= p)
+    {
+        //ROS_INFO_STREAM("CREATE TRUE POSITIVE..");
+        n_obstacles++;
+        obstacle = std::shared_ptr<Obstacle>(new TruePositive(obstacle_id, new_position, p, certainty_distance, tf_listener) );
+    }
+    else
+    {
+        //ROS_INFO_STREAM("CREATE FALSE POSITIVE..");
+        n_non_obstacles++;
+        obstacle = std::shared_ptr<Obstacle>(new FalsePositive(obstacle_id, new_position, p, certainty_distance) );
+    }
+
+    if(!obstacle->is_false_positive())
+    {
+        geometry_msgs::Pose2D msg;
+        msg.x = new_position.x;
+        msg.y = new_position.y;
+
+        new_pose_publishers[obstacle_id].publish(msg);
+    }
+
+    n.setParam("/n_total_obstacles", n_obstacles);
+    n.setParam("/n_total_non_obstacles", n_non_obstacles);
+
+    return obstacle;
+}
+
+
 int main(int argc, char **argv)
 {
     srand(0);
@@ -268,6 +346,8 @@ int main(int argc, char **argv)
     int N = 1; // number of obsatcles
     n.getParam("n_obstacles", N);
     n.getParam("p_obstacle", p_obstacle);
+    n.getParam("road_width", lane_width);
+
 
     std::vector<ros::Publisher> new_pose_publishers;
     for(auto i = 0; i < N; ++i)
@@ -280,49 +360,6 @@ int main(int argc, char **argv)
 
     // loop variables
     ObstacleObserver observer(tf_listener, N);
-
-    // obstacle creation
-    auto draw_new_obstacle = [&](uint obstacle_id)
-    {
-        // draw new OBSTACLE
-        std::shared_ptr<Obstacle> obstacle;
-
-        const auto car_position = observer.get_car_position();
-        const double new_x = car_position.x + distance_ahead + rand_m11() * distance_ahead * 0.5;
-        //const double new_y = rand_m11() * lane_width * 0.5;
-        const double new_y = rand_m11() > 0 ?  lane_width * 0.5 - 0.5 * rand_01() : -lane_width * 0.5 + 0.5 * rand_01() ;
-        const double exponent = log(p_obstacle) / log(0.5);
-        const double p = pow(rand_01(), exponent);
-        const double certainty_distance = 10 + ( distance_ahead - 5 ) * rand_01() * rand_01();
-
-        const double q = rand_01();
-        if(q <= p)
-        {
-            //ROS_INFO_STREAM("CREATE TRUE POSITIVE..");
-            n_obstacles++;
-            obstacle = std::shared_ptr<Obstacle>(new TruePositive(obstacle_id, {new_x, new_y}, p, certainty_distance, tf_listener) );
-        }
-        else
-        {
-            //ROS_INFO_STREAM("CREATE FALSE POSITIVE..");
-            n_non_obstacles++;
-            obstacle = std::shared_ptr<Obstacle>(new FalsePositive(obstacle_id, {new_x, new_y}, p, certainty_distance) );
-        }
-
-        if(!obstacle->is_false_positive())
-        {
-            geometry_msgs::Pose2D msg;
-            msg.x = new_x;
-            msg.y = new_y;
-
-            new_pose_publishers[obstacle_id].publish(msg);
-        }
-
-        n.setParam("/n_total_obstacles", n_obstacles);
-        n.setParam("/n_total_non_obstacles", n_non_obstacles);
-
-        return obstacle;
-    };
 
     while(ros::ok())
     {
@@ -353,14 +390,13 @@ int main(int argc, char **argv)
             {
                 if(!observer.obstacle(i).get())
                 {
-                    auto obstacle = draw_new_obstacle(i);
+                    auto obstacle = draw_new_obstacle(i, p_obstacle, observer, n, new_pose_publishers, tf_listener);
                     observer.set_obstacle(i, obstacle);
                 }
             }
 
             // publish observation
             auto markers = observer.observe_obstacles();
-            //marker.id = obstacle_id;
 
             marker_publisher.publish(markers);
         }

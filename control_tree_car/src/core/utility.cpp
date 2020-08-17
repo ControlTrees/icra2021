@@ -115,3 +115,10 @@ Pose2D project_on_trajectory(const Pose2D & p, std::vector<Pose2D> trajectory, i
 
     return Pose2D{std::nan(""), std::nan(""), std::nan("")};
 }
+
+double dist(const Position2D& a, const Position2D& b)
+{
+    const auto dx = a.x - b.x;
+    const auto dy = a.y - b.y;
+    return sqrt(dx*dx + dy*dy);
+}

@@ -6,8 +6,9 @@
 
 struct RoadModelBuilder
 {
-    RoadModelBuilder(double map_x)
+    RoadModelBuilder(double map_x, double road_width)
         : map_x(map_x)
+        , road_width(road_width)
     {
 
     }
@@ -20,4 +21,5 @@ struct RoadModelBuilder
 
     visualization_msgs::MarkerArray markers;
     double map_x;
+    double road_width;
 };

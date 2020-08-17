@@ -4,6 +4,7 @@
     <param name="/p_crossing" type="double" value="0.05" />
     <param name="/traj_planner/steps_per_phase" type="int" value="4" />
     <param name="/traj_controller/trajectory_index" type="int" value="11" />
+    <param name="/road_width" type="double" value="3.5" />
 	
     <node pkg="control_tree_car" type="pedestrian_tree_qp_node" name="qp_node" output="screen">
     </node>

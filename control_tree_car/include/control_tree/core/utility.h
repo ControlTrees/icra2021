@@ -62,3 +62,4 @@ double calculateDifferenceBetweenAngles(double target, double source);
 
 bool near(const Pose2D & a, const Pose2D & b, double eps = 0.0001);
 Pose2D project_on_trajectory(const Pose2D & p, std::vector<Pose2D> trajectory, int & index, double & mu);
+double dist(const Position2D& a, const Position2D& b);

@@ -15,6 +15,7 @@ int main(int argc, char **argv)
     int n_branches = 2;
     int n_pedestrians = 1;
     double p_crossing = 0;
+    double road_width = 3.5;
 
     // ros init
     ros::init(argc, argv, "lgp_car_pedestrian_qp_tree_planner");
@@ -23,6 +24,8 @@ int main(int argc, char **argv)
     n.getParam("n_branches", n_branches);
     n.getParam("n_pedestrians", n_pedestrians);
     n.getParam("p_crossing", p_crossing);
+    n.getParam("road_width", road_width);
+
 
     tf::TransformListener tf_listener;
     n.getParam("/traj_planner/steps_per_phase", steps_per_phase);
@@ -84,7 +87,7 @@ int main(int argc, char **argv)
 
                 car_x = transform(tf::Vector3(0,0,0)).x();
 
-                auto markers = RoadModelBuilder(car_x).add_road_border().build();
+                auto markers = RoadModelBuilder(car_x, road_width).add_road_border().build();
                 road_publisher.publish(markers);
             }
             catch (tf::TransformException ex)

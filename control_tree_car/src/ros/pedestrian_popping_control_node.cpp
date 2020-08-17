@@ -21,7 +21,7 @@
 // params
 const double reset_x_threshold = -5.0;
 const double distance_ahead = 28;
-const double lane_width = 3.5;
+double lane_width = 3.5;
 
 static int n_crossings = 0;
 static int n_non_crossings = 0;
@@ -556,6 +556,7 @@ int main(int argc, char **argv)
 
     n.getParam("n_pedestrians", N);
     n.getParam("p_crossing", p_crossing);
+    n.getParam("road_width", lane_width);
 
     ros::Publisher markers_publisher = n.advertise<visualization_msgs::MarkerArray>("/lgp_pedestrian_belief/marker_array", 1000);
     std::vector<ros::Publisher> ctrl_publishers, pose_publishers;

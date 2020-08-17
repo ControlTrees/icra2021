@@ -41,7 +41,7 @@ visualization_msgs::Marker create_center_line(double map_x)
     return marker;
 }
 
-visualization_msgs::Marker create_road_border(double map_x)
+visualization_msgs::Marker create_road_border(double map_x, double road_width)
 {
     visualization_msgs::Marker marker;
     marker.header.stamp = ros::Time::now();
@@ -59,25 +59,25 @@ visualization_msgs::Marker create_road_border(double map_x)
 
     geometry_msgs::Point p;
     p.x = map_x - 100;
-    p.y = -1.75;
+    p.y = -road_width / 2;
     p.z = 0;
 
     marker.points.push_back(p);
 
     p.x = map_x + 300;
-    p.y = -1.75;
+    p.y = -road_width / 2;
     p.z = 0;
 
     marker.points.push_back(p);
 
     p.x = map_x - 100;
-    p.y = 1.75;
+    p.y = road_width / 2;
     p.z = 0;
 
     marker.points.push_back(p);
 
     p.x = map_x + 300;
-    p.y = 1.75;
+    p.y = road_width / 2;
     p.z = 0;
 
     marker.points.push_back(p);
@@ -94,7 +94,7 @@ RoadModelBuilder& RoadModelBuilder::add_center_line()
 
 RoadModelBuilder& RoadModelBuilder::add_road_border()
 {
-    markers.markers.push_back(create_road_border(map_x));
+    markers.markers.push_back(create_road_border(map_x, road_width));
     return *this;
 }
 

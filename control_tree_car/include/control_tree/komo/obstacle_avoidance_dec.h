@@ -22,9 +22,6 @@
 #include <komo_wrapper.h>
 
 #include <tree_builder.h>
-#include <car_kinematic.h>
-#include <velocity.h>
-#include <axis_bound.h>
 #include <circular_obstacle.h>
 
 #include <Optimization/decentralized_optimizer.h>
@@ -39,7 +36,7 @@ struct Obstacle
 class ObstacleAvoidanceDec : public BehaviorBase
 {
 public:
-    ObstacleAvoidanceDec(BehaviorManager&, int n_obstacles, int steps_per_phase);
+    ObstacleAvoidanceDec(BehaviorManager&, int n_obstacles, double road_width, int steps_per_phase);
 
     void desired_speed_callback(const std_msgs::Float32::ConstPtr& msg);
 
@@ -61,6 +58,7 @@ private:
     // params
     const uint n_obstacles_; // number of obstacles
     const uint n_branches_; // number of branches
+    const double road_width_;
     rai::KinematicWorld kin_;
     const uint steps_;
 

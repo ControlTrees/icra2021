@@ -1,8 +1,13 @@
 #include <control_tree/komo/obstacle_avoidance_dec.h>
 #include <control_tree/core/behavior_manager.h>
-#include <control_tree/komo/velocity_axis.h>
 #include <control_tree/core/utility.h>
+#include <control_tree/komo/velocity_axis.h>
 #include <control_tree/komo/utility_komo.h>
+
+#include <velocity.h>
+#include <axis_bound.h>
+#include <road_bound.h>
+#include <car_kinematic.h>
 
 #include <subtree_generators.h>
 
@@ -38,10 +43,11 @@ std::vector<arr> get_relevant_obstacles(const std::vector<Obstacle> & obstacles,
 
 }
 
-ObstacleAvoidanceDec::ObstacleAvoidanceDec(BehaviorManager& behavior_manager, int n_obstacles, int steps_per_phase)
+ObstacleAvoidanceDec::ObstacleAvoidanceDec(BehaviorManager& behavior_manager, int n_obstacles, double road_width, int steps_per_phase)
     : BehaviorBase(behavior_manager)
     , n_obstacles_(n_obstacles)
     , n_branches_(n_branches(n_obstacles))
+    , road_width_(road_width)
     , kin_((ros::package::getPath("control_tree_car") + "/data/LGP-real-time.g").c_str())
     , steps_(steps_per_phase)
     , v_desired_(1.0)
@@ -71,7 +77,7 @@ ObstacleAvoidanceDec::ObstacleAvoidanceDec(BehaviorManager& behavior_manager, in
       objectives.acc_ = komo->addObjective(-123., 123., new TM_Transition(komo->world), OT_sos, NoArr, 1.0, 2);
       objectives.acc_->vars = vars_branch_order_2_;
 
-      objectives.ax_ = komo->addObjective(-123., 123., new AxisBound("car_ego", AxisBound::Y, AxisBound::EQUAL), OT_sos, NoArr, 1.0, 0);
+      objectives.ax_ = komo->addObjective(-123., 123., new RoadBound("car_ego", komo->world, road_width_ / 2.0), OT_sos, NoArr, 1.0, 0);
       objectives.ax_->vars = vars_branch_order_0_;
 
       objectives.vel_ = komo->addObjective(-123., 123., new AxisBound("car_ego", AxisBound::X, AxisBound::EQUAL), OT_sos, {v_desired_}, 1.0, 1);
@@ -277,6 +283,8 @@ void ObstacleAvoidanceDec::Objectives::apply_scales(const arr& scales)
   vel_->scales = surscale * scales;
   acc_->scales = surscale * scales;
 }
+
+//-----------free functions----------------------
 
 std::vector<double> fuse_probabilities(const std::vector<Obstacle>& obstacles, std::vector<std::vector<bool>> & activities)
 {
