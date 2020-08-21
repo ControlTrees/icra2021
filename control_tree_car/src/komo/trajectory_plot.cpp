@@ -24,7 +24,7 @@ void TrajectoryPlot::update(const std::vector<nav_msgs::Path> & trajectories)
     auto & gp = gp_;
 
     gp << "set title '" << name_ << "'\n";
-    gp << "set xrange [0:50]\nset yrange " << yrange_ << "\n";
+    gp << "set xrange [-10:50]\nset yrange " << yrange_ << "\n";
     gp << "plot ";
 
     for(auto i = 0; i < trajectories.size(); ++i)

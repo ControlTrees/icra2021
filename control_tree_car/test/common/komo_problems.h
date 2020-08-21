@@ -59,7 +59,7 @@ public:
   {
     ros::Time::init();
 
-    behavior = std::make_shared<ObstacleAvoidanceLinear>(manager, 4);
+    behavior = std::make_shared<ObstacleAvoidanceLinear>(manager, n_obstacles, 3.5, 4);
 
     manager.register_behavior("collision_avoidance", behavior);
     manager.set_current_behavior("collision_avoidance");
@@ -72,6 +72,7 @@ public:
 
   BehaviorManager manager;
   std::shared_ptr<ObstacleAvoidanceLinear> behavior;
+  int n_obstacles = 2;
 };
 
 class KomoJointTest : public ::testing::Test

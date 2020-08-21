@@ -13,8 +13,9 @@ int main(int argc, char **argv)
 {
     ROS_INFO_STREAM("Launch lgp car control, obstacle avoidance..");
 
-    double p_obstacle = 0.1;
     int steps_per_phase = 1;
+    double p_obstacle = 0.1;
+    int n_obstacles = 1;
     double road_width = 3.5;
 
     // ros init
@@ -24,15 +25,16 @@ int main(int argc, char **argv)
 
     n.getParam("/traj_planner/steps_per_phase", steps_per_phase);
     n.getParam("p_obstacle", p_obstacle);
+    n.getParam("n_obstacles", n_obstacles);
     n.getParam("road_width", road_width);
 
     ros::Publisher trajectory_publisher = n.advertise<nav_msgs::Path>("/traj_planner/trajectory_0", 1000);
-    ros::Publisher road_publisher = n.advertise<visualization_msgs::MarkerArray>("/environment/center_line", 1000);
+    ros::Publisher road_publisher = n.advertise<visualization_msgs::MarkerArray>("/environment/road_model_array", 1000);
 
     BehaviorManager manager;
 
     // instanciate behaviors
-    auto obstacle_avoidance_linear = std::shared_ptr<ObstacleAvoidanceLinear>(new ObstacleAvoidanceLinear(manager, steps_per_phase));
+    auto obstacle_avoidance_linear = std::shared_ptr<ObstacleAvoidanceLinear>(new ObstacleAvoidanceLinear(manager, n_obstacles, road_width, steps_per_phase));
     manager.register_behavior("ObstacleAvoidanceLinear", obstacle_avoidance_linear);
     manager.set_current_behavior("ObstacleAvoidanceLinear");
 
@@ -48,7 +50,7 @@ int main(int argc, char **argv)
             boost::bind(&ObstacleAvoidanceLinear::obstacle_callback, obstacle_avoidance_linear.get(), _1);
 
     auto speed = n.subscribe("/gui_control/lgp_car/desired_speed", 1000, speed_callback);
-    auto obstacle = n.subscribe("/lgp_obstacle_belief/marker", 1000, obstacle_callback);
+    auto obstacle = n.subscribe("/lgp_obstacle_belief/marker_array", 1000, obstacle_callback);
 
     ros::Rate loop_rate(10);
 
@@ -72,7 +74,7 @@ int main(int argc, char **argv)
 
                 car_x = transform(tf::Vector3(0,0,0)).x();
 
-                auto markers = RoadModelBuilder(car_x, road_width).add_center_line().build();
+                auto markers = RoadModelBuilder(car_x, road_width).add_center_line().add_road_border().build();
                 road_publisher.publish(markers);
             }
             catch (tf::TransformException ex)

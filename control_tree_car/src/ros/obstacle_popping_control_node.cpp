@@ -276,7 +276,7 @@ static std::shared_ptr<Obstacle> draw_new_obstacle(uint obstacle_id,
 
         // Y
         //const double new_y = rand_m11() * lane_width * 0.5;
-        const double new_y = rand_m11() > 0 ?  lane_width * 0.5 - 0.5 * rand_01() : -lane_width * 0.5 + 0.5 * rand_01() ;
+        const double new_y = rand_m11() > 0 ?  lane_width * 0.5 - 0.6 * rand_01() : -lane_width * 0.5 + 0.6 * rand_01() ;
 
         new_position = Position2D{new_x, new_y};
 
@@ -297,12 +297,13 @@ static std::shared_ptr<Obstacle> draw_new_obstacle(uint obstacle_id,
     }
 
     // P
-    const double exponent = log(p_obstacle) / log(0.5);
-    const double p = pow(rand_01(), exponent);
+   const double p = draw_p(p_obstacle);
+
+    //std::cout << "p:" << p << std::endl;
+
     const double certainty_distance = 10 + ( distance_ahead - 5 ) * rand_01() * rand_01();
 
-    const double q = rand_01();
-    if(q <= p)
+    if(draw_bool(p_obstacle))
     {
         //ROS_INFO_STREAM("CREATE TRUE POSITIVE..");
         n_obstacles++;

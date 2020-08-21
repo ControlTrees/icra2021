@@ -17,6 +17,7 @@
 #include <visualization_msgs/MarkerArray.h>
 
 #include <KOMO/komo.h>
+#include <control_tree/komo/utility_komo.h>
 
 #include <car_kinematic.h>
 #include <velocity.h>
@@ -29,7 +30,7 @@
 class ObstacleAvoidanceLinear : public BehaviorBase
 {
 public:
-    ObstacleAvoidanceLinear(BehaviorManager&, int steps_per_phase);
+    ObstacleAvoidanceLinear(BehaviorManager&, int n_obstacles, double road_width, int steps_per_phase);
 
     void desired_speed_callback(const std_msgs::Float32::ConstPtr& msg);
 
@@ -43,13 +44,14 @@ public:
 
 private:
     // params
+    const uint n_obstacles_;
+    const double road_width_;
     rai::KinematicWorld kin_;
     const uint steps_;
 
     // target: params than can be adapted
     double v_desired_;
-    double existence_probability_;
-    arr obstacle_position_;
+    std::vector<Obstacle> obstacles_;
 
     // functional
     std::shared_ptr<Car3CirclesCircularObstacle> circular_obstacle_;

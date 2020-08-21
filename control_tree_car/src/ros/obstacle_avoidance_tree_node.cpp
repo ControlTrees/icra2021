@@ -14,8 +14,9 @@ int main(int argc, char **argv)
 {
     ROS_INFO_STREAM("Launch lgp car control, obstacle avoidance..");
 
-    double p_obstacle = 0.1;
     int steps_per_phase = 1;
+    double p_obstacle = 0.1;
+    int n_obstacles = 1;
     double road_width = 3.5;
 
     // ros init
@@ -23,7 +24,6 @@ int main(int argc, char **argv)
     ros::NodeHandle n;
     tf::TransformListener tf_listener;
 
-    int n_obstacles = 1; // TODO change here
     n.getParam("/traj_planner/steps_per_phase", steps_per_phase);
     n.getParam("p_obstacle", p_obstacle);
     n.getParam("n_obstacles", n_obstacles);

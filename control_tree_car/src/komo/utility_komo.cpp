@@ -35,12 +35,17 @@ double traj_cost(const WorldL & Gs, const std::list<Objective *> & objectives)
     double cost = 0;
     for(const auto & o: objectives)
     {
+        const auto & s = o->map->scale.d0 ? o->map->scale(0) : 1.0;
+
         const auto & v = (*o->map)(Gs);
 
         for(auto i=0; i < v.y.d0; ++i)
         {
-            cost += v.y(i) * v.y(i);
+            cost += s * v.y(i) * v.y(i);
         }
+
+        std::cout << o->name << " " << cost << std::endl;
+
     }
     return cost;
 }
@@ -56,6 +61,67 @@ WorldL get_traj_start(const WorldL & configurations, int start, int end)
         Gs(i) = configurations(start + i);
     }
     return Gs;
+}
+
+void shift_komos(std::vector<std::shared_ptr<KOMO>>& komos, const OdometryState & o, uint steps)
+{
+    // traj 0 as ref
+    auto ref_traj = convert(komos[0]);
+
+    int index; double mu;
+    const auto proj = project_on_trajectory({o.x, o.y, o.yaw}, ref_traj, index, mu);
+
+    OdometryState start;
+    if(index >= 2) // is komo order
+    {
+        // nominal case
+        start.x = proj.x;
+        start.y = proj.y;
+        start.yaw = proj.yaw;
+        start.v = o.v;
+        start.omega = o.omega;
+
+        for(auto&komo: komos)
+        {
+            auto traj = convert(komo);
+            translate_trajectory(start, steps, traj);
+            update_komo(traj, komo);
+        }
+    }
+    else if(index >= 0)
+    {   // move slightly backwards? because we project on prefix, strange prefer not to change the komo
+    }
+    else
+    {
+        std::cout << "first iteration" << std::endl;
+        for(auto&komo: komos)
+        {
+            auto traj = convert(komo);
+
+            if(komo->world.q(0) == 0 && komo->world.q(1) == 0)
+            {
+                first_guess_trajectory(o, steps, traj);
+            }
+
+            update_komo(traj, komo);
+        }
+    }
+
+    unify_prefix(komos);
+}
+
+void unify_prefix(std::vector<std::shared_ptr<KOMO>>& komos)
+{
+    for(auto i = 1; i < komos.size(); ++i)
+    {
+        komos[i]->configurations(0)->q(0) = komos[0]->configurations(0)->q(0);
+        komos[i]->configurations(0)->q(1) = komos[0]->configurations(0)->q(1);
+        komos[i]->configurations(0)->q(2) = komos[0]->configurations(0)->q(2);
+
+        komos[i]->configurations(1)->q(0) = komos[0]->configurations(1)->q(0);
+        komos[i]->configurations(1)->q(1) = komos[0]->configurations(1)->q(1);
+        komos[i]->configurations(1)->q(2) = komos[0]->configurations(1)->q(2);
+    }
 }
 
 int shift_komos(const std::shared_ptr<KOMO> & komo, const OdometryState & o, uint steps)
@@ -80,14 +146,18 @@ int shift_komos(const std::shared_ptr<KOMO> & komo, const OdometryState & o, uin
         start.omega = o.omega;
 
         // shift and interpolate end
-        slide_trajectory(index - 2, steps, traj);
+        //slide_trajectory(index - 2, steps, traj);
 
         // translate only
-        //translate_trajectory(start, steps, traj);
+        translate_trajectory(start, steps, traj);
     }
-    else
-    {   // means proj error or vehicle moves backwards!
-        start = o;
+    else if(index >= 0)
+    {   // move slightly backwards? because we project on prefix, strange prefer not to change the komo
+    }
+    else if(komo->world.q(0) == 0 && komo->world.q(1) == 0)
+    {
+        //std::cout << "first iteration" << std::endl;
+        first_guess_trajectory(o, steps, traj);
     }
 
     update_komo(traj, komo);
@@ -188,6 +258,22 @@ void translate_trajectory(const OdometryState & o, uint steps, std::vector<Pose2
     trajectory[1].x = trajectory[2].x - vx / steps;
     trajectory[1].y = trajectory[2].y - vy / steps;
     //komo->configurations(1)->q(2) = komo->configurations(2)->q(2) - o.omega / steps;
+}
+
+void first_guess_trajectory(const OdometryState & o, uint steps, std::vector<Pose2D>& trajectory)
+{
+    const double vx = o.v * cos(o.yaw);
+    const double vy = o.v * sin(o.yaw);
+    const double dx = vx * 1.0 / steps;
+    const double dy = vy * 1.0 / steps;
+
+    // shift trajectory
+    for(auto i=0; i < trajectory.size(); ++i)
+    {
+        trajectory[i].x = o.x + (i-2) * dx;
+        trajectory[i].y = o.y + (i-2) * dy;
+        trajectory[i].yaw = o.yaw;
+    }
 }
 
 // create straight line frm point[2]

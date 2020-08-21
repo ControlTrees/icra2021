@@ -56,6 +56,8 @@ private:
 
 double rand_01();
 double rand_m11();
+double draw_p(double median_p);
+bool draw_bool(double average_p);
 OdometryState odometry_state_from_msg(const nav_msgs::Odometry::ConstPtr& msg);
 double get_yaw_from_quaternion(const geometry_msgs::Quaternion & quat);
 double calculateDifferenceBetweenAngles(double target, double source);

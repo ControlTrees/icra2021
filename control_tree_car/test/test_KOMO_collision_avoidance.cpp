@@ -29,7 +29,7 @@ TEST(ProbabilityFusion, TwoObstacle4Branches)
 
 TEST_F(KomoLinearTest, DISABLED_scenario_1)
 {
-  auto pb = create_scenario_1(0.5);
+  auto pb = create_scenario_2();
 
   plan(pb, true);
   plan(pb, false);
@@ -45,13 +45,13 @@ TEST_F(KomoJointTest, DISABLED_scenario_1)
 
 TEST_F(KomoDecTest1Obstacle, DISABLED_scenario_1)
 {
-  auto pb = create_scenario_1(0.2);
+  auto pb = create_scenario_1(0.02);
 
   plan(pb, true);
   plan(pb, false);
 }
 
-TEST_F(KomoDecTest1Obstacle, scenario_1_bis)
+TEST_F(KomoDecTest1Obstacle, DISABLED_scenario_1_bis)
 {
   auto pb = create_scenario_1(0.8);
 

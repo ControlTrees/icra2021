@@ -23,7 +23,7 @@ class MyWindow(Gtk.Window):
         self.speed_label.set_text("Desired Speed")
 
         # speed scale
-        ads = Gtk.Adjustment(1, 0, 15, 1, 10, 0)
+        ads = Gtk.Adjustment(10, 0, 15, 1, 10, 0)
 	self.speed_scale = Gtk.Scale(orientation=Gtk.Orientation.VERTICAL, adjustment=ads, inverted=True)
         self.speed_scale.set_digits(0)
         self.speed_scale.set_vexpand(True)

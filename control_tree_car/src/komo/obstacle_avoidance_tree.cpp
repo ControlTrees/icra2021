@@ -16,9 +16,6 @@ ObstacleAvoidanceTree::ObstacleAvoidanceTree(BehaviorManager& behavior_manager, 
     , existence_probability_(0.9)
     , tree_(1.0, 0)
 {
-    //
-    circular_obstacle_ = std::shared_ptr<Car3CirclesCircularObstacle> (new Car3CirclesCircularObstacle("car_ego", {obstacle_position_}, 1.0, 0.0));
-
     // optim structure
     update_tree(existence_probability_);
 
@@ -30,20 +27,22 @@ ObstacleAvoidanceTree::ObstacleAvoidanceTree(BehaviorManager& behavior_manager, 
     komo_->verbose = 0;
 
     // set objectives
+    circular_obstacle_ = std::shared_ptr<Car3CirclesCircularObstacle> (new Car3CirclesCircularObstacle("car_ego", {obstacle_position_}, 1.0, komo_->world));
+
     acc_ = komo_->addObjective(-123., 123., new TM_Transition(komo_->world), OT_sos, NoArr, 1.0, 2);
     acc_->vars = vars_all_order_2_;
     acc_->scales = scales_all_;
 
-    ax_ = komo_->addObjective(-123., 123., new AxisBound("car_ego", AxisBound::Y, AxisBound::EQUAL), OT_sos, NoArr, 1.0, 0);
+    ax_ = komo_->addObjective(-123., 123., new AxisBound("car_ego", AxisBound::Y, AxisBound::EQUAL, komo_->world), OT_sos, NoArr, 1.0, 0);
     ax_->vars = vars_all_order_0_;
     ax_->scales = scales_all_;
 
     //vel_ = komo_->addObjective(0, -1, new VelocityAxis(komo_->world, "car_ego"), OT_sos, { v_desired_, 0, 0 }, 1.0, 1);
-    vel_ = komo_->addObjective(-123., 123., new AxisBound("car_ego", AxisBound::X, AxisBound::EQUAL), OT_sos, {v_desired_}, 1.0, 1);
+    vel_ = komo_->addObjective(-123., 123., new AxisBound("car_ego", AxisBound::X, AxisBound::EQUAL, komo_->world), OT_sos, {v_desired_}, 1.0, 1);
     vel_->vars = vars_all_order_1_;
     vel_->scales = scales_all_;
 
-    car_kin_ = komo_->addObjective(-123., 123., new CarKinematic("car_ego"), OT_eq, NoArr, 1e2, 1);
+    car_kin_ = komo_->addObjective(-123., 123., new CarKinematic("car_ego", komo_->world), OT_eq, NoArr, 1e2, 1);
     car_kin_->vars = vars_all_order_1_;
 
     collision_avoidance_ = komo_->addObjective(-123., 123., circular_obstacle_, OT_ineq, NoArr, 1e2, 0);
@@ -98,8 +97,8 @@ TimeCostPair ObstacleAvoidanceTree::plan()
     }
 
     // update task maps
-    acc_->scales = scales_all_;
-    vel_->scales = scales_all_;
+    acc_->map->scale = scales_all_;
+    vel_->map->scale = scales_all_;
     vel_->map->target = {v_desired_};
     //vel_->map->target = {v_desired_, 0.0, 0.0};
 

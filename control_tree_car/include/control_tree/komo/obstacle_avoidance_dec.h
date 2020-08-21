@@ -20,18 +20,13 @@
 
 #include <KOMO/komo.h>
 #include <komo_wrapper.h>
+#include <control_tree/komo/utility_komo.h>
 
 #include <tree_builder.h>
 #include <circular_obstacle.h>
 
 #include <Optimization/decentralized_optimizer.h>
 #include <Optimization/decentralized_lagrangian.h>
-
-struct Obstacle
-{
-  arr position;
-  double p;
-};
 
 class ObstacleAvoidanceDec : public BehaviorBase
 {

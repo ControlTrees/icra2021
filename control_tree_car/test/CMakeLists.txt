@@ -22,7 +22,7 @@ include_directories(${EIGEN3_INCLUDE_DIR})
 add_library(utility_lib STATIC ${utility_lib_src})
 target_link_libraries(utility_lib
                       qp_lib
-                      pthread
+                      pthread 
                      )
 
 # specify target for each test

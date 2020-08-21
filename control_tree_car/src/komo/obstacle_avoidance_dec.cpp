@@ -2,7 +2,6 @@
 #include <control_tree/core/behavior_manager.h>
 #include <control_tree/core/utility.h>
 #include <control_tree/komo/velocity_axis.h>
-#include <control_tree/komo/utility_komo.h>
 
 #include <velocity.h>
 #include <axis_bound.h>
@@ -10,6 +9,10 @@
 #include <car_kinematic.h>
 
 #include <subtree_generators.h>
+
+// TODO: correct prefix when moving traj
+// think about prob balacing (finally bettwer in dec solver?)
+// probability
 
 namespace
 {
@@ -50,7 +53,7 @@ ObstacleAvoidanceDec::ObstacleAvoidanceDec(BehaviorManager& behavior_manager, in
     , road_width_(road_width)
     , kin_((ros::package::getPath("control_tree_car") + "/data/LGP-real-time.g").c_str())
     , steps_(steps_per_phase)
-    , v_desired_(1.0)
+    , v_desired_(10.0)
     , obstacles_(n_obstacles_, {arr{-10, 0, 0}, 0.0})
     , komo_tree_(1.0, 0)
     , options_(PARALLEL, true, NOOPT, false)
@@ -77,20 +80,21 @@ ObstacleAvoidanceDec::ObstacleAvoidanceDec(BehaviorManager& behavior_manager, in
       objectives.acc_ = komo->addObjective(-123., 123., new TM_Transition(komo->world), OT_sos, NoArr, 1.0, 2);
       objectives.acc_->vars = vars_branch_order_2_;
 
-      objectives.ax_ = komo->addObjective(-123., 123., new RoadBound("car_ego", komo->world, road_width_ / 2.0), OT_sos, NoArr, 1.0, 0);
+      //objectives.ax_ = komo->addObjective(-123., 123., new AxisBound("car_ego", AxisBound::Y, AxisBound::EQUAL), OT_sos, NoArr, 1.0, 0);
+      objectives.ax_ = komo->addObjective(-123., 123., new RoadBound("car_ego", road_width_ / 2.0, vehicle_width, komo->world), OT_sos, NoArr, 1.0, 0);
       objectives.ax_->vars = vars_branch_order_0_;
 
-      objectives.vel_ = komo->addObjective(-123., 123., new AxisBound("car_ego", AxisBound::X, AxisBound::EQUAL), OT_sos, {v_desired_}, 1.0, 1);
+      objectives.vel_ = komo->addObjective(-123., 123., new AxisBound("car_ego", AxisBound::X, AxisBound::EQUAL, komo->world), OT_sos, {v_desired_}, 1e-1, 1);
       objectives.vel_->vars = vars_branch_order_1_;
 
-      objectives.car_kin_ = komo->addObjective(-123., 123., new CarKinematic("car_ego"), OT_eq, NoArr, 1e2, 1);
+      objectives.car_kin_ = komo->addObjective(-123., 123., new CarKinematic("car_ego", komo->world), OT_eq, NoArr, 1e1, 1);
       objectives.car_kin_->vars = vars_branch_order_1_;
 
       std::vector<arr> obs = get_relevant_obstacles(obstacles_, activities[i]);
 
       if(!obs.empty())
       {
-        objectives.circular_obstacle_ = std::shared_ptr<Car3CirclesCircularObstacle> (new Car3CirclesCircularObstacle("car_ego", obs, 1.0, 0.0));
+        objectives.circular_obstacle_ = std::shared_ptr<Car3CirclesCircularObstacle> (new Car3CirclesCircularObstacle("car_ego", obs, 1.0, komo->world));
 
         objectives.collision_avoidance_ = komo->addObjective(-123., 123., objectives.circular_obstacle_, OT_ineq, NoArr, 1e2, 0);
         objectives.collision_avoidance_->vars = vars_branch_order_0_;
@@ -129,11 +133,7 @@ void ObstacleAvoidanceDec::obstacle_callback(const visualization_msgs::MarkerArr
       obstacles_[i].position = {msg->markers[i].pose.position.x, msg->markers[i].pose.position.y, 0};
 
       /// existence probability
-      double p = msg->markers[i].color.a;
-
-      obstacles_[i].p = p;
-
-      //std::cout << "obstacle.p=" << p << " orig=" << msg->markers[i].color.a << std::endl;
+      obstacles_[i].p = msg->markers[i].color.a;
     }
 }
 
@@ -144,24 +144,33 @@ TimeCostPair ObstacleAvoidanceDec::plan()
     // update the komos based on new pose (important for efficiency)
     const auto o = manager_.odometry();
 
+//    for(auto i = 0; i < n_branches_; ++i)
+//    {
+//      // update komos
+//      shift_komos(komos_[i], o, steps_);
+
+//      // Note: updating the dual seems very difficult and doesn't lead to good results!
+//      // update dual
+//      //const auto dual_dim_per_step = converters_[i]->dimPhi / steps_ / 4; // 4 phases
+//      //shift_dual(dual_state_, dual_dim_per_step, index-2);
+
+//      komos_[i]->reset();
+//    }
+
+    shift_komos(komos_, o, steps_);
     for(auto i = 0; i < n_branches_; ++i)
     {
-      // update komos
-      shift_komos(komos_[i], o, steps_);
-
-      // Note: updating the dual seems very difficult and doesn't lead to good results!
-      // update dual
-      //const auto dual_dim_per_step = converters_[i]->dimPhi / steps_ / 4; // 4 phases
-      //shift_dual(dual_state_, dual_dim_per_step, index-2);
-
-      komos_[i]->reset();
+        komos_[i]->reset();
     }
+    //unify_prefix(komos_);
 
     // update the optim variable (since komos have been changed)
     update_x(x_, komos_, vars_);
 
     // run
     auto start = std::chrono::high_resolution_clock::now();
+
+    //options_.checkGradients = true;
 
     DecOptConstrained<ConstrainedProblem> opt(x_, constrained_problems_, xmasks_, options_);
 
@@ -174,11 +183,11 @@ TimeCostPair ObstacleAvoidanceDec::plan()
 
     ROS_INFO( "[tree] execution time (ms): %f", execution_time_us / 1000 );
 
-//    // evaluate costs
-//    auto Gs = get_traj_start(komo_->configurations);
-//    auto cost = traj_cost(Gs, {acc_, ax_/*, vel_*/});
+    // evaluate costs
+    auto Gs = get_traj_start(komos_.front()->configurations);
+    auto cost = traj_cost(Gs, {objectivess_.front().acc_, objectivess_.front().ax_, /*objectivess_.front().vel_*/});
     //
-    auto cost = 0;
+
     return {execution_time_us / 1000000, cost};
 }
 
@@ -193,6 +202,9 @@ std::vector<nav_msgs::Path> ObstacleAvoidanceDec::get_trajectories()
       nav_msgs::Path msg;
       msg.header.stamp = t;
       msg.header.frame_id = "map";
+
+      msg.poses.push_back(kin_to_pose_msg(komos_[i]->configurations(0)));
+      msg.poses.push_back(kin_to_pose_msg(komos_[i]->configurations(1)));
 
       for(const auto k: vars_branch_order_0_)
       {
@@ -229,7 +241,7 @@ void ObstacleAvoidanceDec::update_groundings()
     objectives.vel_->map->target = {v_desired_};
 
     // apply scales
-    double s = std::max(0.2, ps[i]); // min value here to keep the problem weel conditioned
+    double s = 1.0; //std::max(0.2, ps[i]); // min value here to keep the problem weel conditioned
 
     objectives.apply_scales(s * ones(4 * steps_));
 
@@ -277,7 +289,9 @@ void ObstacleAvoidanceDec::init_optimization_variable()
 
 void ObstacleAvoidanceDec::Objectives::apply_scales(const arr& scales)
 {
-  const double surscale = 1.5;
+  const double surscale = 1.0; //1.5;
+
+  //std::cout << "surscale * scales:" << surscale * scales << std::endl;
 
   ax_->scales = surscale * scales;
   vel_->scales = surscale * scales;
@@ -289,6 +303,9 @@ void ObstacleAvoidanceDec::Objectives::apply_scales(const arr& scales)
 std::vector<double> fuse_probabilities(const std::vector<Obstacle>& obstacles, std::vector<std::vector<bool>> & activities)
 {
   const uint n = pow(2.0, obstacles.size());
+
+  //for(const auto& o: obstacles)
+  //  std::cout << "o:" << o.p << std::endl;
 
   std::vector<double> probabilities(n, 0.0);
   activities = std::vector<std::vector<bool>>(n);
@@ -322,6 +339,9 @@ std::vector<double> fuse_probabilities(const std::vector<Obstacle>& obstacles, s
 
     probabilities[j] = p;
   }
+
+  //for(const auto& p: probabilities)
+  //  std::cout << "p:" << p << std::endl;
 
   return probabilities;
 }
