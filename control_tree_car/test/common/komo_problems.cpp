@@ -66,7 +66,7 @@ Scenario create_scenario_2()
 {
   const auto odo = create_odo(0, 0, 10);
   const auto desired_velocity = create_desired_speed(10);
-  const auto obstacles = ObstaclesBuilder().add(15, 2.0, 0.5).add(23, -2.0, 0.3).build();
+  const auto obstacles = ObstaclesBuilder().add(15, 2.0, 0.02).add(23, -2.0, 0.02).build();
 
   return {odo, desired_velocity, obstacles};
 }

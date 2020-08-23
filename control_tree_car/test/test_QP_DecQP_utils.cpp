@@ -9,6 +9,37 @@
 
 #include <gtest/gtest.h>
 
+namespace
+{
+    bool close(const Arr& a, const Arr& b)
+    {
+        if(a.size() != b.size())
+            return false;
+
+        bool ret = true;
+        for(auto i = 0; i < a.size(); ++i)
+        {
+            ret = ret && fabs(a[i] - b[i]) < 0.0001;
+        }
+
+        return ret;
+    }
+
+    bool close(const std::vector<Arr> & a, const std::vector<Arr> & b)
+    {
+        if(a.size() != b.size())
+            return false;
+
+        bool ret = true;
+        for(auto i = 0; i < a.size(); ++i)
+        {
+            ret = ret && close(a[i], b[i]);
+        }
+
+        return ret;
+    }
+}
+
 TEST(Tree, TreeNBranches)
 {
   {
@@ -25,7 +56,7 @@ TEST(Tree, TreeNBranches)
   TreeNBranches treen(std::vector<double>({0.3, 0.35, 0.2}));
 
   EXPECT_EQ(tree.varss, treen.varss);
-  EXPECT_EQ(tree.scaless, treen.scaless);
+  EXPECT_TRUE(close(tree.scaless, treen.scaless));
   EXPECT_EQ(tree.n_steps, treen.n_steps);
   }
 }

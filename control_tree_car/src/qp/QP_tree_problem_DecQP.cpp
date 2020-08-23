@@ -24,7 +24,7 @@ VectorXd QP_tree_problem_JointQP::call_solver()
 
     arr x = zeros(P.d0);
 
-    DecOptConstrained<QP_Problem> opt(x, pbs, {}, options);
+    DecOptConstrained<QP_Problem, AverageUpdater> opt(x, pbs, {}, AverageUpdater(), options);
 
     opt.run();
 
@@ -38,6 +38,7 @@ QP_tree_problem_DecQP::QP_tree_problem_DecQP(const MPC_model & mpc, double u_min
   , options(PARALLEL, true, NOOPT, false)
 {
   options.opt.verbose = 0;
+  options.opt.aulaMuInc = 1;
 }
 
 VectorXd QP_tree_problem_DecQP::solve(const Vector2d & x0, const Vector2d & xd, const Constraints& joint_k,
@@ -48,6 +49,8 @@ VectorXd QP_tree_problem_DecQP::solve(const Vector2d & x0, const Vector2d & xd, 
   // generate compressed var and masks
   IntA var, global_to_branch;
   const auto masks = get_compressed_masks(n_steps, mpc.get_dim(), joint_varss, var, global_to_branch);
+  const auto bs = get_belief_state(joint_scaless);
+//  const auto scales = get_one_scale(joint_scaless);
   const auto scaless = get_compressed_scales(joint_scaless);
 
   // compress constraints
@@ -66,7 +69,7 @@ VectorXd QP_tree_problem_DecQP::solve(const Vector2d & x0, const Vector2d & xd, 
           std::async(std::launch::async,
                      [&, i]()
                       {
-                        return build_qp(i, branch_n_steps, branch_varss, {scaless[i]}, ks, x0, xd);
+                        return build_qp(i, branch_n_steps, branch_varss, {scaless[i]}/*{scales}*/, ks, x0, xd);
                       }
                     )
     );
@@ -80,7 +83,8 @@ VectorXd QP_tree_problem_DecQP::solve(const Vector2d & x0, const Vector2d & xd, 
   // solve
   arr x = zeros(n_steps * mpc.get_dim());
 
-  DecOptConstrained<QP_Problem> opt(x, pbs, masks, options);
+  //DecOptConstrained<QP_Problem, BeliefState> opt(x, pbs, masks, BeliefState(bs), options);
+  DecOptConstrained<QP_Problem, AverageUpdater> opt(x, pbs, masks, AverageUpdater(), options);
 
   opt.run();
 

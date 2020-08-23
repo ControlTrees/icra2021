@@ -71,7 +71,7 @@ private:
       std::shared_ptr<Car3CirclesCircularObstacle> circular_obstacle_;
       Objective * collision_avoidance_{0};
 
-      void apply_scales(const arr& scales);
+      //void apply_scales(const arr& scales);
     };
 
     std::vector<Objectives> objectivess_;
@@ -87,6 +87,7 @@ private:
     arr x_;
     std::vector<arr> xmasks_;
     std::vector<intA> vars_; // uncompressed vars (dual of xmasks)
+    std::vector<double> belief_state_;
 
     intA vars_branch_order_0_; // comressed var (hence all the same)
     intA vars_branch_order_1_;

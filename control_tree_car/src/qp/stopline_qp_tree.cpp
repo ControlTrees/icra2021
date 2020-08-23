@@ -1,7 +1,7 @@
 #include <control_tree/core/behavior_manager.h>
 #include <control_tree/core/utility.h>
 #include <control_tree/qp/stopline_qp_tree.h>
-
+#include <control_tree/qp/QP_tree_problem_DecQP_utils.h>
 
 StopLineQPTree::StopLineQPTree(BehaviorManager& behavior_manager, int n_branches, int steps_per_phase)
     : BehaviorBase(behavior_manager)
@@ -84,7 +84,7 @@ TimeCostPair StopLineQPTree::plan()
     Constraints k(tree_->n_steps, tree_->varss);
     for(auto i = 0; i < (n_branches_ > 1 ? n_branches_ - 1 : 1); ++i)
     {
-        ROS_INFO_STREAM( i << " th stopline " << stoplines_[i].x);
+        //ROS_INFO_STREAM( i << " th stopline " << stoplines_[i].x);
 
         double xmax = 0;
         if( stoplines_[i].p < 0.01
@@ -113,52 +113,17 @@ TimeCostPair StopLineQPTree::plan()
     float execution_time_us = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
     ROS_INFO( "[tree qp] execution time (ms): %f", execution_time_us / 1000 );
 
-    auto print_pb = [&]()
-    {
-        ROS_INFO_STREAM( "Generate control for emergency brake, o.x:" << o.x << " o.v:" << o.v << " v_desired_:" << v_desired_);
-    };
+    debug(U, o);
 
-    auto validate_solution = [&](const VectorXd & U) -> bool
-    {
-        if(U.rows())
-        {
-            //ROS_INFO( "Solved :)" );
-            auto x0 = x0_;
-            x0(0) += o.x;
-
-            auto X = model_.predict_trajectory(x0, U, tree_->varss);
-
-            if(valid(U, X))
-            {
-                U_sol_ = U;
-                X_sol_ = X;
-
-                optimization_run_ = true;
-
-                return true;
-            }
-            else
-            {
-                ROS_WARN( "Optimization succeeded but invalid trajectory" );
-            }
-        }
-        else
-        {
-            ROS_WARN( "Infeasible :(" );
-        }
-
-        return false;
-    };
-
-    optimization_error_ = !validate_solution(U);
+    optimization_error_ = !validate_and_save_solution(U, o);
 
     if(optimization_error_)
     {
-        print_pb();
+        ROS_INFO_STREAM( "Generate control for emergency brake, o.x:" << o.x << " o.v:" << o.v << " v_desired_:" << v_desired_);
 
         const auto & U = emergency_brake(o.v, *tree_, steps_, u_min_);
 
-        bool ok_emergency_brake = validate_solution(U);
+        bool ok_emergency_brake = validate_and_save_solution(U, o);
 
         if(!ok_emergency_brake)
         {
@@ -175,6 +140,38 @@ TimeCostPair StopLineQPTree::plan()
     }
 
     return {execution_time_us / 1000000, model_.cost(x0_, U_sol_[0], xd)};
+}
+
+bool StopLineQPTree::validate_and_save_solution(const VectorXd & U, const OdometryState & o)
+{
+    if(U.rows())
+    {
+        //ROS_INFO( "Solved :)" );
+        auto x0 = x0_;
+        x0(0) += o.x;
+
+        auto X = model_.predict_trajectory(x0, U, tree_->varss);
+
+        if(valid(U, X))
+        {
+            U_sol_ = U;
+            X_sol_ = X;
+
+            optimization_run_ = true;
+
+            return true;
+        }
+        else
+        {
+            ROS_WARN( "Optimization succeeded but invalid trajectory" );
+        }
+    }
+    else
+    {
+        ROS_WARN( "Infeasible :(" );
+    }
+
+    return false;
 }
 
 std::vector<nav_msgs::Path> StopLineQPTree::get_trajectories()
@@ -231,12 +228,16 @@ std::vector<nav_msgs::Path> StopLineQPTree::get_trajectories()
 
 void StopLineQPTree::create_tree()
 {
-    auto p = fuse_probabilities(stoplines_, n_branches_);
+    const auto ps = fuse_probabilities(stoplines_, n_branches_ - 1);
+
+    CHECK_EQ(ps.size(), n_branches_ - 1, "discrepancy in number of branches in control tree");
 
     if(n_branches_ == 1)
       tree_ =  TreePb::refined(std::make_shared<Tree1Branch>(), steps_);
     else
-      tree_ = TreePb::refined(std::make_shared<TreeNBranches>(p), steps_);
+      tree_ = TreePb::refined(std::make_shared<TreeNBranches>(ps), steps_);
+
+    CHECK_EQ(tree_->scaless.size(), n_branches_, "discrepancy in number of branches in control tree");
 
     //ROS_INFO_STREAM("stoplines probabilit: "  << stoplines_[0].p << " " << stoplines_[1].p);
     //            //ROS_INFO_STREAM("build tree 3 branches "  << p[0] << " " << p[1] << " " << 1 - p[0] - p[1] );
@@ -272,6 +273,33 @@ bool StopLineQPTree::valid(const VectorXd & U, const VectorXd & X) const
     }
 
     return valid;
+}
+
+void StopLineQPTree::debug(const VectorXd & U, const OdometryState & o) const
+{
+    double jerk = 0;
+    for(auto i = 1; i < 2; ++i)
+    {
+        jerk = U[i] - U[i-1];
+
+        if(fabs(jerk) > 0.5)
+        {
+            ROS_WARN_STREAM("High Jerk at trajectory start!!!");
+
+            // odo
+            ROS_INFO_STREAM( "x: " << o.x << " v: " << o.v);
+
+            // pb
+            auto bs = get_belief_state(tree_->scaless);
+
+            ROS_INFO_STREAM("Belief state:" << bs);
+
+            for(auto j = 0; j < stoplines_.size(); ++j)
+            {
+                ROS_INFO_STREAM( j << "--th stopline, x: " << stoplines_[j].x);
+            }
+        }
+    }
 }
 
 VectorXd emergency_brake(const double v, const TreePb & tree, int steps_per_phase, double u)

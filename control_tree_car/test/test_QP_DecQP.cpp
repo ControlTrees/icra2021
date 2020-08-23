@@ -39,7 +39,7 @@ TEST_F(QPTest, DEC_test_paper_1_branch_4_steps)
 
 TEST_F(QPTest, DEC_test_2_branches_4_steps_constrained)
 {
-  auto pb = create_2_branches_4_steps_constrained();
+  auto pb = create_2_branches_4_steps_constrained(0.1);
 
   plan_DecQP(pb, false);
 }
@@ -56,6 +56,13 @@ TEST_F(QPTest, test_4_branches_4_steps_constrained)
     auto pb = create_4_branches_4_steps_constrained();
 
     plan_DecQP(pb, false);
+}
+
+TEST_F(QPTest, test_replicate_simulation_1)
+{
+    auto pb = replicate_simulation_1();
+
+    plan_DecQP(pb, true);
 }
 
 TEST_F(QPTest, test_N_branches)

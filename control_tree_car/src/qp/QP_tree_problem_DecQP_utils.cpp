@@ -112,6 +112,23 @@ std::vector<Arr> get_compressed_scales(const std::vector<Arr>& joint_scaless)
   return scaless;
 }
 
+Arr get_one_scale(const std::vector<Arr>& joint_scaless)
+{
+    return Arr(joint_scaless.front().size(), 1.0);
+}
+
+arr get_belief_state(const std::vector<Arr>& joint_scaless)
+{
+    arr bs = zeros(joint_scaless.size());
+
+    for(auto i = 0; i < joint_scaless.size(); ++i)
+    {
+      bs(i) = joint_scaless[i].back();
+    }
+
+    return bs;
+}
+
 std::unordered_map<int, Constraints> get_compressed_constraints(const Constraints & k, const IntA& var, const IntA& global_to_branch)
 {
   std::unordered_map<int, Constraints> constraints;

@@ -44,7 +44,7 @@ double traj_cost(const WorldL & Gs, const std::list<Objective *> & objectives)
             cost += s * v.y(i) * v.y(i);
         }
 
-        std::cout << o->name << " " << cost << std::endl;
+        //std::cout << o->name << " " << cost << std::endl;
 
     }
     return cost;

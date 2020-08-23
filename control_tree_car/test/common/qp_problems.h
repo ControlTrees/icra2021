@@ -28,6 +28,7 @@ QP_problem create_2_stages_branching(double p=0.6);
 // paper plots
 QP_problem create_paper_1_branch_4_steps_constrained(double p=0.6);
 QP_problem create_paper_4_branches_4_steps_constrained(double p=0.6);
+QP_problem replicate_simulation_1();
 
 class QPTest : public ::testing::Test
 {

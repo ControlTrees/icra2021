@@ -297,11 +297,11 @@ static std::shared_ptr<Obstacle> draw_new_obstacle(uint obstacle_id,
     }
 
     // P
-   const double p = draw_p(p_obstacle);
+    const double p = draw_p(p_obstacle);
 
     //std::cout << "p:" << p << std::endl;
 
-    const double certainty_distance = 10 + ( distance_ahead - 5 ) * rand_01() * rand_01();
+    const double certainty_distance = 10 + ( distance_ahead - 5 ) * rand_01();// * rand_01();
 
     if(draw_bool(p_obstacle))
     {

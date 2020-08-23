@@ -366,6 +366,44 @@ QP_problem create_N_branches_4_steps_constrained(int N)
     return {model, tree, k, x0, xd};
 }
 
+// debug Configurations found in simulation
+QP_problem replicate_simulation_1()
+{
+    const auto n_steps_per_phase = 4;
+    const auto v0 = 13.41;  //13.41; // 48 km/h // 30 mph
+    const auto vdesired = 48/3.6;
+
+    MPC_model model(1.0 / n_steps_per_phase, 1.0, 5.0);
+
+    const auto tree = TreePb::refined(TreeNBranches({0.150897, 0.384692, 0.454784, 0}), n_steps_per_phase);
+//    const auto tree = TreePb::refined(TreeNBranches({0.15, 0.15, 0.15, 0.15, 0.2}), n_steps_per_phase);
+
+    const double ox = 1071.41;
+    Vector2d x0;
+    x0 << 0, 6.48015;
+
+    Vector2d xd;
+    xd << 0, vdesired;
+
+    Constraints k(tree.n_steps, tree.varss);
+    k.add_constraint(0, Vector2d(1080.81 - ox, 0), Vector2d(1, 0));
+    k.add_constraint(1, Vector2d(1085.35 - ox, 0), Vector2d(1, 0));
+    k.add_constraint(2, Vector2d(1106.66 - ox, 0), Vector2d(1, 0));
+    k.add_constraint(3, Vector2d(1000, 0), Vector2d(1, 0));
+    //k.add_constraint(4, Vector2d(200, 0), Vector2d(1, 0));
+
+
+    return {model, tree, k, x0, xd};
+
+    //[ INFO] [1598170096.753487138]: x: 1071.41 v: 6.48015
+    //[ INFO] [1598170096.753537535]: Belief state: 0.150897 0.384692 0.454784 0 0.00962723
+    //[ INFO] [1598170096.753566643]: 0--th stopline, x: 1080.81
+    //[ INFO] [1598170096.753586247]: 1--th stopline, x: 1085.35
+    //[ INFO] [1598170096.753603506]: 2--th stopline, x: 1106.66
+    //[ INFO] [1598170096.753619602]: 3--th stopline, x: inf
+
+}
+
 VectorXd QPTest::plan_OSQP(const QP_problem &pb, bool _plot, const std::string & filename)
 {
     QP_tree_problem_OSQP solver(pb.model, u_min, u_max);

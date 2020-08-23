@@ -28,6 +28,8 @@
 //typedef QP_tree_problem_JointQP QP_tree_problem_solver_type;
 typedef QP_tree_problem_DecQP QP_tree_problem_solver_type;
 
+class OdometryState;
+
 struct Stopline
 {
     double x;
@@ -45,11 +47,14 @@ public:
 
     TimeCostPair plan();
 
+    bool validate_and_save_solution(const VectorXd & U, const OdometryState & o);
+
     std::vector<nav_msgs::Path> get_trajectories();
 
 private:
     void create_tree();
     bool valid(const VectorXd & U, const VectorXd & X) const;
+    void debug(const VectorXd & U, const OdometryState & o) const;
 
 private:
     // params

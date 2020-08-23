@@ -44,6 +44,16 @@ std::vector<arr> get_relevant_obstacles(const std::vector<Obstacle> & obstacles,
   return obs;
 }
 
+arr to_arr(const std::vector<double> a)
+{
+    arr b = zeros(a.size());
+
+    for(auto i = 0; i < a.size(); ++i)
+        b(i) = a[i];
+
+    return b;
+}
+
 }
 
 ObstacleAvoidanceDec::ObstacleAvoidanceDec(BehaviorManager& behavior_manager, int n_obstacles, double road_width, int steps_per_phase)
@@ -162,17 +172,17 @@ TimeCostPair ObstacleAvoidanceDec::plan()
     {
         komos_[i]->reset();
     }
-    //unify_prefix(komos_);
 
     // update the optim variable (since komos have been changed)
     update_x(x_, komos_, vars_);
 
+    auto bs = to_arr(belief_state_);
     // run
     auto start = std::chrono::high_resolution_clock::now();
 
     //options_.checkGradients = true;
 
-    DecOptConstrained<ConstrainedProblem> opt(x_, constrained_problems_, xmasks_, options_);
+    DecOptConstrained<ConstrainedProblem, BeliefState> opt(x_, constrained_problems_, xmasks_, BeliefState(bs), options_);
 
     opt.run();
 
@@ -231,7 +241,7 @@ void ObstacleAvoidanceDec::init_tree()
 void ObstacleAvoidanceDec::update_groundings()
 {
   std::vector<std::vector<bool>> activities;
-  const auto ps = fuse_probabilities(obstacles_, activities); // branch probabilities
+  belief_state_ = fuse_probabilities(obstacles_, activities); // branch probabilities
 
   for(auto i = 0; i < n_branches_; ++i)
   {
@@ -241,9 +251,7 @@ void ObstacleAvoidanceDec::update_groundings()
     objectives.vel_->map->target = {v_desired_};
 
     // apply scales
-    double s = 1.0; //std::max(0.2, ps[i]); // min value here to keep the problem weel conditioned
-
-    objectives.apply_scales(s * ones(4 * steps_));
+    //objectives.apply_scales(s * ones(4 * steps_));
 
     // update collision avoidance
     std::vector<arr> obs = get_relevant_obstacles(obstacles_, activities[i]);
@@ -287,16 +295,13 @@ void ObstacleAvoidanceDec::init_optimization_variable()
   }
 }
 
-void ObstacleAvoidanceDec::Objectives::apply_scales(const arr& scales)
-{
-  const double surscale = 1.0; //1.5;
-
-  //std::cout << "surscale * scales:" << surscale * scales << std::endl;
-
-  ax_->scales = surscale * scales;
-  vel_->scales = surscale * scales;
-  acc_->scales = surscale * scales;
-}
+//void ObstacleAvoidanceDec::Objectives::apply_scales(const arr& scales)
+//{
+//  const double surscale = 1.0;
+//  ax_->scales = surscale * scales;
+//  vel_->scales = surscale * scales;
+//  acc_->scales = surscale * scales;
+//}
 
 //-----------free functions----------------------
 
