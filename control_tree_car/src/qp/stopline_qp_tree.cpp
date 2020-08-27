@@ -31,7 +31,7 @@ void StopLineQPTree::stopline_callback(const visualization_msgs::MarkerArray::Co
     const auto N = msg->markers.size() / 3;
     const auto & o = manager_.odometry();
 
-    //ROS_WARN_STREAM( "number of pedestrians:" << N );
+    //ROS_INFO_STREAM( "number of pedestrians:" << N );
 
     stoplines_.resize(N);
 
@@ -139,6 +139,8 @@ TimeCostPair StopLineQPTree::plan()
         vel_plotter_.update(tree_->varss, tree_->scaless, [this](int i){return X_sol_(2*i+1);});
     }
 
+    std::cerr << "speed:" << o.v << " costs:" << model_.cost(x0_, U_sol_[0], xd) << std::endl;
+
     return {execution_time_us / 1000000, model_.cost(x0_, U_sol_[0], xd)};
 }
 
@@ -228,14 +230,20 @@ std::vector<nav_msgs::Path> StopLineQPTree::get_trajectories()
 
 void StopLineQPTree::create_tree()
 {
-    const auto ps = fuse_probabilities(stoplines_, n_branches_ - 1);
-
-    CHECK_EQ(ps.size(), n_branches_ - 1, "discrepancy in number of branches in control tree");
+    //ROS_INFO_STREAM("create tree..");
 
     if(n_branches_ == 1)
-      tree_ =  TreePb::refined(std::make_shared<Tree1Branch>(), steps_);
+    {
+        tree_ =  TreePb::refined(std::make_shared<Tree1Branch>(), steps_);
+    }
     else
-      tree_ = TreePb::refined(std::make_shared<TreeNBranches>(ps), steps_);
+    {
+        const auto ps = fuse_probabilities(stoplines_, n_branches_ - 1);
+
+        CHECK_EQ(ps.size(), n_branches_ - 1, "discrepancy in number of branches in control tree");
+
+        tree_ = TreePb::refined(std::make_shared<TreeNBranches>(ps), steps_);
+    }
 
     CHECK_EQ(tree_->scaless.size(), n_branches_, "discrepancy in number of branches in control tree");
 
@@ -246,7 +254,7 @@ void StopLineQPTree::create_tree()
 bool StopLineQPTree::valid(const VectorXd & U, const VectorXd & X) const
 {
     bool valid = true;
-    const double eps = 0.1;
+    const double eps = 0.15;
 
     for(auto i = 0; i < U.rows(); ++i)
     {
