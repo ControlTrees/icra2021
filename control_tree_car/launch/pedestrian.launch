@@ -1,7 +1,7 @@
 <launch>
     <param name="/n_pedestrians" type="int" value="9" />
     <param name="/n_branches" type="int" value="5" />
-    <param name="/p_crossing" type="double" value="0.05" />
+    <param name="/p_crossing" type="double" value="0.1" />
     <param name="/traj_planner/steps_per_phase" type="int" value="4" />
     <param name="/traj_controller/trajectory_index" type="int" value="11" />
     <param name="/road_width" type="double" value="3.5" />
