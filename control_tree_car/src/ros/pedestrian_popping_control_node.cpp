@@ -512,7 +512,7 @@ std::shared_ptr<Pedestrian> draw_new_pedestrian(double p_crossing, uint id, cons
 
     const double p = draw_p(p_crossing);
     //std::cout << "p:" << p << std::endl;
-    const double certainty_distance = 10 + ( distance_ahead - 5 ) * rand_01() * rand_01();
+    const double certainty_distance = 10 + ( distance_ahead - 5 ) * rand_01();// * rand_01();
 
     if(draw_bool(p_crossing))
     {

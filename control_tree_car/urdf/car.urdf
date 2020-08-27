@@ -1,16 +1,11 @@
 <?xml version="1.0"?>
 <robot name="lgp_car">
-  <material name="blue">
-    <color rgba="0 0 0.8 1"/>
-  </material>
-
   <link name="lgp_car">
     <visual>
+      <origin rpy="0.0 0 1.57" xyz="1.5 0 0"/>
       <geometry>
-  	<box size="4.3 1.7 1.0"/>
+        <mesh filename="package://control_tree_car/meshes/bmw/G12Pos8.dae"/>
       </geometry>
-      <origin xyz="1.25 0 0.6"/>
-      <material name="blue"/>
     </visual>
   </link>
 </robot>
