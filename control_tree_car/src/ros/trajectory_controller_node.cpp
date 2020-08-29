@@ -46,6 +46,85 @@ public:
 
     std::pair<geometry_msgs::Twist, geometry_msgs::PoseStamped> create_control() const
     {   
+        const auto nominal_v = 5; // scale w according to the ratio v / nominal_v
+
+        //// return early if not enough info
+        if( trajectory_.size() == 0 || ! odo_received_ )
+        {
+            return std::pair<geometry_msgs::Twist, geometry_msgs::PoseStamped>();
+        }
+
+        // get 0-0
+        Pose2D current = {odometry_.x, odometry_.y, odometry_.yaw};
+
+        // project on trajectory
+        int index = -1;
+        double mu = -1;
+
+        const auto projected = project_on_trajectory(current, trajectory_, index, mu);
+
+        if(index == -1)
+        {
+            geometry_msgs::Twist twist_msg;
+            twist_msg.linear.x = 0;
+            twist_msg.angular.z = 0;
+
+            return std::pair<geometry_msgs::Twist, geometry_msgs::PoseStamped>(twist_msg, geometry_msgs::PoseStamped());
+        }
+
+        /// v
+        int k = index + 1;
+        int l = k + 1;
+        if(l >= trajectory_.size())
+        {
+            l = trajectory_.size() - 1;
+            k = l - 1;
+        }
+        double v = sqrt(pow(trajectory_[l].x - trajectory_[k].x, 2) + pow(trajectory_[l].y - trajectory_[k].y, 2)) * steps_per_phase_;
+
+        /// w
+        double w_cmd = 0;
+
+        // distance between current pose and its projection on the trajectory
+        Eigen::Vector2f u(current.x - projected.x, current.y - projected.y);
+        Eigen::Vector2f n(-sin(projected.yaw), cos(projected.yaw));
+        auto d = n.dot(u);
+
+        // angle
+        double d_yaw = projected.yaw - current.yaw;
+
+        w_cmd = 2 * (-0.25 * d + d_yaw);
+        w_cmd = w_cmd * (v / nominal_v);
+
+        const double max_w = 1.0;
+        if(std::fabs(w_cmd) > max_w)
+        {
+            //std::cout << "limit omega!" << w_cmd << std::endl;
+            //v *= max_w / std::fabs(w_cmd);
+            w_cmd = w_cmd > 0 ? max_w : -max_w;
+        }
+
+        ///
+        tf2::Quaternion q; q.setRPY(0, 0, projected.yaw);
+        geometry_msgs::PoseStamped target_pose_msg;
+        target_pose_msg.header.stamp = ros::Time::now();
+        target_pose_msg.header.frame_id = "map";
+        target_pose_msg.pose.position.x = projected.x;
+        target_pose_msg.pose.position.y = projected.y;
+        target_pose_msg.pose.orientation.x = q.x();
+        target_pose_msg.pose.orientation.y = q.y();
+        target_pose_msg.pose.orientation.z = q.z();
+        target_pose_msg.pose.orientation.w = q.w();
+
+        geometry_msgs::Twist twist_msg;
+        twist_msg.linear.x = v;
+        twist_msg.angular.z = w_cmd;
+
+        return {twist_msg, target_pose_msg};
+    }
+
+    std::pair<geometry_msgs::Twist, geometry_msgs::PoseStamped> create_control_nose_based() const
+    {
         const auto d_nose = 4.3 - 0.9;
         const auto nominal_v = 5; // scale w according to the ratio v / nominal_v
 

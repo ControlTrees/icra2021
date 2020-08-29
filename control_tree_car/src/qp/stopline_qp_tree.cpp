@@ -28,7 +28,7 @@ void StopLineQPTree::desired_speed_callback(const std_msgs::Float32::ConstPtr& m
 
 void StopLineQPTree::stopline_callback(const visualization_msgs::MarkerArray::ConstPtr& msg)
 {
-    const auto N = msg->markers.size() / 3;
+    const auto N = msg->markers.size() / 3; // 3 markers per obstacle (actual pedestrian, crossing probability, forward probability)
     const auto & o = manager_.odometry();
 
     //ROS_INFO_STREAM( "number of pedestrians:" << N );
