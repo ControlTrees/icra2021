@@ -4,6 +4,24 @@
 
 namespace gazebo
 {
+
+namespace
+{
+double round(double v)
+{
+    return std::round(v * 100)/ 100;
+}
+
+void filter(math::Pose &pose)
+{
+    auto& rot = pose.rot;
+    double roll = rot.GetRoll();
+    double pitch = round(rot.GetPitch());
+    double yaw = rot.GetYaw();
+    rot.SetFromEuler(roll, pitch, yaw);
+}
+}
+
 LGPCarPlugIn::LGPCarPlugIn()
   : ModelPlugin()
   , wheel_radius_(0.19)
@@ -37,7 +55,7 @@ void LGPCarPlugIn::Load(physics::ModelPtr parent, sdf::ElementPtr sdf)
     }
 
     // Init Ros
-    initRos();
+    InitRos();
 
     // Listen to the update event. This event is broadcast every
     // simulation iteration.
@@ -46,19 +64,22 @@ void LGPCarPlugIn::Load(physics::ModelPtr parent, sdf::ElementPtr sdf)
 }
 
 // Called by the world update start event
-void LGPCarPlugIn::publishMsgs()
+void LGPCarPlugIn::PublishMsgs()
 {
+    auto pose = model_->GetWorldPose();
+    filter(pose); // remove unwanted tiny pitch
+
     nav_msgs::Odometry msg;
     msg.header.stamp = ros::Time::now();
     msg.header.frame_id = "map";
     msg.child_frame_id = model_->GetName();
-    msg.pose.pose.position.x = model_->GetWorldPose().pos.x;
-    msg.pose.pose.position.y = model_->GetWorldPose().pos.y;
+    msg.pose.pose.position.x = pose.pos.x;
+    msg.pose.pose.position.y = pose.pos.y;
 
-    msg.pose.pose.orientation.x = model_->GetWorldPose().rot.x;
-    msg.pose.pose.orientation.y = model_->GetWorldPose().rot.y;
-    msg.pose.pose.orientation.z = model_->GetWorldPose().rot.z;
-    msg.pose.pose.orientation.w = model_->GetWorldPose().rot.w;
+    msg.pose.pose.orientation.x = pose.rot.x;
+    msg.pose.pose.orientation.y = pose.rot.y;
+    msg.pose.pose.orientation.z = pose.rot.z;
+    msg.pose.pose.orientation.w = pose.rot.w;
 
     msg.twist.twist.linear.x = target_v_;
     msg.twist.twist.angular.z = target_omega_;
@@ -92,7 +113,7 @@ void LGPCarPlugIn::publishMsgs()
     tf_broadcaster_->sendTransform(tf_axis_aligned);
 
     // Publish marker array
-    visualization_msgs::Marker marker = create_marker(msg);
+    visualization_msgs::Marker marker = CreateMarker(msg);
     marker_pub_.publish(marker);
 
   // debug
@@ -102,17 +123,17 @@ void LGPCarPlugIn::publishMsgs()
 //      ROS_INFO_STREAM("time: " << tf.header.stamp << " node:" << model_->GetName() <<  " x:" << msg.pose.pose.position.x << " y:" << msg.pose.pose.position.y << " rpm left:" << left << " rpm right:" << right);
 }
 
-visualization_msgs::Marker LGPCarPlugIn::create_marker(nav_msgs::Odometry msg) const
+visualization_msgs::Marker LGPCarPlugIn::CreateMarker(nav_msgs::Odometry msg) const
 {
     if( model_->GetName().find("obstacle") != std::string::npos )
     {
-        return create_obstacle(msg);
+        return CreateObstacle(msg);
     }
 
-    return create_car(msg);
+    return CreateCar(msg);
 }
 
-visualization_msgs::Marker LGPCarPlugIn::create_car(nav_msgs::Odometry msg) const
+visualization_msgs::Marker LGPCarPlugIn::CreateCar(nav_msgs::Odometry msg) const
 {
     visualization_msgs::Marker marker;
     marker.header = msg.header;
@@ -133,7 +154,7 @@ visualization_msgs::Marker LGPCarPlugIn::create_car(nav_msgs::Odometry msg) cons
     return marker;
 }
 
-visualization_msgs::Marker LGPCarPlugIn::create_obstacle(nav_msgs::Odometry msg) const
+visualization_msgs::Marker LGPCarPlugIn::CreateObstacle(nav_msgs::Odometry msg) const
 {
     visualization_msgs::Marker marker;
     marker.header = msg.header;
@@ -152,7 +173,7 @@ visualization_msgs::Marker LGPCarPlugIn::create_obstacle(nav_msgs::Odometry msg)
     return marker;
 }
 
-void LGPCarPlugIn::applyControl()
+void LGPCarPlugIn::ApplyControl()
 {
     if(fabs(target_v_) < 0.1)
     {
@@ -187,13 +208,13 @@ void LGPCarPlugIn::OnUpdate()
     //model_->SetWorldTwist(ignition::math::Vector3d(2.0, 0, 0), ignition::math::Vector3d(0, 0, 0.3));
 
     // Publish odometry
-    publishMsgs();
+    PublishMsgs();
 
     //// Apply control
-    applyControl();
+    ApplyControl();
 }
 
-void LGPCarPlugIn::cmdVelCB(const geometry_msgs::TwistConstPtr &msg)
+void LGPCarPlugIn::CmdVelCB(const geometry_msgs::TwistConstPtr &msg)
 {
     target_v_ = msg->linear.x;
     target_omega_ = msg->angular.z;
@@ -211,14 +232,14 @@ void LGPCarPlugIn::cmdVelCB(const geometry_msgs::TwistConstPtr &msg)
 //      ROS_INFO_STREAM("cmdVelCB, target_v_:" << target_v_ << " target_omega_:" << target_omega_);
 }
 
-void LGPCarPlugIn::resetPoseCB(const geometry_msgs::Pose2DConstPtr &msg)
+void LGPCarPlugIn::ResetPoseCB(const geometry_msgs::Pose2DConstPtr &msg)
 {
     ROS_INFO_STREAM("Reset position!");
 
     model_->SetWorldPose(math::Pose(msg->x, msg->y, 0, 0, 0, msg->theta));
 }
 
-void LGPCarPlugIn::initRos()
+void LGPCarPlugIn::InitRos()
 {
     // Declare ros node
     if(!ros::isInitialized())
@@ -236,7 +257,7 @@ void LGPCarPlugIn::initRos()
     ros::SubscribeOptions so_vel = ros::SubscribeOptions::create<geometry_msgs::Twist>(
                             "/" + model_->GetName() + "/vel_cmd",
                             1,
-                            boost::bind(&LGPCarPlugIn::cmdVelCB, this, _1),
+                            boost::bind(&LGPCarPlugIn::CmdVelCB, this, _1),
                             ros::VoidPtr(), &ros_queue_);
 
     cmd_vel_sub_ = ros_node_->subscribe(so_vel);
@@ -245,7 +266,7 @@ void LGPCarPlugIn::initRos()
     ros::SubscribeOptions so_pose = ros::SubscribeOptions::create<geometry_msgs::Pose2D>(
                             "/" + model_->GetName() + "/pose_reset",
                             1,
-                            boost::bind(&LGPCarPlugIn::resetPoseCB, this, _1),
+                            boost::bind(&LGPCarPlugIn::ResetPoseCB, this, _1),
                             ros::VoidPtr(), &ros_queue_);
 
     reset_pos_sub_ = ros_node_->subscribe(so_pose);
@@ -260,13 +281,13 @@ void LGPCarPlugIn::initRos()
     tf_broadcaster_ = std::make_shared<tf::TransformBroadcaster>();
 
     // Spin up the queue helper thread.
-    ros_queue_thread_ = std::thread(std::bind(&LGPCarPlugIn::queueThread, this));
+    ros_queue_thread_ = std::thread(std::bind(&LGPCarPlugIn::QueueThread, this));
 
     ROS_INFO_STREAM("--<end ros init for " << model_->GetName());
 }
 
 /// \brief ROS helper function that processes messages
-void LGPCarPlugIn::queueThread()
+void LGPCarPlugIn::QueueThread()
 {
   static const double timeout = 0.01;
   while (ros_node_->ok())

@@ -29,21 +29,21 @@ public:
     void OnUpdate();
 
     // Callback for incoming velocity commands
-    void cmdVelCB(const geometry_msgs::TwistConstPtr &msg);
+    void CmdVelCB(const geometry_msgs::TwistConstPtr &msg);
 
     // Callback for pose reset
-    void resetPoseCB(const geometry_msgs::Pose2DConstPtr &msg);
+    void ResetPoseCB(const geometry_msgs::Pose2DConstPtr &msg);
 
 private:
-    void publishMsgs();
-    visualization_msgs::Marker create_marker(nav_msgs::Odometry msg) const;
-    visualization_msgs::Marker create_car(nav_msgs::Odometry msg) const;
-    visualization_msgs::Marker create_obstacle(nav_msgs::Odometry msg) const;
+    void PublishMsgs();
+    visualization_msgs::Marker CreateMarker(nav_msgs::Odometry msg) const;
+    visualization_msgs::Marker CreateCar(nav_msgs::Odometry msg) const;
+    visualization_msgs::Marker CreateObstacle(nav_msgs::Odometry msg) const;
 
-    void applyControl();
+    void ApplyControl();
 
-    void initRos();
-    void queueThread();
+    void InitRos();
+    void QueueThread();
 
 private:
     // Pointer to the model

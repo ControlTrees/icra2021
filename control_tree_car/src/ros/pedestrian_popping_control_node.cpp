@@ -329,6 +329,15 @@ public:
                         marker.color.r = 1.0;
                         marker.color.g = 0.0;
                         marker.color.b = 0.0;
+
+                        // textured pedestrian
+                        marker.color.r = 1.0;
+                        marker.color.g = 1.0;
+                        marker.color.b = 1.0;
+                        marker.color.a = 1.0;
+                        marker.mesh_use_embedded_materials = true;
+                        //
+
                         marker.scale.y = pedestrian->get_start_position().y > 0 ? 1.0: -1.0;
                     }
                     else if(crossing_probability <= 0.0)
@@ -337,6 +346,14 @@ public:
                         marker.color.r = 0.0;
                         marker.color.g = 1.0;
                         marker.color.b = 0.0;
+
+                        // textured pedestrian
+                        marker.color.r = 1.0;
+                        marker.color.g = 1.0;
+                        marker.color.b = 1.0;
+                        marker.color.a = 1.0;
+                        marker.mesh_use_embedded_materials = true;
+                        //
 
                         const double yaw = (M_PI / 2.0) * (pedestrian->is_forward_direction() ? 1.0 : -1.0);
 
@@ -355,6 +372,14 @@ public:
                         marker.color.r = 1.0;
                         marker.color.g = 165.0/255;
                         marker.color.b = 0.0;
+
+                        // textured pedestrian
+                        marker.color.r = 1.0;
+                        marker.color.g = 1.0;
+                        marker.color.b = 1.0;
+                        marker.color.a = 1.0;
+                        marker.mesh_use_embedded_materials = true;
+                        //
 
                         marker.scale.y = 1.0;
 
