@@ -51,7 +51,7 @@ private:
     // target: params than can be adapted
     double v_desired_;
     double existence_probability_;
-    arr obstacle_position_;
+    std::vector<Obstacle> obstacles_;
 
     // functional
     std::shared_ptr<Car3CirclesCircularObstacle> circular_obstacle_;

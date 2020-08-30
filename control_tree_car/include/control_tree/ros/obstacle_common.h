@@ -6,3 +6,6 @@
 void log_to_file(std::ofstream & ofs, ros::NodeHandle & n, double car_x, int i, double cost, double time);
 
 std::string filename(const std::string & name, double p_obstacle);
+
+visualization_msgs::Marker create_obstacle_marker(double x, double y, double sx, double sy, double sz, double alpha, int id);
+visualization_msgs::Marker create_collision_marker(double x, double y, double sx, double sy, double sz, double alpha, int id);

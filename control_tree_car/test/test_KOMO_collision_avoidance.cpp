@@ -4,7 +4,8 @@
 
 #include <gtest/gtest.h>
 
-TEST(ProbabilityFusion, OneObstacle2Branches)
+
+TEST(ProbabilityFusion, DISABLED_OneObstacle2Branches)
 {
   std::vector<Obstacle> obstacles;
   obstacles.push_back(Obstacle{arr(), 0.1});
@@ -15,7 +16,7 @@ TEST(ProbabilityFusion, OneObstacle2Branches)
   EXPECT_EQ(std::vector<double>({0.1, 0.9}), ps);
 }
 
-TEST(ProbabilityFusion, TwoObstacle4Branches)
+TEST(ProbabilityFusion, DISABLED_TwoObstacle4Branches)
 {
   std::vector<Obstacle> obstacles;
   obstacles.push_back(Obstacle{arr(), 0.1});
@@ -59,9 +60,9 @@ TEST_F(KomoDecTest1Obstacle, DISABLED_scenario_1_bis)
 
   std::cout << "----------" << std::endl;
 
-  pb.odo->pose.pose.position.x += 3;
+  //pb.odo->pose.pose.position.x += 3;
 
-  plan(pb, false, true);
+  //plan(pb, false, true);
 
 //  std::cout << "----------" << std::endl;
 

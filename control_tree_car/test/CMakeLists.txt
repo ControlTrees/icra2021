@@ -7,7 +7,7 @@ string(REPLACE " " "_" project_name ${project_name})
 file(GLOB_RECURSE utility_lib_src common/*.cpp)
 
 # list all tests
-file(GLOB_RECURSE tests test_*.cpp)
+file(GLOB_RECURSE tests test_*.cpp) 
 
 #find GTest
 find_package(GTest REQUIRED)
@@ -34,6 +34,7 @@ foreach(test ${tests})
                           core_lib
                           utility_lib
                           komo_lib
+			  ros_common_lib
                           gtest
                           pthread
                           )

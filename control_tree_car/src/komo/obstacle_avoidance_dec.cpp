@@ -28,17 +28,17 @@ std::shared_ptr< KOMO > createKOMO(const rai::KinematicWorld & kin, uint n_phase
   return komo;
 }
 
-std::vector<arr> get_relevant_obstacles(const std::vector<Obstacle> & obstacles, const std::vector<bool>& activities)
+std::vector<Obstacle> get_relevant_obstacles(const std::vector<Obstacle> & obstacles, const std::vector<bool>& activities)
 {
-  std::vector<arr> obs;
+  std::vector<Obstacle> obs;
   for(auto j = 0; j < activities.size(); ++j)
   {
     if(activities[j])
     {
       if(obstacles[j].p >= 0.01)
-        obs.push_back(obstacles[j].position);
+        obs.push_back(obstacles[j]);
       else
-        obs.push_back({-10.0, 0, 0});
+        obs.push_back(Obstacle{{-10.0, 0, 0}, 0, 0});
     }
   }
   return obs;
@@ -63,7 +63,7 @@ ObstacleAvoidanceDec::ObstacleAvoidanceDec(BehaviorManager& behavior_manager, in
     , road_width_(road_width)
     , kin_((ros::package::getPath("control_tree_car") + "/data/LGP-real-time.g").c_str())
     , steps_(steps_per_phase)
-    , v_desired_(10.0)
+    , v_desired_(50 / 3.6)
     , obstacles_(n_obstacles_, {arr{-10, 0, 0}, 0.0})
     , komo_tree_(1.0, 0)
     , options_(PARALLEL, true, NOOPT, false)
@@ -87,7 +87,7 @@ ObstacleAvoidanceDec::ObstacleAvoidanceDec(BehaviorManager& behavior_manager, in
       // objectives
       Objectives objectives;
 
-      objectives.acc_ = komo->addObjective(-123., 123., new TM_Transition(komo->world), OT_sos, NoArr, 1.0, 2);
+      objectives.acc_ = komo->addObjective(-123., 123., new TM_Transition(komo->world), OT_sos, NoArr, 2.0, 2);
       objectives.acc_->vars = vars_branch_order_2_;
 
       //objectives.ax_ = komo->addObjective(-123., 123., new AxisBound("car_ego", AxisBound::Y, AxisBound::EQUAL), OT_sos, NoArr, 1.0, 0);
@@ -100,11 +100,11 @@ ObstacleAvoidanceDec::ObstacleAvoidanceDec(BehaviorManager& behavior_manager, in
       objectives.car_kin_ = komo->addObjective(-123., 123., new CarKinematic("car_ego", komo->world), OT_eq, NoArr, 1e1, 1);
       objectives.car_kin_->vars = vars_branch_order_1_;
 
-      std::vector<arr> obs = get_relevant_obstacles(obstacles_, activities[i]);
+      auto obstacles = get_relevant_obstacles(obstacles_, activities[i]);
 
-      if(!obs.empty())
+      if(!obstacles.empty())
       {
-        objectives.circular_obstacle_ = std::shared_ptr<Car3CirclesCircularObstacle> (new Car3CirclesCircularObstacle("car_ego", obs, 1.0, komo->world));
+        objectives.circular_obstacle_ = std::shared_ptr<Car3CirclesCircularObstacle> (new Car3CirclesCircularObstacle("car_ego", obstacles, komo->world));
 
         objectives.collision_avoidance_ = komo->addObjective(-123., 123., objectives.circular_obstacle_, OT_ineq, NoArr, 1e2, 0);
         objectives.collision_avoidance_->vars = vars_branch_order_0_;
@@ -135,15 +135,16 @@ void ObstacleAvoidanceDec::desired_speed_callback(const std_msgs::Float32::Const
 
 void ObstacleAvoidanceDec::obstacle_callback(const visualization_msgs::MarkerArray::ConstPtr& msg)
 {
-    CHECK_EQ(msg->markers.size(), obstacles_.size(), "number of obstacles are not consistent");
+    CHECK_EQ(msg->markers.size(), obstacles_.size() * 2, "number of obstacles are not consistent");
 
-    for(auto i = 0; i < msg->markers.size(); ++i)
+    for(auto i = 0; i < msg->markers.size() / 2; ++i)
     {
-      /// position and geometry
-      obstacles_[i].position = {msg->markers[i].pose.position.x, msg->markers[i].pose.position.y, 0};
+      const auto&m = msg->markers[2 * i + 1];
 
-      /// existence probability
-      obstacles_[i].p = msg->markers[i].color.a;
+      /// position and geometry
+      obstacles_[i].position = {m.pose.position.x, m.pose.position.y, 0};
+      obstacles_[i].p = m.color.a;
+      obstacles_[i].radius = m.scale.x / 2;
     }
 }
 
@@ -254,11 +255,11 @@ void ObstacleAvoidanceDec::update_groundings()
     //objectives.apply_scales(s * ones(4 * steps_));
 
     // update collision avoidance
-    std::vector<arr> obs = get_relevant_obstacles(obstacles_, activities[i]);
+    auto obstacles = get_relevant_obstacles(obstacles_, activities[i]);
 
-    if(!obs.empty())
+    if(!obstacles.empty())
     {
-      objectives.circular_obstacle_->set_obstacle_positions(obs);
+      objectives.circular_obstacle_->set_obstacles(obstacles);
     }
   }
 }

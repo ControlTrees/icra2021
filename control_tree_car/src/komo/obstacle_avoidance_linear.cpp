@@ -41,10 +41,9 @@ ObstacleAvoidanceLinear::ObstacleAvoidanceLinear(BehaviorManager& behavior_manag
     komo_->verbose = 0;
 
     // set objectives
-    std::vector<arr> obs = get_obstacles(obstacles_);
-    circular_obstacle_ = std::shared_ptr<Car3CirclesCircularObstacle> (new Car3CirclesCircularObstacle("car_ego", obs, 1.0, komo_->world));
+    circular_obstacle_ = std::shared_ptr<Car3CirclesCircularObstacle> (new Car3CirclesCircularObstacle("car_ego", obstacles_, komo_->world));
 
-    acc_ = komo_->addObjective(0, -1, new TM_Transition(komo_->world), OT_sos, NoArr, 1.0, 2);
+    acc_ = komo_->addObjective(0, -1, new TM_Transition(komo_->world), OT_sos, NoArr, 2.0, 2);
     //ax_ = komo_->addObjective(0, -1, new AxisBound("car_ego", AxisBound::Y, AxisBound::EQUAL, komo_->world), OT_sos, NoArr, 1.0, 0);
     ax_ = komo_->addObjective(0., -1., new RoadBound("car_ego", 3.5 / 2.0, vehicle_width, komo_->world), OT_sos, NoArr, 1.0, 0);
     vel_ = komo_->addObjective(0, -1, new AxisBound("car_ego", AxisBound::X, AxisBound::EQUAL, komo_->world), OT_sos, { v_desired_ }, 1e-1, 1);
@@ -66,15 +65,15 @@ void ObstacleAvoidanceLinear::obstacle_callback(const visualization_msgs::Marker
 {
     //ROS_INFO( "update obstacle_belief.." );
 
-    CHECK_EQ(msg->markers.size(), obstacles_.size(), "number of obstacles are not consistent");
+    CHECK_EQ(msg->markers.size(), obstacles_.size() * 2, "number of obstacles are not consistent");
 
-    for(auto i = 0; i < msg->markers.size(); ++i)
+    for(auto i = 0; i < msg->markers.size() / 2; ++i)
     {
-      /// position and geometry
-      obstacles_[i].position = {msg->markers[i].pose.position.x, msg->markers[i].pose.position.y, 0};
+      const auto&m = msg->markers[2 * i + 1];
 
-      /// existence probability
-      obstacles_[i].p = msg->markers[i].color.a;
+      obstacles_[i].position = {m.pose.position.x, m.pose.position.y, 0};
+      obstacles_[i].p = m.color.a;
+      obstacles_[i].radius = m.scale.x / 2;
     }
 }
 
@@ -85,8 +84,7 @@ TimeCostPair ObstacleAvoidanceLinear::plan()
     // update task maps
     //vel_->map->target = {v_desired_, 0.0, 0.0};
     vel_->map->target = {v_desired_};
-    std::vector<arr> obs = get_obstacles(obstacles_);
-    circular_obstacle_->set_obstacle_positions(obs);
+    circular_obstacle_->set_obstacles(obstacles_);
 
     // init
     auto o = manager_.odometry();

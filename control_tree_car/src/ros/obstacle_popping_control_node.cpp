@@ -14,6 +14,7 @@
 #include <std_msgs/Float32.h>
 
 #include <control_tree/core/utility.h>
+#include <control_tree/ros/obstacle_common.h>
 
 // TODO
 // constraints lateral instead of centerline?
@@ -156,7 +157,7 @@ public:
     ObstacleObserver(tf::TransformListener & tf_listener, int N)
         : tf_listener_(tf_listener)
         , obstacles_(N)
-        , scale_bias_(0.75)
+        //, scale_bias_(0.75)
         , scale_noise_(0.2)
     {
 
@@ -174,31 +175,43 @@ public:
         {
             const auto& obstacle = obstacles_[i];
 
-            visualization_msgs::Marker marker;
-
             if(obstacle.get())
             {
                 const auto obstacle_position = obstacle->get_position();
                 const auto signed_dist_to_obstacle = obstacle_position.x - car_position.x;
                 const auto existence_probability = obstacle->existence_probability(signed_dist_to_obstacle);
+                const double x = obstacle_position.x + (1.0 - existence_probability) * (scale_noise_ * rand_m11());
+                const double y = obstacle_position.y + (1.0 - existence_probability) * (scale_noise_ * rand_m11());
+//                const double sx = 2.0;
+//                const double sy = 1.0;
+//                const double sz = 1.5;
 
-                // obstacle position and geometry
-                marker.header.stamp = ros::Time::now();
-                marker.header.frame_id = "map";
-                marker.id = obstacle->id_;//std::hash<std::string>()("obstacle");
-                marker.type = visualization_msgs::Marker::CYLINDER;//;visualization_msgs::Marker::CUBE;
-                marker.action = visualization_msgs::Marker::ADD;
-                marker.pose.position.x = obstacle_position.x + (1.0 - existence_probability) * (scale_bias_ * bias_.x + scale_noise_ * rand_m11());
-                marker.pose.position.y = obstacle_position.y + (1.0 - existence_probability) * (scale_bias_ * bias_.y + scale_noise_ * rand_m11());
-                marker.scale.x = 1.0; // diameter
-                marker.scale.y = 1.0;
-                marker.scale.z = 1.0 + i;
-                marker.color.a = existence_probability;
-                marker.color.r = 1.0;
-                marker.color.g = 0.0;
-                marker.color.b = 0.0;
+                const double sx = 4.0;
+                const double sy = 2.0;
+                const double sz = 1.5;
 
-                markers.markers.push_back(marker);
+                // real obstacle
+                visualization_msgs::Marker obstacle_marker = create_obstacle_marker(x,
+                                                                             y,
+                                                                             sx,
+                                                                             sy,
+                                                                             sz,
+                                                                             existence_probability,
+                                                                             obstacle->id_);
+
+                // collision - model position and geometry
+                visualization_msgs::Marker collision_marker = create_collision_marker(x,
+                                                                               y,
+                                                                               sx,
+                                                                               sy,
+                                                                               sz - 0.5 - 0.5 * i,
+                                                                               existence_probability,
+                                                                               obstacle->id_);
+
+                obstacle_marker.header.stamp = collision_marker.header.stamp = ros::Time::now();
+
+                markers.markers.push_back(collision_marker);
+                markers.markers.push_back(obstacle_marker);
 
                 //ROS_INFO("Obstacle existence probability: %f %d", existence_probability, obstacle->id_);
             }
@@ -228,12 +241,6 @@ public:
 
     std::vector<std::shared_ptr<Obstacle>> obstacles() const { return obstacles_; }
 
-    void reset_bias()
-    {
-        bias_.x = rand_m11();
-        bias_.y = rand_m11();
-    }
-
     void erase_obstacle(uint i)
     {
         obstacles_[i] = nullptr;
@@ -247,10 +254,8 @@ public:
 private:
     tf::TransformListener & tf_listener_;
     std::vector<std::shared_ptr<Obstacle>> obstacles_;
-    Position2D bias_;
 
     // params
-    const double scale_bias_;
     const double scale_noise_;
 };
 
@@ -276,7 +281,13 @@ static std::shared_ptr<Obstacle> draw_new_obstacle(uint obstacle_id,
 
         // Y
         //const double new_y = rand_m11() * lane_width * 0.5;
-        const double new_y = rand_m11() > 0 ?  lane_width * 0.5 - 0.6 * rand_01() : -lane_width * 0.5 + 0.6 * rand_01() ;
+        // motorbike
+        //const double new_y = rand_m11() > 0 ?  lane_width * 0.5 - 0.6 * rand_01() : -lane_width * 0.5 + 0.6 * rand_01() ;
+
+        // car
+        const double road_width = lane_width + 2.0;
+        const double y = road_width  * 0.5 + (0.4 - 1.1 * rand_01());
+        const double new_y = rand_m11() > 0 ?  y : -y;
 
         new_position = Position2D{new_x, new_y};
 

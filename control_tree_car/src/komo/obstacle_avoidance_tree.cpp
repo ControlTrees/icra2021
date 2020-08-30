@@ -27,7 +27,7 @@ ObstacleAvoidanceTree::ObstacleAvoidanceTree(BehaviorManager& behavior_manager, 
     komo_->verbose = 0;
 
     // set objectives
-    circular_obstacle_ = std::shared_ptr<Car3CirclesCircularObstacle> (new Car3CirclesCircularObstacle("car_ego", {obstacle_position_}, 1.0, komo_->world));
+    circular_obstacle_ = std::shared_ptr<Car3CirclesCircularObstacle> (new Car3CirclesCircularObstacle("car_ego", obstacles_, komo_->world));
 
     acc_ = komo_->addObjective(-123., 123., new TM_Transition(komo_->world), OT_sos, NoArr, 1.0, 2);
     acc_->vars = vars_all_order_2_;
@@ -70,11 +70,11 @@ void ObstacleAvoidanceTree::obstacle_callback(const visualization_msgs::MarkerAr
 {
     //ROS_INFO( "update obstacle_belief.." );
 
-    /// position and geometry
-    obstacle_position_ = {msg->markers.front().pose.position.x, msg->markers.front().pose.position.y, 0};
-
-    /// existance probability
-    existence_probability_ = msg->markers.front().color.a;
+    /// obstacle
+    const auto& m = msg->markers[1];
+    obstacles_.front().position = {m.pose.position.x, m.pose.position.y, 0};
+    existence_probability_ = m.color.a;
+    obstacles_.front().radius = m.scale.x / 2;
 
     // clamp
     const double min = 0.1; // hack -> to change
@@ -89,7 +89,7 @@ TimeCostPair ObstacleAvoidanceTree::plan()
 {
     //ROS_INFO( "ObstacleAvoidanceTree::plan.." );
 
-    if(obstacle_position_.d0 == 0)
+    if(obstacles_.front().position.d0 == 0)
     {
         ROS_INFO( "ObstacleAvoidanceTree::plan.. abort planning" );
 
@@ -102,7 +102,7 @@ TimeCostPair ObstacleAvoidanceTree::plan()
     vel_->map->target = {v_desired_};
     //vel_->map->target = {v_desired_, 0.0, 0.0};
 
-    circular_obstacle_->set_obstacle_positions({ARR(obstacle_position_(0), obstacle_position_(1), obstacle_position_(2))});
+    circular_obstacle_->set_obstacles(obstacles_);
 
     if( existence_probability_ < 0.01 )
     {

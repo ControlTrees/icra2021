@@ -9,7 +9,7 @@ StopLineQPTree::StopLineQPTree(BehaviorManager& behavior_manager, int n_branches
     , steps_(steps_per_phase)
     , model_(1.0 / steps_per_phase, 1.0, 5.0)
     , solver_(model_, u_min_, u_max_)
-    , v_desired_(48/3.6)
+    , v_desired_(50/3.6)
     , stoplines_(n_branches_ > 1 ? n_branches_ - 1 : 1)
     , optimization_run_(false)
     , optimization_error_(false)

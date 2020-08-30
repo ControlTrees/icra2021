@@ -14,12 +14,6 @@ class KOMO;
 
 constexpr double vehicle_width = 1.8;
 
-struct Obstacle
-{
-  arr position;
-  double p;
-};
-
 geometry_msgs::PoseStamped kin_to_pose_msg(const rai::KinematicWorld * kin);
 geometry_msgs::PoseStamped kin_1d_to_pose_msg(const rai::KinematicWorld * kin);
 double traj_cost(const WorldL & Gs, const std::list<Objective *> & objectives);
