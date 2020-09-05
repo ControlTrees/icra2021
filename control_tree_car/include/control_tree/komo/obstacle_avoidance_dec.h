@@ -56,6 +56,7 @@ private:
     const bool tree_;
     const double road_width_;
     rai::KinematicWorld kin_;
+    const uint horizon_; // planning horizon number of phases ~ [s]
     const uint steps_;
 
     // target: params than can be adapted
@@ -96,5 +97,5 @@ private:
 };
 
 std::vector<double> fuse_probabilities(const std::vector<Obstacle>&, bool tree, std::vector<std::vector<bool>> &);
-void convert(uint n_branches, mp::TreeBuilder& komo_tree_);
+void convert(uint n_branches, uint horizon, mp::TreeBuilder& komo_tree_);
 

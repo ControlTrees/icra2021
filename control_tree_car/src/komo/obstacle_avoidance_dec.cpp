@@ -64,6 +64,7 @@ ObstacleAvoidanceDec::ObstacleAvoidanceDec(BehaviorManager& behavior_manager, in
     , road_width_(road_width)
     , kin_((ros::package::getPath("control_tree_car") + "/data/LGP-real-time.g").c_str())
     , steps_(steps_per_phase)
+    , horizon_(5)
     , v_desired_(10)//(50 / 3.6)
     , obstacles_(n_obstacles_, {arr{-10, 0, 0}, 0.0})
     , komo_tree_(1.0, 0)
@@ -71,8 +72,6 @@ ObstacleAvoidanceDec::ObstacleAvoidanceDec(BehaviorManager& behavior_manager, in
 {
     options_.opt.verbose = 0;
     //options_.opt.aulaMuInc = 1;
-
-    //std::cerr << "n_branches_:" << n_branches_ << std::endl;
 
     // optim structure
     init_tree();
@@ -84,7 +83,7 @@ ObstacleAvoidanceDec::ObstacleAvoidanceDec(BehaviorManager& behavior_manager, in
     for(auto i = 0; i < n_branches_; ++i)
     {
       // komo
-      auto komo = createKOMO(kin_, 5, steps_);
+      auto komo = createKOMO(kin_, horizon_, steps_);
       komos_.push_back(komo);
 
       // objectives
@@ -233,12 +232,12 @@ std::vector<nav_msgs::Path> ObstacleAvoidanceDec::get_trajectories()
 
 void ObstacleAvoidanceDec::init_tree()
 {
-  convert(n_branches_, komo_tree_);
+  convert(n_branches_, horizon_, komo_tree_);
 
   auto leaf = komo_tree_.get_leaves().front();
-  vars_branch_order_0_ = komo_tree_.get_vars({0.0, 5.0}, leaf, 0, steps_);
-  vars_branch_order_1_ = komo_tree_.get_vars({0.0, 5.0}, leaf, 1, steps_);
-  vars_branch_order_2_ = komo_tree_.get_vars({0.0, 5.0}, leaf, 2, steps_);
+  vars_branch_order_0_ = komo_tree_.get_vars({0.0, horizon_}, leaf, 0, steps_);
+  vars_branch_order_1_ = komo_tree_.get_vars({0.0, horizon_}, leaf, 1, steps_);
+  vars_branch_order_2_ = komo_tree_.get_vars({0.0, horizon_}, leaf, 2, steps_);
 }
 
 void ObstacleAvoidanceDec::update_groundings()
@@ -253,13 +252,8 @@ void ObstacleAvoidanceDec::update_groundings()
     // set target
     objectives.vel_->map->target = {v_desired_};
 
-    // apply scales
-    //objectives.apply_scales(s * ones(4 * steps_));
-
     // update collision avoidance
     auto obstacles = get_relevant_obstacles(obstacles_, activities[i]);
-
-    //std::cout << "number of relevant obstacles:" << obstacles.size() << std::endl;
 
     if(!obstacles.empty())
     {
@@ -284,7 +278,7 @@ void ObstacleAvoidanceDec::init_optimization_variable()
     const auto leaves = uncompressed.get_leaves();
     CHECK_EQ(1, leaves.size(), "a branch should have one leaf");
     const auto leaf = leaves.front();
-    const auto var = komo_tree_.get_vars({0.0, 5.0}, leaf, 0, steps_);
+    const auto var = komo_tree_.get_vars({0.0, horizon_}, leaf, 0, steps_);
 
     arr xmask = zeros(x_size);
     for(auto j: var)
@@ -299,14 +293,6 @@ void ObstacleAvoidanceDec::init_optimization_variable()
     vars_.push_back(var);
   }
 }
-
-//void ObstacleAvoidanceDec::Objectives::apply_scales(const arr& scales)
-//{
-//  const double surscale = 1.0;
-//  ax_->scales = surscale * scales;
-//  vel_->scales = surscale * scales;
-//  acc_->scales = surscale * scales;
-//}
 
 //-----------free functions----------------------
 
@@ -354,9 +340,6 @@ std::vector<double> fuse<true>(const std::vector<Obstacle>& obstacles, std::vect
       probabilities[j] = p;
     }
 
-    //for(const auto& p: probabilities)
-    //  std::cout << "p:" << p << std::endl;
-
     return probabilities;
 }
 
@@ -377,9 +360,6 @@ std::vector<double> fuse<false>(const std::vector<Obstacle>& obstacles, std::vec
     // fuse
     probabilities[0] = 1.0;
 
-//    for(const auto& p: probabilities)
-//      std::cout << "p:" << p << std::endl;
-
     return probabilities;
 }
 
@@ -391,26 +371,26 @@ std::vector<double> fuse_probabilities(const std::vector<Obstacle>& obstacles, b
         return fuse<false>(obstacles, activities);
 }
 
-void convert(uint n_branches, mp::TreeBuilder& tb)
+void convert(uint n_branches, uint horizon, mp::TreeBuilder& tb)
 {
-  uint j = 0;
+  uint j = 1;
 
-  tb.add_edge(0, 1);
-  tb.add_edge(1, 2);
-  tb.add_edge(2, 3);
-  tb.add_edge(3, 4);
-  tb.add_edge(4, 5);
+  for(;j <= horizon; ++j)
+  {
+    tb.add_edge(j-1, j);
+  }
 
-  j = 5;
+  --j;
+
   for(auto i = 1; i < n_branches; ++i)
   {
     ++j;
     tb.add_edge(1, j);
-    ++j;
-    tb.add_edge(j-1, j);
-    ++j;
-    tb.add_edge(j-1, j);
-    ++j;
-    tb.add_edge(j-1, j);
+
+    for(auto k = 3; k <= horizon; ++k)
+    {
+        ++j;
+        tb.add_edge(j-1, j);
+    }
   }
 }
