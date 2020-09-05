@@ -28,14 +28,6 @@ TEST(ProbabilityFusion, DISABLED_TwoObstacle4Branches)
   EXPECT_EQ(std::vector<double>({0.05, 0.5*(1.0 - 0.1), 0.05, 1.0 - 0.05 * 2 - 0.5*(1.0 - 0.1)}), ps);
 }
 
-TEST_F(KomoLinearTest, DISABLED_scenario_1)
-{
-  auto pb = create_scenario_2();
-
-  plan(pb, true);
-  plan(pb, false);
-}
-
 TEST_F(KomoJointTest, DISABLED_scenario_1)
 {
   auto pb = create_scenario_1(0.5);

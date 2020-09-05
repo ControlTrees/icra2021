@@ -116,12 +116,6 @@ komo_lib
 ros_common_lib
  )
 
-add_executable(obstacle_avoidance_linear_node src/ros/obstacle_avoidance_linear_node.cpp)
-target_link_libraries(obstacle_avoidance_linear_node
-komo_lib
-ros_common_lib
- )
-
 add_executable(obstacle_popping_control_node src/ros/obstacle_popping_control_node.cpp)
 target_link_libraries(obstacle_popping_control_node
 core_lib

@@ -52,29 +52,6 @@ void plan_impl(const Scenario & scenario, BehaviorManager& manager, T& behavior,
   }
 }
 
-class KomoLinearTest : public ::testing::Test
-{
-public:
-  void SetUp()
-  {
-    ros::Time::init();
-
-    behavior = std::make_shared<ObstacleAvoidanceLinear>(manager, n_obstacles, 3.5, 4);
-
-    manager.register_behavior("collision_avoidance", behavior);
-    manager.set_current_behavior("collision_avoidance");
-  }
-
-  void plan(const Scenario & scenario, bool plot, bool plot_debug = false)
-  {
-    plan_impl(scenario, manager, behavior, plot, plot_debug);
-  }
-
-  BehaviorManager manager;
-  std::shared_ptr<ObstacleAvoidanceLinear> behavior;
-  int n_obstacles = 2;
-};
-
 class KomoJointTest : public ::testing::Test
 {
 public:
