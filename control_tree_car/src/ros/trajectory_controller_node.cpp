@@ -10,6 +10,25 @@
 
 #include <control_tree/core/utility.h>
 
+namespace
+{
+geometry_msgs::PoseStamped to_pose_msg(const Pose2D& pose)
+{
+    tf2::Quaternion q; q.setRPY(0, 0, pose.yaw);
+    geometry_msgs::PoseStamped pose_msg;
+    pose_msg.header.stamp = ros::Time::now();
+    pose_msg.header.frame_id = "map";
+    pose_msg.pose.position.x = pose.x;
+    pose_msg.pose.position.y = pose.y;
+    pose_msg.pose.orientation.x = q.x();
+    pose_msg.pose.orientation.y = q.y();
+    pose_msg.pose.orientation.z = q.z();
+    pose_msg.pose.orientation.w = q.w();
+
+    return pose_msg;
+}
+}
+
 class TrajectoryController
 {
 public:
@@ -44,14 +63,14 @@ public:
         }
     }
 
-    std::pair<geometry_msgs::Twist, geometry_msgs::PoseStamped> create_control() const
+    std::tuple<geometry_msgs::Twist, geometry_msgs::PoseStamped, geometry_msgs::PoseStamped> create_control() const
     {   
         const auto nominal_v = 5; // scale w according to the ratio v / nominal_v
 
         //// return early if not enough info
         if( trajectory_.size() == 0 || ! odo_received_ )
         {
-            return std::pair<geometry_msgs::Twist, geometry_msgs::PoseStamped>();
+            return std::tuple<geometry_msgs::Twist, geometry_msgs::PoseStamped, geometry_msgs::PoseStamped>();
         }
 
         // get 0-0
@@ -69,7 +88,8 @@ public:
             twist_msg.linear.x = 0;
             twist_msg.angular.z = 0;
 
-            return std::pair<geometry_msgs::Twist, geometry_msgs::PoseStamped>(twist_msg, geometry_msgs::PoseStamped());
+            return std::tuple<geometry_msgs::Twist, geometry_msgs::PoseStamped, geometry_msgs::PoseStamped>
+                    (twist_msg, geometry_msgs::PoseStamped(), to_pose_msg(trajectory_[2]));
         }
 
         /// v
@@ -88,14 +108,15 @@ public:
         // distance between current pose and its projection on the trajectory
         Eigen::Vector2f u(current.x - projected.x, current.y - projected.y);
         Eigen::Vector2f n(-sin(projected.yaw), cos(projected.yaw));
-        auto d = n.dot(u);
+        const auto d = n.dot(u);
 
         // angle
         double d_yaw = projected.yaw - current.yaw;
 
-        w_cmd = 2 * (-0.25 * d + d_yaw);
+        w_cmd = 3 * (-0.1 * d + d_yaw);
         w_cmd = w_cmd * (v / nominal_v);
 
+        // scaling
         const double max_w = 1.0;
         if(std::fabs(w_cmd) > max_w)
         {
@@ -105,25 +126,16 @@ public:
         }
 
         ///
-        tf2::Quaternion q; q.setRPY(0, 0, projected.yaw);
-        geometry_msgs::PoseStamped target_pose_msg;
-        target_pose_msg.header.stamp = ros::Time::now();
-        target_pose_msg.header.frame_id = "map";
-        target_pose_msg.pose.position.x = projected.x;
-        target_pose_msg.pose.position.y = projected.y;
-        target_pose_msg.pose.orientation.x = q.x();
-        target_pose_msg.pose.orientation.y = q.y();
-        target_pose_msg.pose.orientation.z = q.z();
-        target_pose_msg.pose.orientation.w = q.w();
+        auto target_pose_msg = to_pose_msg(projected);
 
         geometry_msgs::Twist twist_msg;
         twist_msg.linear.x = v;
         twist_msg.angular.z = w_cmd;
 
-        return {twist_msg, target_pose_msg};
+        return std::make_tuple(twist_msg, target_pose_msg, to_pose_msg(trajectory_[2]));
     }
 
-    std::pair<geometry_msgs::Twist, geometry_msgs::PoseStamped> create_control_nose_based() const
+    std::tuple<geometry_msgs::Twist, geometry_msgs::PoseStamped, geometry_msgs::PoseStamped> create_control_nose_based() const
     {
         const auto d_nose = 4.3 - 0.9;
         const auto nominal_v = 5; // scale w according to the ratio v / nominal_v
@@ -131,8 +143,9 @@ public:
         //// return early if not enough info
         if( trajectory_.size() == 0 || ! odo_received_ )
         {
-            return std::pair<geometry_msgs::Twist, geometry_msgs::PoseStamped>();
+            return std::tuple<geometry_msgs::Twist, geometry_msgs::PoseStamped, geometry_msgs::PoseStamped>();
         }
+
 
         // get 0-0
         Pose2D current = {odometry_.x, odometry_.y, odometry_.yaw};
@@ -164,7 +177,8 @@ public:
             twist_msg.linear.x = 0;
             twist_msg.angular.z = 0;
 
-            return std::pair<geometry_msgs::Twist, geometry_msgs::PoseStamped>(twist_msg, geometry_msgs::PoseStamped());
+            return std::tuple<geometry_msgs::Twist, geometry_msgs::PoseStamped, geometry_msgs::PoseStamped>
+                    (twist_msg, geometry_msgs::PoseStamped(), to_pose_msg(trajectory_[2]));
         }
 
         /// v
@@ -204,22 +218,13 @@ public:
         }
 
         ///
-        tf2::Quaternion q; q.setRPY(0, 0, projected_nose.yaw);
-        geometry_msgs::PoseStamped target_pose_msg;
-        target_pose_msg.header.stamp = ros::Time::now();
-        target_pose_msg.header.frame_id = "map";
-        target_pose_msg.pose.position.x = projected_nose.x;
-        target_pose_msg.pose.position.y = projected_nose.y;
-        target_pose_msg.pose.orientation.x = q.x();
-        target_pose_msg.pose.orientation.y = q.y();
-        target_pose_msg.pose.orientation.z = q.z();
-        target_pose_msg.pose.orientation.w = q.w();
+        auto target_pose_msg = to_pose_msg(projected_nose);
 
         geometry_msgs::Twist twist_msg;
         twist_msg.linear.x = v;
         twist_msg.angular.z = w_cmd;
 
-        return {twist_msg, target_pose_msg};
+        return std::make_tuple(twist_msg, target_pose_msg, to_pose_msg(trajectory_[2]));
     }
 
 private:
@@ -244,14 +249,15 @@ int main(int argc, char **argv)
     ros::NodeHandle n;
     n.getParam("/traj_planner/steps_per_phase", steps_per_phase);
     n.getParam("/traj_controller/trajectory_index", trajectory_index);
-    ros::Publisher ctrl_publisher = n.advertise<geometry_msgs::Twist>("/lgp_car/vel_cmd", 1000);
-    ros::Publisher target_pose_publisher = n.advertise<geometry_msgs::PoseStamped>("/lgp_car/target_pose", 1000);
+    ros::Publisher ctrl_publisher = n.advertise<geometry_msgs::Twist>("/lgp_car/vel_cmd", 100);
+    ros::Publisher start_planning_publisher = n.advertise<geometry_msgs::PoseStamped>("/lgp_car/start_planning_pose", 100);
+    ros::Publisher target_pose_publisher = n.advertise<geometry_msgs::PoseStamped>("/lgp_car/target_pose", 100);
 
     TrajectoryController controller(steps_per_phase);
 
     boost::function<void(const nav_msgs::Path::ConstPtr& msg)> trajectory_callback =
             boost::bind(&TrajectoryController::trajectory_callback, &controller, _1);
-    auto trajectory_subscriber = n.subscribe("/traj_planner/trajectory_" + std::to_string(trajectory_index), 1000, trajectory_callback);
+    auto trajectory_subscriber = n.subscribe("/traj_planner/trajectory_" + std::to_string(trajectory_index), 100, trajectory_callback);
 
     boost::function<void(const nav_msgs::Odometry::ConstPtr& msg)> odometry_callback =
             boost::bind(&TrajectoryController::odometry_callback, &controller, _1);
@@ -262,8 +268,9 @@ int main(int argc, char **argv)
     while (ros::ok())
     {  
       auto msgs = controller.create_control();
-      const auto & ctrl = msgs.first;
-      const auto & target = msgs.second;
+      const auto & ctrl = std::get<0>(msgs);
+      const auto & target = std::get<1>(msgs); // odo proj onto traj
+      const auto & start = std::get<2>(msgs); // planning start
 
       //static int l = 0;
       //l++;
@@ -271,6 +278,7 @@ int main(int argc, char **argv)
 
       ctrl_publisher.publish(ctrl);
       target_pose_publisher.publish(target);
+      start_planning_publisher.publish(start);
 
       ros::spinOnce();
 

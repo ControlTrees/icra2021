@@ -56,14 +56,14 @@ arr to_arr(const std::vector<double> a)
 
 }
 
-ObstacleAvoidanceDec::ObstacleAvoidanceDec(BehaviorManager& behavior_manager, int n_obstacles, double road_width, int steps_per_phase)
+ObstacleAvoidanceDec::ObstacleAvoidanceDec(BehaviorManager& behavior_manager, int n_obstacles, bool tree, double road_width, int steps_per_phase)
     : BehaviorBase(behavior_manager)
     , n_obstacles_(n_obstacles)
-    , n_branches_(n_branches(n_obstacles))
+    , n_branches_(n_branches(n_obstacles, tree))
     , road_width_(road_width)
     , kin_((ros::package::getPath("control_tree_car") + "/data/LGP-real-time.g").c_str())
     , steps_(steps_per_phase)
-    , v_desired_(50 / 3.6)
+    , v_desired_(10)//(50 / 3.6)
     , obstacles_(n_obstacles_, {arr{-10, 0, 0}, 0.0})
     , komo_tree_(1.0, 0)
     , options_(PARALLEL, true, NOOPT, false)
@@ -159,7 +159,6 @@ TimeCostPair ObstacleAvoidanceDec::plan()
 //    {
 //      // update komos
 //      shift_komos(komos_[i], o, steps_);
-
 //      // Note: updating the dual seems very difficult and doesn't lead to good results!
 //      // update dual
 //      //const auto dual_dim_per_step = converters_[i]->dimPhi / steps_ / 4; // 4 phases

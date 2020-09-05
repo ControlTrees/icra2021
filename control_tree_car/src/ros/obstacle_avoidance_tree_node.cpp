@@ -18,6 +18,7 @@ int main(int argc, char **argv)
     double p_obstacle = 0.1;
     int n_obstacles = 1;
     double road_width = 3.5;
+    bool tree = true;
 
     // ros init
     ros::init(argc, argv, "lgp_car_traj_planner");
@@ -28,9 +29,10 @@ int main(int argc, char **argv)
     n.getParam("p_obstacle", p_obstacle);
     n.getParam("n_obstacles", n_obstacles);
     n.getParam("road_width", road_width);
+    n.getParam("tree", tree);
 
     std::vector<ros::Publisher> trajectory_publishers;
-    for(auto i = 0; i < BehaviorType::n_branches(n_obstacles); ++i)
+    for(auto i = 0; i < BehaviorType::n_branches(n_obstacles, tree); ++i)
     {
         trajectory_publishers.push_back(
                     n.advertise<nav_msgs::Path>("/traj_planner/trajectory_" + std::to_string(i + 1), 1000)
@@ -41,7 +43,7 @@ int main(int argc, char **argv)
     BehaviorManager manager;
 
     // instanciate behaviors
-    auto obstacle_avoidance_tree = std::shared_ptr<BehaviorType>(new BehaviorType(manager, n_obstacles, road_width, steps_per_phase));
+    auto obstacle_avoidance_tree = std::shared_ptr<BehaviorType>(new BehaviorType(manager, n_obstacles, tree, road_width, steps_per_phase));
     manager.register_behavior("ObstacleAvoidanceTree", obstacle_avoidance_tree);
     manager.set_current_behavior("ObstacleAvoidanceTree");
 

@@ -117,7 +117,7 @@ Pose2D project_on_trajectory(const Pose2D & p, std::vector<Pose2D> trajectory, i
             {
                 index = i;
                 mu = _mu;
-                return {a.x + mu * ab.x, a.y + mu * ab.y, b.yaw};
+                return {a.x + mu * ab.x, a.y + mu * ab.y, (1.0 - mu) * a.yaw + mu * b.yaw};
             }
         }
 

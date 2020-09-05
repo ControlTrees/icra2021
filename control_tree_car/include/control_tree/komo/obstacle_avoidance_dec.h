@@ -31,7 +31,7 @@
 class ObstacleAvoidanceDec : public BehaviorBase
 {
 public:
-    ObstacleAvoidanceDec(BehaviorManager&, int n_obstacles, double road_width, int steps_per_phase);
+    ObstacleAvoidanceDec(BehaviorManager&, int n_obstacles, bool tree, double road_width, int steps_per_phase);
 
     void desired_speed_callback(const std_msgs::Float32::ConstPtr& msg);
 
@@ -43,7 +43,7 @@ public:
 
     void set_optim_callback(const std::function<void()>& callback) { options_.callback = callback; }
 
-    static uint n_branches(uint n_obstacles) { return pow(2.0, n_obstacles); }
+    static uint n_branches(uint n_obstacles, bool tree) { return tree ? pow(2.0, n_obstacles) : 1; }
 private:
     void init_tree();
     void update_groundings();

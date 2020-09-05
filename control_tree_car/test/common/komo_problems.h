@@ -104,7 +104,7 @@ public:
   {
     ros::Time::init();
 
-    behavior = std::make_shared<ObstacleAvoidanceDec>(manager, n_obstacles, 3.5, 4);
+    behavior = std::make_shared<ObstacleAvoidanceDec>(manager, n_obstacles, true, 3.5, 4);
 
     manager.register_behavior("collision_avoidance", behavior);
     manager.set_current_behavior("collision_avoidance");

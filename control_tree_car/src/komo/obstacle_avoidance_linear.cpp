@@ -6,23 +6,21 @@
 
 namespace
 {
-std::vector<arr> get_obstacles(const std::vector<Obstacle> & obstacles)
+std::vector<Obstacle> get_relevant_obstacles(const std::vector<Obstacle> & obstacles)
 {
-    std::vector<arr> obs;
+    std::vector<Obstacle> obs;
 
     for(auto i = 0; i < obstacles.size(); ++i)
     {
         if(obstacles[i].p >= 0.01)
-            obs.push_back(obstacles[i].position);
+            obs.push_back(obstacles[i]);
         else
-            obs.push_back({-10.0, 0, 0});
+            obs.push_back(Obstacle{{-10.0, 0, 0}, 0, 0});
     }
 
     return obs;
 }
 }
-
-
 
 ObstacleAvoidanceLinear::ObstacleAvoidanceLinear(BehaviorManager& behavior_manager, int n_obstacles, double road_width, int steps_per_phase)
     : BehaviorBase(behavior_manager)
@@ -30,7 +28,7 @@ ObstacleAvoidanceLinear::ObstacleAvoidanceLinear(BehaviorManager& behavior_manag
     , road_width_(road_width)
     , kin_((ros::package::getPath("control_tree_car") + "/data/LGP-real-time.g").c_str())
     , steps_(steps_per_phase)
-    , v_desired_(10.0)
+    , v_desired_(10)//(50 / 3.6)
     , obstacles_(n_obstacles_, {arr{-10, 0, 0}, 0.0})
 {
     // komo
@@ -45,7 +43,7 @@ ObstacleAvoidanceLinear::ObstacleAvoidanceLinear(BehaviorManager& behavior_manag
 
     acc_ = komo_->addObjective(0, -1, new TM_Transition(komo_->world), OT_sos, NoArr, 2.0, 2);
     //ax_ = komo_->addObjective(0, -1, new AxisBound("car_ego", AxisBound::Y, AxisBound::EQUAL, komo_->world), OT_sos, NoArr, 1.0, 0);
-    ax_ = komo_->addObjective(0., -1., new RoadBound("car_ego", 3.5 / 2.0, vehicle_width, komo_->world), OT_sos, NoArr, 1.0, 0);
+    ax_ = komo_->addObjective(0., -1., new RoadBound("car_ego", road_width_ / 2.0, vehicle_width, komo_->world), OT_sos, NoArr, 1.0, 0);
     vel_ = komo_->addObjective(0, -1, new AxisBound("car_ego", AxisBound::X, AxisBound::EQUAL, komo_->world), OT_sos, { v_desired_ }, 1e-1, 1);
     car_kin_ = komo_->addObjective(0, -1, new CarKinematic("car_ego", komo_->world), OT_eq, NoArr, 1e1, 1);
     collision_avoidance_ = komo_->addObjective(0, -1, circular_obstacle_, OT_ineq, NoArr, 1e2, 0);
@@ -84,7 +82,8 @@ TimeCostPair ObstacleAvoidanceLinear::plan()
     // update task maps
     //vel_->map->target = {v_desired_, 0.0, 0.0};
     vel_->map->target = {v_desired_};
-    circular_obstacle_->set_obstacles(obstacles_);
+    auto obstacles = get_relevant_obstacles(obstacles_);
+    circular_obstacle_->set_obstacles(obstacles);
 
     // init
     auto o = manager_.odometry();
