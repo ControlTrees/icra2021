@@ -53,6 +53,7 @@ private:
     // params
     const uint n_obstacles_; // number of obstacles
     const uint n_branches_; // number of branches
+    const bool tree_;
     const double road_width_;
     rai::KinematicWorld kin_;
     const uint steps_;
@@ -94,6 +95,6 @@ private:
     intA vars_branch_order_2_;
 };
 
-std::vector<double> fuse_probabilities(const std::vector<Obstacle>&, std::vector<std::vector<bool>> &);
+std::vector<double> fuse_probabilities(const std::vector<Obstacle>&, bool tree, std::vector<std::vector<bool>> &);
 void convert(uint n_branches, mp::TreeBuilder& komo_tree_);
 

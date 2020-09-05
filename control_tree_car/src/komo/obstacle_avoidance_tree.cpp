@@ -132,10 +132,10 @@ TimeCostPair ObstacleAvoidanceTree::plan()
 
     // evaluate costs
     auto Gs = get_traj_start(komo_->configurations);
-    auto cost = traj_cost(Gs, {acc_, ax_/*, vel_*/});
+    auto cost = traj_cost(Gs, {acc_, ax_, vel_});
     //
 
-    return {execution_time_us / 1000000, cost};
+    return {execution_time_us / 1000000, cost.total};
 }
 
 std::vector<nav_msgs::Path> ObstacleAvoidanceTree::get_trajectories()

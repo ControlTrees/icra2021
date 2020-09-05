@@ -30,24 +30,30 @@ geometry_msgs::PoseStamped kin_1d_to_pose_msg(const rai::KinematicWorld * kin)
     return pose;
 };
 
-double traj_cost(const WorldL & Gs, const std::list<Objective *> & objectives)
+Costs traj_cost(const WorldL & Gs, const std::list<Objective *> & objectives)
 {
-    double cost = 0;
+    Costs costs;
+    costs.total = 0;
     for(const auto & o: objectives)
     {
         const auto & s = o->map->scale.d0 ? o->map->scale(0) : 1.0;
-
         const auto & v = (*o->map)(Gs);
+        const auto & t = o->map->target;
 
+        double cost = 0;
         for(auto i=0; i < v.y.d0; ++i)
         {
-            cost += s * v.y(i) * v.y(i);
+            auto dy = t.d0 ? v.y(i) - t.scalar() : v.y(i);
+            cost += s * dy * dy;
         }
 
-        //std::cout << o->name << " " << cost << std::endl;
+        costs.total += cost;
+        costs.costs["o->name"] = cost;
+
+        //std::cout << o->name << " " << cost << " target " << t << std::endl;
 
     }
-    return cost;
+    return costs;
 }
 
 WorldL get_traj_start(const WorldL & configurations, int start, int end)

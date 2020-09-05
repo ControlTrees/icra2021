@@ -104,7 +104,7 @@ public:
   {
     ros::Time::init();
 
-    behavior = std::make_shared<ObstacleAvoidanceDec>(manager, n_obstacles, true, 3.5, 4);
+    behavior = std::make_shared<ObstacleAvoidanceDec>(manager, n_obstacles, tree, 3.5, 4);
 
     manager.register_behavior("collision_avoidance", behavior);
     manager.set_current_behavior("collision_avoidance");
@@ -118,6 +118,7 @@ public:
   BehaviorManager manager;
   std::shared_ptr<ObstacleAvoidanceDec> behavior;
   int n_obstacles = 2;
+  bool tree = true;
 };
 
 class KomoDecTest1Obstacle : public KomoDecTest
@@ -144,5 +145,25 @@ class KomoDecTest3Obstacle : public KomoDecTest
     KomoDecTest3Obstacle()
     {
         n_obstacles = 3;
+    }
+};
+
+class KomoDecTestLinear1Obstacle : public KomoDecTest
+{
+   public:
+    KomoDecTestLinear1Obstacle()
+    {
+        n_obstacles = 1;
+        tree = false;
+    }
+};
+
+class KomoDecTestLinear2Obstacle : public KomoDecTest
+{
+   public:
+    KomoDecTestLinear2Obstacle()
+    {
+        n_obstacles = 2;
+        tree = false;
     }
 };

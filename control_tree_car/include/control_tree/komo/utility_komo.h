@@ -8,16 +8,23 @@
 #include <Kin/kin.h>
 
 #include <control_tree/core/utility.h>
+#include <unordered_map>
 
 class Objective;
 class KOMO;
 
 constexpr double vehicle_width = 1.8;
 
+struct Costs
+{
+    double total;
+    std::unordered_map<std::string, double> costs;
+};
+
 geometry_msgs::PoseStamped kin_to_pose_msg(const rai::KinematicWorld * kin);
 geometry_msgs::PoseStamped kin_1d_to_pose_msg(const rai::KinematicWorld * kin);
-double traj_cost(const WorldL & Gs, const std::list<Objective *> & objectives);
-WorldL get_traj_start(const WorldL & configurations, int start = 1, int end = 3);
+Costs traj_cost(const WorldL & Gs, const std::list<Objective *> & objectives);
+WorldL get_traj_start(const WorldL & configurations, int start = 0, int end = 2);
 void unify_prefix(std::vector<std::shared_ptr<KOMO>>& komos);
 void shift_komos(std::vector<std::shared_ptr<KOMO>>& komos, const OdometryState & o, uint steps);
 int shift_komos(const std::shared_ptr<KOMO>& komo, const OdometryState & o, uint steps);

@@ -22,7 +22,7 @@
 // params
 double lane_width = 3.5;
 const double reset_x_threshold = -0;
-const double distance_ahead = 28;
+const double distance_ahead = 35;
 //const double vanishing_false_positive_distance = 10.0;
 
 static int n_obstacles = 0;
@@ -180,8 +180,8 @@ public:
                 const auto obstacle_position = obstacle->get_position();
                 const auto signed_dist_to_obstacle = obstacle_position.x - car_position.x;
                 const auto existence_probability = obstacle->existence_probability(signed_dist_to_obstacle);
-                const double x = obstacle_position.x + (1.0 - existence_probability) * (scale_noise_ * rand_m11());
-                const double y = obstacle_position.y + (1.0 - existence_probability) * (scale_noise_ * rand_m11());
+                const double x = obstacle_position.x;// + (1.0 - existence_probability) * (scale_noise_ * rand_m11());
+                const double y = obstacle_position.y;// + (1.0 - existence_probability) * (scale_noise_ * rand_m11());
 //                const double sx = 2.0;
 //                const double sy = 1.0;
 //                const double sz = 1.5;
@@ -277,7 +277,7 @@ static std::shared_ptr<Obstacle> draw_new_obstacle(uint obstacle_id,
     while(!position_valid)
     {
         // X
-        const double new_x = car_position.x + distance_ahead + rand_m11() * distance_ahead * 0.5;
+        const double new_x = car_position.x + distance_ahead + rand_m11() * distance_ahead * 0.3;
 
         // Y
         //const double new_y = rand_m11() * lane_width * 0.5;
@@ -312,7 +312,7 @@ static std::shared_ptr<Obstacle> draw_new_obstacle(uint obstacle_id,
 
     //std::cout << "p:" << p << std::endl;
 
-    const double certainty_distance = 10 + ( distance_ahead - 5 ) * rand_01();// * rand_01();
+    const double certainty_distance = 13 + ( distance_ahead ) * rand_01();// * rand_01();
 
     if(draw_bool(p_obstacle))
     {

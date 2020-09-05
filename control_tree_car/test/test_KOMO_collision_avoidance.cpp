@@ -11,7 +11,7 @@ TEST(ProbabilityFusion, DISABLED_OneObstacle2Branches)
   obstacles.push_back(Obstacle{arr(), 0.1});
 
   std::vector<std::vector<bool>> activities;
-  auto ps = fuse_probabilities(obstacles, activities);
+  auto ps = fuse_probabilities(obstacles, true, activities);
 
   EXPECT_EQ(std::vector<double>({0.1, 0.9}), ps);
 }
@@ -23,7 +23,7 @@ TEST(ProbabilityFusion, DISABLED_TwoObstacle4Branches)
   obstacles.push_back(Obstacle{arr(), 0.5});
 
   std::vector<std::vector<bool>> activities;
-  const auto ps = fuse_probabilities(obstacles, activities);
+  const auto ps = fuse_probabilities(obstacles, true, activities);
 
   EXPECT_EQ(std::vector<double>({0.05, 0.5*(1.0 - 0.1), 0.05, 1.0 - 0.05 * 2 - 0.5*(1.0 - 0.1)}), ps);
 }
@@ -71,7 +71,7 @@ TEST_F(KomoDecTest1Obstacle, DISABLED_scenario_1_bis)
 //  plan(pb, true);
 }
 
-TEST_F(KomoDecTest2Obstacle, scenario_2)
+TEST_F(KomoDecTest2Obstacle, DISABLED_scenario_2)
 {
   auto pb = create_scenario_2();
 
@@ -88,6 +88,22 @@ TEST_F(KomoDecTest3Obstacle, DISABLED_scenario_3)
 
   plan(pb, false);
   //plan(pb, false);
+}
+
+TEST_F(KomoDecTestLinear1Obstacle, scenario_1)
+{
+  auto pb = create_scenario_1(0.02);
+
+  plan(pb, true);
+  plan(pb, false);
+}
+
+TEST_F(KomoDecTestLinear2Obstacle, scenario_2)
+{
+  auto pb = create_scenario_2();
+
+  plan(pb, true);
+  plan(pb, false);
 }
 
 ////////////////////////////////
