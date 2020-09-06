@@ -41,9 +41,19 @@ void BehaviorManager::plan()
 
     const auto & time_cost = current_behavior_->plan();
 
-    cost_evaluator.acc(time_cost.cost);
-    time_evaluator.acc(time_cost.planning_time);
-    velocity_evaluator.acc(odometry_.v);
+    auto now = std::chrono::high_resolution_clock::now();
+    auto dt = std::chrono::duration_cast<std::chrono::microseconds>(now - last_).count() / 1e6;
+    last_ = now;
+
+    //std::cout << "dt:" << dt << std::endl;
+
+    ++n_plan_; // discard very few iterations since the vehicle may not have attained cruise speed which can bias costs
+    if(n_plan_ >=100)
+    {
+        cost_evaluator_.acc(time_cost.cost, dt);
+        velocity_evaluator_.acc(odometry_.v, dt);
+        time_evaluator_.acc(time_cost.planning_time);
+    }
 }
 
 std::vector<nav_msgs::Path> BehaviorManager::get_trajectories() const

@@ -18,6 +18,7 @@ int main(int argc, char **argv)
     double p_obstacle = 0.1;
     int n_obstacles = 1;
     double road_width = 3.5;
+    double v_desired = 10;
     bool tree = true;
 
     // ros init
@@ -29,6 +30,7 @@ int main(int argc, char **argv)
     n.getParam("p_obstacle", p_obstacle);
     n.getParam("n_obstacles", n_obstacles);
     n.getParam("road_width", road_width);
+    n.getParam("v_desired", v_desired);
     n.getParam("tree", tree);
 
     std::vector<ros::Publisher> trajectory_publishers;
@@ -43,7 +45,7 @@ int main(int argc, char **argv)
     BehaviorManager manager;
 
     // instanciate behaviors
-    auto obstacle_avoidance_tree = std::shared_ptr<BehaviorType>(new BehaviorType(manager, n_obstacles, tree, road_width, steps_per_phase));
+    auto obstacle_avoidance_tree = std::shared_ptr<BehaviorType>(new BehaviorType(manager, n_obstacles, tree, road_width, v_desired, steps_per_phase));
     manager.register_behavior("ObstacleAvoidanceTree", obstacle_avoidance_tree);
     manager.set_current_behavior("ObstacleAvoidanceTree");
 
@@ -104,7 +106,7 @@ int main(int argc, char **argv)
         {
             log_to_file(ofs, n, car_x, i, manager.cost(), manager.planning_time());
 
-            ROS_INFO_STREAM("cost:" << manager.cost() << " time:" << manager.planning_time());
+            //ROS_INFO_STREAM("cost:" << manager.cost() << " time:" << manager.planning_time());
         }
     }
 

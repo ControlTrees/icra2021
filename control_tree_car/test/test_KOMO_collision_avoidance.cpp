@@ -63,7 +63,7 @@ TEST_F(KomoDecTest1Obstacle, DISABLED_scenario_1_bis)
 //  plan(pb, true);
 }
 
-TEST_F(KomoDecTest2Obstacle, DISABLED_scenario_2)
+TEST_F(KomoDecTest2Obstacle, scenario_2)
 {
   auto pb = create_scenario_2();
 
@@ -78,11 +78,11 @@ TEST_F(KomoDecTest3Obstacle, DISABLED_scenario_3)
 {
   auto pb = create_scenario_3();
 
-  plan(pb, false);
+  plan(pb, true);
   //plan(pb, false);
 }
 
-TEST_F(KomoDecTestLinear1Obstacle, scenario_1)
+TEST_F(KomoDecTestLinear1Obstacle, DISABLED_scenario_1)
 {
   auto pb = create_scenario_1(0.02);
 
@@ -90,7 +90,7 @@ TEST_F(KomoDecTestLinear1Obstacle, scenario_1)
   plan(pb, false);
 }
 
-TEST_F(KomoDecTestLinear2Obstacle, scenario_2)
+TEST_F(KomoDecTestLinear2Obstacle, DISABLED_scenario_2)
 {
   auto pb = create_scenario_2();
 

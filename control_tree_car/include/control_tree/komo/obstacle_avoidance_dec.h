@@ -24,6 +24,7 @@
 
 #include <tree_builder.h>
 #include <circular_obstacle.h>
+#include <control_tree/komo/komo_factory.h>
 
 #include <Optimization/decentralized_optimizer.h>
 #include <Optimization/decentralized_lagrangian.h>
@@ -31,7 +32,7 @@
 class ObstacleAvoidanceDec : public BehaviorBase
 {
 public:
-    ObstacleAvoidanceDec(BehaviorManager&, int n_obstacles, bool tree, double road_width, int steps_per_phase);
+    ObstacleAvoidanceDec(BehaviorManager&, int n_obstacles, bool tree, double road_width, double v_desired, int steps_per_phase);
 
     void desired_speed_callback(const std_msgs::Float32::ConstPtr& msg);
 
@@ -55,7 +56,6 @@ private:
     const uint n_branches_; // number of branches
     const bool tree_;
     const double road_width_;
-    rai::KinematicWorld kin_;
     const uint horizon_; // planning horizon number of phases ~ [s]
     const uint steps_;
 
@@ -63,19 +63,10 @@ private:
     double v_desired_;
     std::vector<Obstacle> obstacles_;
 
+    // komo
+    KomoFactory komo_factory_;
+
     // objectives
-    struct Objectives
-    {
-      Objective * acc_{0};
-      Objective * ax_{0};
-      Objective * vel_{0};
-      Objective * car_kin_{0};
-      std::shared_ptr<Car3CirclesCircularObstacle> circular_obstacle_;
-      Objective * collision_avoidance_{0};
-
-      //void apply_scales(const arr& scales);
-    };
-
     std::vector<Objectives> objectivess_;
 
     // state;

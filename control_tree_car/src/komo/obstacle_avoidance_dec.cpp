@@ -10,23 +10,8 @@
 
 #include <subtree_generators.h>
 
-// TODO: correct prefix when moving traj
-// think about prob balacing (finally bettwer in dec solver?)
-// probability
-
 namespace
 {
-std::shared_ptr< KOMO > createKOMO(const rai::KinematicWorld & kin, uint n_phases, uint steps_per_phase)
-{
-  auto komo = std::shared_ptr< KOMO >();
-  komo = std::make_shared<KOMO>();
-  komo->sparseOptimization = true;
-  komo->setModel(kin, false);
-  komo->setTiming(n_phases, steps_per_phase, 1);
-  komo->verbose = 0;
-
-  return komo;
-}
 
 std::vector<Obstacle> get_relevant_obstacles(const std::vector<Obstacle> & obstacles, const std::vector<bool>& activities)
 {
@@ -56,16 +41,15 @@ arr to_arr(const std::vector<double> a)
 
 }
 
-ObstacleAvoidanceDec::ObstacleAvoidanceDec(BehaviorManager& behavior_manager, int n_obstacles, bool tree, double road_width, int steps_per_phase)
+ObstacleAvoidanceDec::ObstacleAvoidanceDec(BehaviorManager& behavior_manager, int n_obstacles, bool tree, double road_width, double v_desired, int steps_per_phase)
     : BehaviorBase(behavior_manager)
     , n_obstacles_(n_obstacles)
     , n_branches_(n_branches(n_obstacles, tree))
     , tree_(tree)
     , road_width_(road_width)
-    , kin_((ros::package::getPath("control_tree_car") + "/data/LGP-real-time.g").c_str())
     , steps_(steps_per_phase)
     , horizon_(5)
-    , v_desired_(10)//(50 / 3.6)
+    , v_desired_(v_desired)//(50 / 3.6)
     , obstacles_(n_obstacles_, {arr{-10, 0, 0}, 0.0})
     , komo_tree_(1.0, 0)
     , options_(PARALLEL, true, NOOPT, false)
@@ -83,32 +67,20 @@ ObstacleAvoidanceDec::ObstacleAvoidanceDec(BehaviorManager& behavior_manager, in
     for(auto i = 0; i < n_branches_; ++i)
     {
       // komo
-      auto komo = createKOMO(kin_, horizon_, steps_);
+      auto komo = komo_factory_.create_komo(horizon_, steps_);
       komos_.push_back(komo);
 
       // objectives
-      Objectives objectives;
-
-      objectives.acc_ = komo->addObjective(-123., 123., new TM_Transition(komo->world), OT_sos, NoArr, 2.0, 2);
-      objectives.acc_->vars = vars_branch_order_2_;
-
-      //objectives.ax_ = komo->addObjective(-123., 123., new AxisBound("car_ego", AxisBound::Y, AxisBound::EQUAL), OT_sos, NoArr, 1.0, 0);
-      objectives.ax_ = komo->addObjective(-123., 123., new RoadBound("car_ego", road_width_ / 2.0, vehicle_width, komo->world), OT_sos, NoArr, 1.0, 0);
-      objectives.ax_->vars = vars_branch_order_0_;
-
-      objectives.vel_ = komo->addObjective(-123., 123., new AxisBound("car_ego", AxisBound::X, AxisBound::EQUAL, komo->world), OT_sos, {v_desired_}, 1e-1, 1);
-      objectives.vel_->vars = vars_branch_order_1_;
-
-      objectives.car_kin_ = komo->addObjective(-123., 123., new CarKinematic("car_ego", komo->world), OT_eq, NoArr, 1e1, 1);
-      objectives.car_kin_->vars = vars_branch_order_1_;
-
       auto obstacles = get_relevant_obstacles(obstacles_, activities[i]);
+
+      Objectives objectives = komo_factory_.ground_komo(komo, obstacles, road_width_, v_desired_);
+      objectives.acc_->vars = vars_branch_order_2_;
+      objectives.ax_->vars = vars_branch_order_0_;
+      objectives.vel_->vars = vars_branch_order_1_;
+      objectives.car_kin_->vars = vars_branch_order_1_;
 
       if(!obstacles.empty())
       {
-        objectives.circular_obstacle_ = std::shared_ptr<Car3CirclesCircularObstacle> (new Car3CirclesCircularObstacle("car_ego", obstacles, komo->world));
-
-        objectives.collision_avoidance_ = komo->addObjective(-123., 123., objectives.circular_obstacle_, OT_ineq, NoArr, 1e2, 0);
         objectives.collision_avoidance_->vars = vars_branch_order_0_;
       }
 

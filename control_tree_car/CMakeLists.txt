@@ -79,7 +79,7 @@ ${catkin_LIBRARIES}
  Core
  Geo
  Optim
- Optimization
+ Optimization 
  Kin
  KOMO
  GeometricUtilityTasks
@@ -119,6 +119,12 @@ ros_common_lib
 add_executable(obstacle_popping_control_node src/ros/obstacle_popping_control_node.cpp)
 target_link_libraries(obstacle_popping_control_node
 core_lib
+ros_common_lib
+ )
+
+add_executable(obstacle_avoidance_evaluation_node src/ros/obstacle_avoidance_evaluation_node.cpp)
+target_link_libraries(obstacle_avoidance_evaluation_node
+komo_lib
 ros_common_lib
  )
 

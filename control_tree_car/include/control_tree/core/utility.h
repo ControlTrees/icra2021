@@ -54,6 +54,25 @@ private:
     int N = 0;
 };
 
+class ContinuousEvaluator
+{
+public:
+    void acc(double val, double dt)
+    {
+        if(!std::isnan(val))
+        {
+            avg = (avg * T + val * dt) / (T+dt);
+            T+=dt;
+        }
+    }
+
+    double average() const { return avg; };
+
+private:
+    double avg = 0;
+    double T = 0;
+};
+
 double rand_01();
 double rand_m11();
 double draw_p(double median_p);

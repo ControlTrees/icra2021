@@ -13,8 +13,6 @@
 class Objective;
 class KOMO;
 
-constexpr double vehicle_width = 1.8;
-
 struct Costs
 {
     double total;

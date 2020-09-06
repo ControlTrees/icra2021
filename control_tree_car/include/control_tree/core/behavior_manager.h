@@ -2,6 +2,7 @@
 
 #include "nav_msgs/Odometry.h"
 #include "nav_msgs/Path.h"
+#include <chrono>
 
 #include <control_tree/core/utility.h>
 
@@ -32,9 +33,9 @@ public:
         return odometry_;
     }
 
-    double cost() const { return cost_evaluator.average(); }
-    double planning_time() const { return time_evaluator.average(); }
-    double velocity() const { return velocity_evaluator.average(); }
+    double cost() const { return cost_evaluator_.average(); }
+    double planning_time() const { return time_evaluator_.average(); }
+    double velocity() const { return velocity_evaluator_.average(); }
 
 private:
     // behaviors
@@ -44,9 +45,11 @@ private:
     // state
     bool odo_received_;
     OdometryState odometry_;
+    uint n_plan_ = 0;
+    std::chrono::high_resolution_clock::time_point last_ = std::chrono::high_resolution_clock::now();
 
     // evaluation
-    Evaluator cost_evaluator;
-    Evaluator time_evaluator;
-    Evaluator velocity_evaluator;
+    ContinuousEvaluator cost_evaluator_;
+    ContinuousEvaluator velocity_evaluator_;
+    Evaluator time_evaluator_;
 };
