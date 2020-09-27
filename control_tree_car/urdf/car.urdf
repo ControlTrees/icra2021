@@ -4,7 +4,7 @@
     <visual>
       <origin rpy="0.0 0 1.57" xyz="1.5 0 0"/>
       <geometry>
-        <mesh filename="package://control_tree_car/meshes/bmw/G12Pos8.dae"/>
+        <mesh filename="package://control_tree_car/meshes/bmw/bmw.dae"/>
       </geometry>
     </visual>
   </link>
