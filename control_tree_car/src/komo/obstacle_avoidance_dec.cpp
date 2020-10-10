@@ -55,7 +55,9 @@ ObstacleAvoidanceDec::ObstacleAvoidanceDec(BehaviorManager& behavior_manager, in
     , options_(PARALLEL, true, NOOPT, false)
 {
     options_.opt.verbose = 0;
-    //options_.opt.aulaMuInc = 1;
+    options_.opt.aulaMuInc = 1;
+    options_.muInit = 2.0;
+    options_.muInc = 2.0;
 
     // optim structure
     init_tree();
