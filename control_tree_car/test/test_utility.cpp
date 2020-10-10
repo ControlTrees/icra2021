@@ -1,4 +1,5 @@
 #include <control_tree/core/utility.h>
+#include <control_tree/ros/common.h>
 
 #include <gtest/gtest.h>
 

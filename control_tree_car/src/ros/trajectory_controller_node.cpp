@@ -114,7 +114,7 @@ public:
         double d_yaw = projected.yaw - current.yaw;
 
         w_cmd = 3 * (-0.1 * d + d_yaw);
-        w_cmd = w_cmd * (v / nominal_v);
+        w_cmd = w_cmd * (std::max(v, 2.0) / nominal_v);
 
         // scaling
         const double max_w = 1.0;
@@ -145,7 +145,6 @@ public:
         {
             return std::tuple<geometry_msgs::Twist, geometry_msgs::PoseStamped, geometry_msgs::PoseStamped>();
         }
-
 
         // get 0-0
         Pose2D current = {odometry_.x, odometry_.y, odometry_.yaw};

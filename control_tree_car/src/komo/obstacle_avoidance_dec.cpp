@@ -149,19 +149,15 @@ TimeCostPair ObstacleAvoidanceDec::plan()
 
     // update the optim variable (since komos have been changed)
     update_x(x_, komos_, vars_);
-
     auto bs = to_arr(belief_state_);
+    //options_.checkGradients = true;
+
     // run
     auto start = std::chrono::high_resolution_clock::now();
 
-    //options_.checkGradients = true;
-
     DecOptConstrained<ConstrainedProblem, BeliefState> opt(x_, constrained_problems_, xmasks_, BeliefState(bs), options_);
-
     opt.run();
 
-    //komo_->getReport(true);
-    //komo_->plotTrajectory();
     auto end = std::chrono::high_resolution_clock::now();
     float execution_time_us = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
 

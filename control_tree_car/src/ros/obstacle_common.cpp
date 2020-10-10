@@ -7,29 +7,41 @@
 
 #include <chrono>
 
-void log_to_file(std::ofstream & ofs, ros::NodeHandle & n, double car_x, int i, double cost, double time)
+void log_to_file(std::ofstream & ofs, ros::NodeHandle & n, double car_x, int i, double cost)
 {
-    int n_obstacles, n_non_obstacles;
-    n.getParam("/n_obstacles", n_obstacles);
-    n.getParam("/n_non_obstacles", n_non_obstacles);
-
+    int n_obstacles;
+    int n_non_obstacles;
     double p_obstacle;
-    n.getParam("p_obstacle", p_obstacle);
+    double planning_time = 0;
+
+    n.getParam("/n_total_obstacles", n_obstacles);
+    n.getParam("/n_total_non_obstacles", n_non_obstacles);
+    n.getParam("/p_obstacle", p_obstacle);
+    n.getParam("/planning_time", planning_time);
 
     std::stringstream ss;
 
-    ss << "N:" << n_non_obstacles + n_non_obstacles << " Avg dist between obstacles:" << car_x / (n_non_obstacles + n_non_obstacles) << " Probability:" << p_obstacle << " Avg cost:" << cost << " time(ms):" << time * 1000 << " " << i << " iterations";
+    ss << "N:" << n_obstacles << " M:" << n_non_obstacles << " M+N:"<< n_obstacles + n_non_obstacles << " ~p:" << double(n_obstacles) / (n_non_obstacles+n_obstacles) << " Travelled dist:" << car_x << " Probability:" << p_obstacle << " Avg cost:" << cost << " time(ms):" << planning_time * 1000 << " " << i << " iterations";
 
     ROS_INFO_STREAM(ss.str());
     ofs << ss.str() << std::endl;
 }
 
-std::string filename(const std::string & name, double p_obstacle)
+std::string filename(ros::NodeHandle & n)
 {
+    double p_obstacle = 0.1;
+    int n_obstacles = 1;
+    bool tree = true;
+
+    n.getParam("tree", tree);
+    n.getParam("p_obstacle", p_obstacle);
+    n.getParam("n_obstacles", n_obstacles);
+    n.getParam("tree", tree);
+
     auto now = std::chrono::system_clock::now();
     std::time_t t = std::chrono::system_clock::to_time_t(now);
     std::stringstream ss;
-    ss << "/home/camille/Phd/Paper/RSS/plots/gen_obstacles/data-" << std::to_string(p_obstacle) << "-" << name << "-" << t << ".txt";
+    ss << "/home/camille/Phd/Paper/ICRA-2021/plots/gen_obstacles/data-" << std::to_string(p_obstacle) << "-" << (tree ? "tree" : "linear") << "-" << n_obstacles << "-" << t << ".txt";
     return ss.str();
 }
 

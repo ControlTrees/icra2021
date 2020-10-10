@@ -9,6 +9,7 @@
 
 namespace
 {
+
 visualization_msgs::Marker create_center_line(double map_x)
 {
     visualization_msgs::Marker marker;
@@ -84,6 +85,41 @@ visualization_msgs::Marker create_road_border(double map_x, double road_width)
 
     return marker;
 }
+}
+
+double rand_01()
+{
+    static int n = 0;
+    ++n;
+
+    auto v = (double(rand()) / RAND_MAX);
+
+    //std::cout << "n:" << n << " 01 v:" << v << std::endl;
+
+    return v;
+}
+
+double rand_m11()
+{
+    static int n = 0;
+    ++n;
+
+    auto v = 2 * (double(rand()) / RAND_MAX - 0.5);
+
+    //std::cout << "n:" << n << " 11 v:" << v << std::endl;
+
+    return v;
+}
+
+double draw_p(double median_p)
+{
+    double exponent = log(median_p) / log(0.5);
+    return pow(rand_01(), exponent);
+}
+
+bool draw_bool(double average_p)
+{
+    return (rand_01() < average_p);
 }
 
 RoadModelBuilder& RoadModelBuilder::add_center_line()

@@ -65,7 +65,7 @@ int main(int argc, char **argv)
 
     ros::Rate loop_rate(10);
 
-    std::ofstream ofs(filename("tree", p_obstacle));
+    std::ofstream ofs(filename(n));
 
     double car_x = 0;
     int i = 0;
@@ -104,10 +104,11 @@ int main(int argc, char **argv)
 
         if(i%100==0)
         {
-            log_to_file(ofs, n, car_x, i, manager.cost(), manager.planning_time());
-
+            //log_to_file(ofs, n, car_x, i, manager.cost());
             //ROS_INFO_STREAM("cost:" << manager.cost() << " time:" << manager.planning_time());
         }
+
+        n.setParam("/planning_time", manager.planning_time());
     }
 
     return 0;

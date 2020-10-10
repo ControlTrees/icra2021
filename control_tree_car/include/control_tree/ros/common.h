@@ -4,6 +4,11 @@
 #include <visualization_msgs/Marker.h>
 #include <ros/node_handle.h>
 
+double rand_01();
+double rand_m11();
+double draw_p(double median_p);
+bool draw_bool(double average_p);
+
 struct RoadModelBuilder
 {
     RoadModelBuilder(double map_x, double road_width)

@@ -77,6 +77,8 @@ void shift_komos(std::vector<std::shared_ptr<KOMO>>& komos, const OdometryState 
     int index; double mu;
     const auto proj = project_on_trajectory({o.x, o.y, o.yaw}, ref_traj, index, mu);
 
+    ROS_INFO_STREAM("index:" << index);
+
     OdometryState start;
     if(index >= 2) // is komo order
     {
@@ -90,16 +92,30 @@ void shift_komos(std::vector<std::shared_ptr<KOMO>>& komos, const OdometryState 
         for(auto&komo: komos)
         {
             auto traj = convert(komo);
-            translate_trajectory(start, steps, traj);
+
+            double vx_end = steps * (traj[traj.size() - 1].x - traj[traj.size() - 2].x);
+            if(vx_end > 1.0)
+            {
+                translate_trajectory(start, steps, traj);
+            }
+            else
+            {   // unstuck trajectory
+                ROS_WARN_STREAM("Unstuck trajectory");
+
+                first_guess_trajectory(o, steps, traj);
+            }
             update_komo(traj, komo);
         }
     }
     else if(index >= 0)
     {   // move slightly backwards? because we project on prefix, strange prefer not to change the komo
+
+        ROS_WARN_STREAM("B. move backwards? - keep old traj");
     }
     else
     {
-        std::cout << "first iteration" << std::endl;
+        ROS_WARN_STREAM("C. first iteration");
+
         for(auto&komo: komos)
         {
             auto traj = convert(komo);
@@ -142,7 +158,7 @@ int shift_komos(const std::shared_ptr<KOMO> & komo, const OdometryState & o, uin
     //std::cout << "traj size:" << traj.size() << " index:" << index << " " << proj.x << ", " << proj.y << ", " << proj.yaw << std::endl;
 
     OdometryState start;
-    if(index >= 2) // is komo order
+    if(index >= 2) // 2 is komo order
     {
         // nominal case
         start.x = proj.x;
@@ -279,6 +295,39 @@ void first_guess_trajectory(const OdometryState & o, uint steps, std::vector<Pos
         trajectory[i].x = o.x + (i-2) * dx;
         trajectory[i].y = o.y + (i-2) * dy;
         trajectory[i].yaw = o.yaw;
+    }
+}
+
+void first_guess_trajectory(const OdometryState & o, double v_min, uint steps, std::vector<Pose2D>& trajectory)
+{
+    {
+        const double vx = o.v * cos(o.yaw);
+        const double vy = o.v * sin(o.yaw);
+        const double dx = vx * 1.0 / steps;
+        const double dy = vy * 1.0 / steps;
+
+        // shift prefix
+        for(auto i=0; i < 2; ++i)
+        {
+            trajectory[i].x = o.x + (i-2) * dx;
+            trajectory[i].y = o.y + (i-2) * dy;
+            trajectory[i].yaw = o.yaw;
+        }
+    }
+
+    {
+        const double vx = v_min * cos(o.yaw);
+        const double vy = v_min * sin(o.yaw);
+        const double dx = vx * 1.0 / steps;
+        const double dy = vy * 1.0 / steps;
+
+        // shift prefix
+        for(auto i=2; i < trajectory.size(); ++i)
+        {
+            trajectory[i].x = o.x + (i-2) * dx;
+            trajectory[i].y = o.y + (i-2) * dy;
+            trajectory[i].yaw = o.yaw;
+        }
     }
 }
 

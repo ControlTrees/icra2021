@@ -32,5 +32,6 @@ std::vector<Pose2D> convert(const std::shared_ptr<KOMO>& komo);
 void slide_trajectory(uint index, uint steps, std::vector<Pose2D>& trajectory);
 void translate_trajectory(const OdometryState & o, uint steps, std::vector<Pose2D>& trajectory);
 void first_guess_trajectory(const OdometryState & o, uint steps, std::vector<Pose2D>& trajectory);
+void first_guess_trajectory(const OdometryState & o, double v_min, uint steps, std::vector<Pose2D>& trajectory);
 void update_komo(const std::vector<Pose2D>& trajectory, const std::shared_ptr<KOMO>& komo);
 void update_x(arr&x, const std::vector<std::shared_ptr<KOMO>>& komos, const std::vector<intA>& vars);

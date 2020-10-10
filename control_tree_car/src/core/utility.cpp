@@ -2,26 +2,6 @@
 #include <eigen3/Eigen/Dense>
 
 
-double rand_01()
-{
-    return (double(rand()) / RAND_MAX);
-}
-
-double rand_m11()
-{
-    return 2 * (double(rand()) / RAND_MAX - 0.5);
-}
-
-double draw_p(double median_p)
-{
-    double exponent = log(median_p) / log(0.5);
-    return pow(rand_01(), exponent);
-}
-
-bool draw_bool(double average_p)
-{
-    return (rand_01() < average_p);
-}
 
 OdometryState odometry_state_from_msg(const nav_msgs::Odometry::ConstPtr& msg)
 {

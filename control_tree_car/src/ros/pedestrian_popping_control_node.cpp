@@ -14,6 +14,7 @@
 #include <std_msgs/Float32.h>
 
 #include <control_tree/core/utility.h>
+#include <control_tree/ros/common.h>
 
 // TODO
 // improve obstacle randomization?
@@ -326,15 +327,20 @@ public:
                     if(crossing_probability >= 1.0)
                     {
                         marker.mesh_resource = "package://control_tree_car/meshes/person_walking/meshes/walking.dae";
-                        marker.color.r = 1.0;
-                        marker.color.g = 0.0;
-                        marker.color.b = 0.0;
+
+//                        marker.color.r = 1.0;
+//                        marker.color.g = 0.0;
+//                        marker.color.b = 0.0;
 
                         // textured pedestrian
                         marker.color.r = 1.0;
                         marker.color.g = 1.0;
                         marker.color.b = 1.0;
                         marker.color.a = 1.0;
+//                        marker.color.r = 1.0;
+//                        marker.color.g = 0.0;
+//                        marker.color.b = 0.0;
+//                        marker.color.a = 1.0;
                         marker.mesh_use_embedded_materials = true;
                         //
 
@@ -343,9 +349,10 @@ public:
                     else if(crossing_probability <= 0.0)
                     {
                         marker.mesh_resource = "package://control_tree_car/meshes/person_walking/meshes/walking.dae";
-                        marker.color.r = 0.0;
-                        marker.color.g = 1.0;
-                        marker.color.b = 0.0;
+
+//                        marker.color.r = 0.0;
+//                        marker.color.g = 1.0;
+//                        marker.color.b = 0.0;
 
                         // textured pedestrian
                         marker.color.r = 1.0;
@@ -369,9 +376,10 @@ public:
                     else
                     {
                         marker.mesh_resource = "package://control_tree_car/meshes/person_standing/meshes/standing.dae";
-                        marker.color.r = 1.0;
-                        marker.color.g = 165.0/255;
-                        marker.color.b = 0.0;
+
+//                        marker.color.r = 1.0;
+//                        marker.color.g = 165.0/255;
+//                        marker.color.b = 0.0;
 
                         // textured pedestrian
                         marker.color.r = 1.0;
@@ -533,7 +541,7 @@ std::shared_ptr<Pedestrian> draw_new_pedestrian(double p_crossing, uint id, cons
     const double distance = distance_ahead + rand_01() * 40.0;
     const double new_x = car_position.x + distance;
     const double new_y = rand_01() > 0.5 ? 0.5 * lane_width + 1 : - 0.5 * lane_width - 1;
-    const double certainty_x = new_x - 15; // uncertainty vanishes 15 m to the pedestrian
+    const double certainty_x = new_x - 20; // uncertainty vanishes 15 m to the pedestrian
 
     const double p = draw_p(p_crossing);
     //std::cout << "p:" << p << std::endl;

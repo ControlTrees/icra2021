@@ -29,6 +29,6 @@ std::string filename(const std::string & name, double p_crossing, int n_pedestri
     auto now = std::chrono::system_clock::now();
     std::time_t t = std::chrono::system_clock::to_time_t(now);
     std::stringstream ss;
-    ss << "/home/camille/Phd/Paper/RSS/plots/gen/data-" << std::to_string(p_crossing) << "-" << name << "-" << std::to_string(n_pedestrians) << "-" << std::to_string(n_branches) << "-" << t << ".txt";
+    ss << "/home/camille/Phd/Paper/ICRA-2021/plots/gen/data-" << std::to_string(p_crossing) << "-" << name << "-" << std::to_string(n_pedestrians) << "-" << std::to_string(n_branches) << "-" << t << ".txt";
     return ss.str();
 }

@@ -15,6 +15,7 @@
 
 #include <control_tree/core/utility.h>
 #include <control_tree/ros/obstacle_common.h>
+#include <control_tree/ros/common.h>
 
 // TODO
 // constraints lateral instead of centerline?
@@ -157,7 +158,7 @@ public:
     ObstacleObserver(tf::TransformListener & tf_listener, int N)
         : tf_listener_(tf_listener)
         , obstacles_(N)
-        //, scale_bias_(0.75)
+        , ref_xs_(N)
         , scale_noise_(0.2)
     {
 
@@ -180,8 +181,8 @@ public:
                 const auto obstacle_position = obstacle->get_position();
                 const auto signed_dist_to_obstacle = obstacle_position.x - car_position.x;
                 const auto existence_probability = obstacle->existence_probability(signed_dist_to_obstacle);
-                const double x = obstacle_position.x;// + (1.0 - existence_probability) * (scale_noise_ * rand_m11());
-                const double y = obstacle_position.y;// + (1.0 - existence_probability) * (scale_noise_ * rand_m11());
+                const double x = obstacle_position.x;
+                const double y = obstacle_position.y;
 //                const double sx = 2.0;
 //                const double sy = 1.0;
 //                const double sz = 1.5;
@@ -249,17 +250,25 @@ public:
     void set_obstacle(uint i, const std::shared_ptr<Obstacle> & obstacle)
     {
         obstacles_[i] = obstacle;
+        ref_xs_[i] = obstacle->get_position().x;
+    }
+
+    double ref_x(uint i) const
+    {
+        return ref_xs_[i];
     }
 
 private:
     tf::TransformListener & tf_listener_;
     std::vector<std::shared_ptr<Obstacle>> obstacles_;
+    std::vector<double> ref_xs_;
 
     // params
     const double scale_noise_;
 };
 
 static std::shared_ptr<Obstacle> draw_new_obstacle(uint obstacle_id,
+                                                   double ref_x,
                                                    double p_obstacle,
                                                    const ObstacleObserver& observer,
                                                    ros::NodeHandle& n,
@@ -269,15 +278,13 @@ static std::shared_ptr<Obstacle> draw_new_obstacle(uint obstacle_id,
     // draw new OBSTACLE
     std::shared_ptr<Obstacle> obstacle;
 
-    const auto car_position = observer.get_car_position();
-
     bool position_valid = false;
     Position2D new_position;
 
     while(!position_valid)
     {
         // X
-        const double new_x = car_position.x + distance_ahead + rand_m11() * distance_ahead * 0.3;
+        const double new_x = ref_x + distance_ahead + rand_m11() * distance_ahead * 0.3;
 
         // Y
         //const double new_y = rand_m11() * lane_width * 0.5;
@@ -300,8 +307,6 @@ static std::shared_ptr<Obstacle> draw_new_obstacle(uint obstacle_id,
 
                 const auto d = dist(new_position, other);
 
-                //std::cout << "distance:" << d << std::endl;
-
                 position_valid = position_valid && d > 8.0;
             }
         }
@@ -309,10 +314,7 @@ static std::shared_ptr<Obstacle> draw_new_obstacle(uint obstacle_id,
 
     // P
     const double p = draw_p(p_obstacle);
-
-    //std::cout << "p:" << p << std::endl;
-
-    const double certainty_distance = 13 + ( distance_ahead ) * rand_01();// * rand_01();
+    const double certainty_distance = 13 + distance_ahead * rand_01();
 
     if(draw_bool(p_obstacle))
     {
@@ -373,6 +375,9 @@ int main(int argc, char **argv)
     // loop variables
     ObstacleObserver observer(tf_listener, N);
 
+    Position2D car_position, previous_position;
+    double speed = 0;
+
     while(ros::ok())
     {
         // observe car and reset if necessary
@@ -380,7 +385,9 @@ int main(int argc, char **argv)
         {
             //ROS_INFO_STREAM("................");
 
-            const auto car_position = observer.get_car_position();
+            car_position = observer.get_car_position();
+            speed = (car_position.x - previous_position .x) * 10;
+            previous_position = car_position;
 
             // purge old
             for(auto i = 0; i < N; ++i)
@@ -394,6 +401,14 @@ int main(int argc, char **argv)
                     {
                         observer.erase_obstacle(i);
                     }
+
+//                    ROS_INFO_STREAM("speed:" << speed << " signed_dist_to_obstacle:" << signed_dist_to_obstacle);
+
+//                    if(speed < 0.1 && signed_dist_to_obstacle < 3.5) // avoid car stuck to obstacle
+//                    {
+//                        ROS_WARN_STREAM("Erase obstacle because car seems stuck");
+//                        observer.erase_obstacle(i);
+//                    }
                 }
             }
 
@@ -402,7 +417,7 @@ int main(int argc, char **argv)
             {
                 if(!observer.obstacle(i).get())
                 {
-                    auto obstacle = draw_new_obstacle(i, p_obstacle, observer, n, new_pose_publishers, tf_listener);
+                    auto obstacle = draw_new_obstacle(i, observer.ref_x(i), p_obstacle, observer, n, new_pose_publishers, tf_listener);
                     observer.set_obstacle(i, obstacle);
                 }
             }

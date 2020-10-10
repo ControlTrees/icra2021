@@ -10,6 +10,7 @@
 
 #include <control_tree/core/utility.h>
 #include <control_tree/komo/komo_factory.h>
+#include <control_tree/ros/obstacle_common.h>
 
 #include <KOMO/komo.h>
 
@@ -53,12 +54,14 @@ public:
         }
     }
 
-    void evaluate()
+    double car_x() const { return odometry_.x; }
+
+    double evaluate()
     {   
         //// return early if not enough info
         if( trajectory_.size() == 0 || ! odo_received_ )
         {
-            return;
+            return 0.0;
         }
 
         // get 0-0
@@ -75,7 +78,7 @@ public:
         if(index == -1 || index == 0)
         {
             ROS_WARN_STREAM("wrong projection");
-            return;
+            return 0.0;
         }
 
         update_komo(trajectory_[index - 1], komo_->configurations(0));
@@ -92,8 +95,7 @@ public:
         if(n >=100)
             cost_evaluator_.acc(cost.total);
 
-        if(n%100 == 0)
-            ROS_INFO_STREAM("[cost evaluation] cost:" << cost_evaluator_.average() << " " << n << " evaluations :)");
+        return cost_evaluator_.average();
     }
 
     void update_komo(const Pose2D & pose, rai::KinematicWorld* kin) const
@@ -123,7 +125,7 @@ private:
 
 int main(int argc, char **argv)
 {
-    ROS_INFO_STREAM("Launch trajectory controller..");
+    ROS_INFO_STREAM("Launch evaluation node..");
 
     int steps_per_phase = 1;
     int trajectory_index = 0;
@@ -138,6 +140,10 @@ int main(int argc, char **argv)
     n.getParam("/road_width", road_width);
     n.getParam("/v_desired", v_desired);
 
+    // logging
+    std::ofstream ofs(filename(n));
+
+    // evaluation
     TrajEvaluator evaluator(steps_per_phase, road_width, v_desired);
 
     boost::function<void(const nav_msgs::Path::ConstPtr& msg)> trajectory_callback =
@@ -150,13 +156,25 @@ int main(int argc, char **argv)
 
     ros::Rate loop_rate(10);
 
+    int i = 0;
     while (ros::ok())
     {  
-      evaluator.evaluate();
+      auto avg = evaluator.evaluate();
+      auto car_x = evaluator.car_x();
 
       ros::spinOnce();
 
       loop_rate.sleep();
+
+      // logging
+      ++i;
+      if(i && i%100 == 0)
+      {
+         ROS_INFO_STREAM("[cost evaluation] cost:" << avg << " " << i << " evaluations :)");
+
+         if(i%100 == 0)
+            log_to_file(ofs, n, car_x, i, avg);
+      }
     }
 
     return 0;
