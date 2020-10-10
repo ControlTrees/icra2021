@@ -3,6 +3,7 @@
 #include <control_tree/core/utility.h>
 #include <control_tree/core/control_tree.h>
 
+#include <visualization_msgs/MarkerArray.h>
 #include "nav_msgs/Path.h"
 
 #include "gnuplot-iostream.h"
@@ -15,6 +16,7 @@ struct PlotAxis
 };
 
 void plot(const std::vector<nav_msgs::Path> & trajectories,
+          const visualization_msgs::MarkerArray::Ptr & obstacles,
           const PlotAxis & axis);
 
 class TrajectoryPlot
@@ -27,7 +29,7 @@ public:
     {
     }
 
-    void update(const std::vector<nav_msgs::Path> & trajectories);
+    void update(const std::vector<nav_msgs::Path> & trajectories, const visualization_msgs::MarkerArray::Ptr & obstacles);
 
 private:
     Gnuplot gp_;
