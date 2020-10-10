@@ -34,7 +34,7 @@ void plan_impl(const Scenario & scenario, BehaviorManager& manager, T& behavior,
       static int n = 0;
 
       PlotAxis axis{std::to_string(n) + " x/y", "[-4:3]"};
-      plot(manager.get_trajectories(), axis);
+      plot(manager.get_trajectories(), scenario.obstacles, axis);
 
       ++n;
   };

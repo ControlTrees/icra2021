@@ -51,8 +51,10 @@ Costs traj_cost(const WorldL & Gs, const std::list<Objective *> & objectives)
         costs.costs["o->name"] = cost;
 
         //std::cout << o->name << " " << cost << " target " << t << std::endl;
-
     }
+
+    //std::cout << "TOTAL:" << costs.total << std::endl;
+
     return costs;
 }
 

@@ -72,6 +72,18 @@ TEST_F(KomoDecTest2Obstacle, scenario_2)
   pb.odo->pose.pose.position.x += 2;
 
   plan(pb, true);
+
+  pb.odo->pose.pose.position.x += 2;
+
+  plan(pb, true);
+
+  pb.odo->pose.pose.position.x += 2;
+
+  plan(pb, true);
+
+//  pb.odo->pose.pose.position.x += 2;
+
+//  plan(pb, true);
 }
 
 TEST_F(KomoDecTest3Obstacle, DISABLED_scenario_3)
