@@ -29,7 +29,7 @@ const double distance_ahead = 35;
 static int n_obstacles = 0;
 static int n_non_obstacles = 0;
 
-constexpr bool publish_to_gazebo = true;
+constexpr bool publish_to_gazebo = false;
 
 //static double steadily_increasing(double signed_distance)
 //{
@@ -198,8 +198,8 @@ public:
 //                const double sy = 2.0;
 //                const double sz = 1.5;
 
-                const double sx = 1.0; // other kind of obstacle
-                const double sy = 1.0;
+                const double sx = 4.0; // other kind of obstacle
+                const double sy = 2.0;
                 const double sz = 1.5;
 
                 // real obstacle
@@ -408,8 +408,6 @@ int main(int argc, char **argv)
             //ROS_INFO_STREAM("................");
 
             car_position = observer.get_car_position();
-            speed = (car_position.x - previous_position .x) * 10;
-            previous_position = car_position;
 
             // purge old
             for(auto i = 0; i < N; ++i)
