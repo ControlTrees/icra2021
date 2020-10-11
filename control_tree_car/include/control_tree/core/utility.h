@@ -79,8 +79,8 @@ private:
 //bool draw_bool(double average_p);
 OdometryState odometry_state_from_msg(const nav_msgs::Odometry::ConstPtr& msg);
 double get_yaw_from_quaternion(const geometry_msgs::Quaternion & quat);
+geometry_msgs::Quaternion get_quaternion_from_yaw(double yaw);
 double calculateDifferenceBetweenAngles(double target, double source);
-
 bool near(const Pose2D & a, const Pose2D & b, double eps = 0.0001);
 Pose2D project_on_trajectory(const Pose2D & p, std::vector<Pose2D> trajectory, int & index, double & mu);
 double dist(const Position2D& a, const Position2D& b);

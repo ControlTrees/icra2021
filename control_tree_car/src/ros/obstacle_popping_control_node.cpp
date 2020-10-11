@@ -198,9 +198,9 @@ public:
 //                const double sy = 2.0;
 //                const double sz = 1.5;
 
-                const double sx = 4.0; // other kind of obstacle
-                const double sy = 2.0;
-                const double sz = 1.5;
+                const double sx = 1.0; // other kind of obstacle
+                const double sy = 1.0;
+                const double sz = 1.0;
 
                 // real obstacle
                 visualization_msgs::Marker obstacle_marker = create_obstacle_marker(x,
@@ -212,7 +212,7 @@ public:
                                                                              obstacle->id_);
 
                 // collision - model position and geometry
-                visualization_msgs::Marker collision_marker = create_parked_car_collision_marker(x,
+                visualization_msgs::Marker collision_marker = create_collision_marker(x,
                                                                                y,
                                                                                sx,
                                                                                sy,
@@ -314,7 +314,7 @@ static std::shared_ptr<Obstacle> draw_new_obstacle(uint obstacle_id,
 //        const double y = road_width  * 0.5 + (0.4 - 1.1 * rand_01());
 //        const double new_y = rand_m11() > 0 ?  y : -y;
 
-        // circular obstacle
+        // central obstacle
         const double y = 0.5 + 0.5 * lane_width * rand_01();
         const double new_y = rand_m11() > 0 ?  y : -y;
 

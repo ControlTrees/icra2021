@@ -41,6 +41,20 @@ double get_yaw_from_quaternion(const geometry_msgs::Quaternion & quat)
     return yaw;
 }
 
+geometry_msgs::Quaternion get_quaternion_from_yaw(double yaw)
+{
+    geometry_msgs::Quaternion qq;
+    tf2::Quaternion q;
+    q.setRPY(0, 0, yaw);
+
+    qq.x = q.x();
+    qq.y = q.y();
+    qq.z = q.z();
+    qq.w = q.w();
+
+    return qq;
+}
+
 double calculateDifferenceBetweenAngles(double target, double source)
 {
     double difference = target - source;

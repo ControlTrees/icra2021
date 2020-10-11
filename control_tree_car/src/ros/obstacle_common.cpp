@@ -1,4 +1,5 @@
 #include <control_tree/ros/obstacle_common.h>
+#include <control_tree/core/utility.h>
 
 #include <fstream>
 
@@ -59,6 +60,7 @@ visualization_msgs::Marker create_obstacle_marker(double x, double y, double sx,
     marker.scale.x = sx; // diameter
     marker.scale.y = sy;
     marker.scale.z = sz;
+    marker.pose.orientation = get_quaternion_from_yaw(x);
     marker.color.a = alpha;
     marker.color.r = 1.0;
     marker.color.g = 0.0;
@@ -67,7 +69,35 @@ visualization_msgs::Marker create_obstacle_marker(double x, double y, double sx,
     return marker;
 }
 
-visualization_msgs::Marker create_ellipsoid_collision_marker(double x, double y, double sx, double sy, double sz, double alpha, int id)
+//visualization_msgs::Marker create_ellipsoid_collision_marker(double x, double y, double sx, double sy, double sz, double alpha, int id)
+//{
+//    visualization_msgs::Marker marker;
+
+//    const double m = 0.5; // margin
+//    double d = sx * sx / (8 * m) - sy / 2 + m / 2;
+//    double diameter = 2 * (d + sy / 2 + m);
+
+//    marker.header.frame_id = "map";
+//    marker.id = std::hash<std::string>()("collision_" + std::to_string(id));
+//    marker.type = visualization_msgs::Marker::CYLINDER;
+//    marker.action = visualization_msgs::Marker::ADD;
+//    marker.pose.position.x = x;
+//    marker.pose.position.y = y + (y > 0 ? d : -d);
+//    marker.pose.position.z = 0.5 * 0.01;
+//    marker.scale.x = diameter; // diameter
+//    marker.scale.y = diameter;
+//    marker.scale.z = 0.01;
+//    marker.color.a = alpha > 0.01 ? alpha : 0.0;
+//    marker.color.r = 1.0;
+//    marker.color.g = 0.0;
+//    marker.color.b = 0.0;
+
+//    //std::cout << "diameter:" << diameter << std::endl;
+
+//    return marker;
+//}
+
+visualization_msgs::Marker create_collision_marker(double x, double y, double sx, double sy, double sz, double alpha, int id)
 {
     visualization_msgs::Marker marker;
 
@@ -85,35 +115,7 @@ visualization_msgs::Marker create_ellipsoid_collision_marker(double x, double y,
     marker.scale.x = diameter; // diameter
     marker.scale.y = diameter;
     marker.scale.z = 0.01;
-    marker.color.a = alpha > 0.01 ? 1.0 : 0.0;
-    marker.color.r = 1.0;
-    marker.color.g = 0.0;
-    marker.color.b = 0.0;
-
-    std::cout << "diameter:" << diameter << std::endl;
-
-    return marker;
-}
-
-visualization_msgs::Marker create_parked_car_collision_marker(double x, double y, double sx, double sy, double sz, double alpha, int id)
-{
-    visualization_msgs::Marker marker;
-
-    const double m = 0.5; // margin
-    double d = sx * sx / (8 * m) - sy / 2 + m / 2;
-    double diameter = 2 * (d + sy / 2 + m);
-
-    marker.header.frame_id = "map";
-    marker.id = std::hash<std::string>()("collision_" + std::to_string(id));
-    marker.type = visualization_msgs::Marker::CYLINDER;
-    marker.action = visualization_msgs::Marker::ADD;
-    marker.pose.position.x = x;
-    marker.pose.position.y = y + (y > 0 ? d : -d);
-    marker.pose.position.z = 0.5 * 0.01;
-    marker.scale.x = diameter; // diameter
-    marker.scale.y = diameter;
-    marker.scale.z = 0.01;
-    marker.color.a = alpha > 0.01 ? 1.0 : 0.0;
+    marker.color.a = alpha > 0.01 ? alpha : 0.0;
     marker.color.r = 1.0;
     marker.color.g = 0.0;
     marker.color.b = 0.0;

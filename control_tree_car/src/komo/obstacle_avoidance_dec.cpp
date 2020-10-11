@@ -121,6 +121,8 @@ void ObstacleAvoidanceDec::obstacle_callback(const visualization_msgs::MarkerArr
       obstacles_[i].position = {m.pose.position.x, m.pose.position.y, 0};
       obstacles_[i].p = m.color.a;
       obstacles_[i].radius = m.scale.x / 2;
+
+      //std::cout << "p[" << i << "] =" << obstacles_[i].p << std::endl;
     }
 }
 
