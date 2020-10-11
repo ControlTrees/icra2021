@@ -29,6 +29,8 @@ const double distance_ahead = 35;
 static int n_obstacles = 0;
 static int n_non_obstacles = 0;
 
+constexpr bool publish_to_gazebo = true;
+
 //static double steadily_increasing(double signed_distance)
 //{
 //    const auto distance = signed_distance < 0 ? 0 : signed_distance;
@@ -135,12 +137,17 @@ public:
 
     Position2D get_position() const
     {
-        tf::StampedTransform transform;
+        if(publish_to_gazebo)
+        {
+            tf::StampedTransform transform;
 
-        tf_listener_.lookupTransform("/map", "/lgp_obstacle_" + std::to_string(id_),
-                                     ros::Time(0), transform);
+            tf_listener_.lookupTransform("/map", "/lgp_obstacle_" + std::to_string(id_),
+                                         ros::Time(0), transform);
 
-        return Position2D{ transform(tf::Vector3(0,0,0)).x(), transform(tf::Vector3(0,0,0)).y() };
+            return Position2D{ transform(tf::Vector3(0,0,0)).x(), transform(tf::Vector3(0,0,0)).y() };
+        }
+        else
+            return position_;
     }
 
     bool is_false_positive() const { return false; }
@@ -187,8 +194,12 @@ public:
 //                const double sy = 1.0;
 //                const double sz = 1.5;
 
-                const double sx = 4.0;
-                const double sy = 2.0;
+//                const double sx = 4.0; //parked cars
+//                const double sy = 2.0;
+//                const double sz = 1.5;
+
+                const double sx = 1.0; // other kind of obstacle
+                const double sy = 1.0;
                 const double sz = 1.5;
 
                 // real obstacle
@@ -201,18 +212,25 @@ public:
                                                                              obstacle->id_);
 
                 // collision - model position and geometry
-                visualization_msgs::Marker collision_marker = create_collision_marker(x,
+                visualization_msgs::Marker collision_marker = create_parked_car_collision_marker(x,
                                                                                y,
                                                                                sx,
                                                                                sy,
                                                                                sz - 0.5 - 0.5 * i,
                                                                                existence_probability,
                                                                                obstacle->id_);
+//                visualization_msgs::Marker collision_marker = create_ellipsoid_collision_marker(x,
+//                                                                               y,
+//                                                                               sx,
+//                                                                               sy,
+//                                                                               sz - 0.5 - 0.5 * i,
+//                                                                               existence_probability,
+//                                                                               obstacle->id_);
 
                 obstacle_marker.header.stamp = collision_marker.header.stamp = ros::Time::now();
 
-                markers.markers.push_back(collision_marker);
                 markers.markers.push_back(obstacle_marker);
+                markers.markers.push_back(collision_marker);
 
                 //ROS_INFO("Obstacle existence probability: %f %d", existence_probability, obstacle->id_);
             }
@@ -292,8 +310,12 @@ static std::shared_ptr<Obstacle> draw_new_obstacle(uint obstacle_id,
         //const double new_y = rand_m11() > 0 ?  lane_width * 0.5 - 0.6 * rand_01() : -lane_width * 0.5 + 0.6 * rand_01() ;
 
         // car
-        const double road_width = lane_width + 2.0;
-        const double y = road_width  * 0.5 + (0.4 - 1.1 * rand_01());
+//        const double road_width = lane_width + 2.0;
+//        const double y = road_width  * 0.5 + (0.4 - 1.1 * rand_01());
+//        const double new_y = rand_m11() > 0 ?  y : -y;
+
+        // circular obstacle
+        const double y = 0.5 + 0.5 * lane_width * rand_01();
         const double new_y = rand_m11() > 0 ?  y : -y;
 
         new_position = Position2D{new_x, new_y};
@@ -329,7 +351,7 @@ static std::shared_ptr<Obstacle> draw_new_obstacle(uint obstacle_id,
         obstacle = std::shared_ptr<Obstacle>(new FalsePositive(obstacle_id, new_position, p, certainty_distance) );
     }
 
-    if(!obstacle->is_false_positive())
+    if(!obstacle->is_false_positive() && publish_to_gazebo)
     {
         geometry_msgs::Pose2D msg;
         msg.x = new_position.x;

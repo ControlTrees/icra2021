@@ -83,7 +83,7 @@ void TrajectoryPlot::update(const std::vector<nav_msgs::Path> & trajectories, co
       auto y = m.pose.position.y;
       auto r = m.scale.x / 2;
 
-      std::cout << "radius:" << r << std::endl;
+      //std::cout << "radius:" << r << std::endl;
 
       xyr_pts.push_back(std::make_tuple(x, y, r));
     }

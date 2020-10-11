@@ -79,7 +79,7 @@ void shift_komos(std::vector<std::shared_ptr<KOMO>>& komos, const OdometryState 
     int index; double mu;
     const auto proj = project_on_trajectory({o.x, o.y, o.yaw}, ref_traj, index, mu);
 
-    ROS_INFO_STREAM("index:" << index);
+    //ROS_INFO_STREAM("index:" << index);
 
     OdometryState start;
     if(index >= 2) // is komo order

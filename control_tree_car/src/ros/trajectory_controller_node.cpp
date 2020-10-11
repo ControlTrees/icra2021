@@ -128,6 +128,9 @@ public:
         ///
         auto target_pose_msg = to_pose_msg(projected);
 
+//        v_filtered_ = 0.7 * v_filtered_ + 0.3 * v;
+//        std::cout << "index:" << index << " v:" << v << "v_filtered_:" << v_filtered_ << std::endl;
+
         geometry_msgs::Twist twist_msg;
         twist_msg.linear.x = v;
         twist_msg.angular.z = w_cmd;
@@ -236,18 +239,60 @@ private:
     const int steps_per_phase_;
 };
 
+struct LowPassFilter
+{
+    geometry_msgs::Twist low_pass_filter_v(const geometry_msgs::Twist & twist, double dt)
+    {
+        geometry_msgs::Twist filtered = twist;
+
+//        const double dv = twist.linear.x - last_v_;
+//        const auto a = dv / dt;
+
+//        // bound acc
+//        v_filtered_ = twist.linear.x;
+
+//        if(a > 0 && a > 8.0)
+//        {
+//            v_filtered_ = last_v_ + 8.0 * dt;
+//        }
+
+//        if(a < 0 && a < -8.0)
+//        {
+//            v_filtered_ = last_v_ - 8.0 * dt;
+//        }
+
+//        std::cout << "v filtered:" << v_filtered_ << std::endl;
+
+        v_filtered_ = 0.7 * v_filtered_ + 0.3 * twist.linear.x;
+
+        filtered.linear.x = v_filtered_;
+
+        return filtered;
+    }
+
+    double v_filtered_ = 0; // low pass filtering
+    double last_v_ = 0;
+};
+
+
+
 int main(int argc, char **argv)
 {
     ROS_INFO_STREAM("Launch trajectory controller..");
 
     int steps_per_phase = 1;
     int trajectory_index = 0;
+    bool low_pass_filter = false;
+
+    LowPassFilter v_filter;
 
     // ros init
     ros::init(argc, argv, "trajectory_controller");
     ros::NodeHandle n;
     n.getParam("/traj_planner/steps_per_phase", steps_per_phase);
     n.getParam("/traj_controller/trajectory_index", trajectory_index);
+    n.getParam("/traj_controller/low_pass_filter", low_pass_filter);
+
     ros::Publisher ctrl_publisher = n.advertise<geometry_msgs::Twist>("/lgp_car/vel_cmd", 100);
     ros::Publisher start_planning_publisher = n.advertise<geometry_msgs::PoseStamped>("/lgp_car/start_planning_pose", 100);
     ros::Publisher target_pose_publisher = n.advertise<geometry_msgs::PoseStamped>("/lgp_car/target_pose", 100);
@@ -267,13 +312,16 @@ int main(int argc, char **argv)
     while (ros::ok())
     {  
       auto msgs = controller.create_control();
-      const auto & ctrl = std::get<0>(msgs);
+      auto ctrl = std::get<0>(msgs);
       const auto & target = std::get<1>(msgs); // odo proj onto traj
       const auto & start = std::get<2>(msgs); // planning start
 
       //static int l = 0;
       //l++;
       //if(l%5==0) ROS_INFO_STREAM("commanded velocity:" << ctrl.linear.x);
+
+      if(low_pass_filter)
+          ctrl = v_filter.low_pass_filter_v(ctrl, 1.0 / 30);
 
       ctrl_publisher.publish(ctrl);
       target_pose_publisher.publish(target);

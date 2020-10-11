@@ -41,7 +41,7 @@ struct ObstaclesBuilder
 
     obstacle.pose.position.x = x;
     obstacle.pose.position.y = y;
-    obstacle.scale.x = 2.5;
+    obstacle.scale.x = 2;
     obstacle.color.a = alpha;
 
     obstacles->markers.push_back(obstacle); // obstacle

@@ -65,11 +65,11 @@ TEST_F(QPTest, test_replicate_simulation_1)
     plan_DecQP(pb, true);
 }
 
-TEST_F(QPTest, test_25_branches_)
+TEST_F(QPTest, test_20_branches_)
 {
-    std::ofstream file("/home/camille/Phd/Paper/ICRA-2021/plots/execution_time_dec_qp_25.dat");
+    std::ofstream file("/home/camille/Phd/Paper/ICRA-2021/plots/execution_time_dec_qp_20.dat");
     file << "#" << " " << "n" << " " << "execution time (ms)" << std::endl;
-    for(auto i = 1; i <= 25; ++i)
+    for(auto i = 1; i <= 20; ++i)
     {
         auto pb = create_N_branches_4_steps_constrained(i);
         plan_DecQP(pb, false);
@@ -79,7 +79,7 @@ TEST_F(QPTest, test_25_branches_)
 
 //TEST_F(QPTest, test_N_branches)
 //{
-//    std::ofstream file("/home/camille/Phd/Paper/ICRA-2021/plots/execution_time_dec_qp_100.dat");
+//    std::ofstream file("/home/camille/Phd/Paper/ICRA-2021/plots/execution_time_dec_qp_100_.dat");
 //    file << "#" << " " << "n" << " " << "execution time (ms)" << std::endl;
 //    for(auto i = 1; i <= 100; ++i)
 //    {

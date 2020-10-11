@@ -98,11 +98,11 @@ TEST_F(QPTest, test_20_branches)
     plan_OSQP(pb, false);
 }
 
-TEST_F(QPTest, test_25_branches_)
+TEST_F(QPTest, test_20_branches_)
 {
-    std::ofstream file("/home/camille/Phd/Paper/ICRA-2021/plots/execution_time_osqp_25.dat");
+    std::ofstream file("/home/camille/Phd/Paper/ICRA-2021/plots/execution_time_osqp_20.dat");
     file << "#" << " " << "n" << " " << "execution time (ms)" << std::endl;
-    for(auto i = 1; i <= 25; ++i)
+    for(auto i = 1; i <= 20; ++i)
     {
         auto pb = create_N_branches_4_steps_constrained(i);
         plan_OSQP(pb, false);

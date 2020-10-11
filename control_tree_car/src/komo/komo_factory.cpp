@@ -28,8 +28,8 @@ Objectives KomoFactory::ground_komo(const std::shared_ptr< KOMO > & komo, const 
     Objectives objectives;
 
     objectives.acc_ = komo->addObjective(-123., 123., new TM_Transition(komo->world), OT_sos, NoArr, 2.0, 2);
-    //objectives.ax_ = komo->addObjective(-123., 123., new AxisBound("car_ego", AxisBound::Y, AxisBound::EQUAL), OT_sos, NoArr, 1.0, 0);
-    objectives.ax_ = komo->addObjective(-123., 123., new RoadBound("car_ego", road_width / 2.0, vehicle_width, komo->world), OT_sos, NoArr, 1.0, 0);
+    objectives.ax_ = komo->addObjective(-123., 123., new AxisBound("car_ego", AxisBound::Y, AxisBound::EQUAL, komo->world), OT_sos, NoArr, 5 * 1e-1, 0);
+    //objectives.ax_ = komo->addObjective(-123., 123., new RoadBound("car_ego", road_width / 2.0, vehicle_width, komo->world), OT_sos, NoArr, 1.0, 0);
     objectives.vel_ = komo->addObjective(-123., 123., new AxisBound("car_ego", AxisBound::X, AxisBound::EQUAL, komo->world), OT_sos, {v_desired}, 1.5 * 1e-1, 1);
     objectives.car_kin_ = komo->addObjective(-123., 123., new CarKinematic("car_ego", komo->world), OT_eq, NoArr, 1e1, 1);
 
