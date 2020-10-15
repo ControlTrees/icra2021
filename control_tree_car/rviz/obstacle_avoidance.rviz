@@ -6,7 +6,11 @@ Panels:
       Expanded:
         - /Global Options1
         - /Status1
+        - /Grid1
         - /RobotModel1
+        - /trajectory_11
+        - /trajectory_21
+        - /trajectory_31
         - /Odometry1/Shape1
         - /RoadModel1
       Splitter Ratio: 0.5
@@ -36,10 +40,10 @@ Visualization Manager:
   Class: ""
   Displays:
     - Alpha: 0.5
-      Cell Size: 1
+      Cell Size: 5
       Class: rviz/Grid
       Color: 160; 160; 164
-      Enabled: true
+      Enabled: false
       Line Style:
         Line Width: 0.0299999993
         Value: Lines
@@ -52,7 +56,7 @@ Visualization Manager:
       Plane: XY
       Plane Cell Count: 10000
       Reference Frame: map
-      Value: true
+      Value: false
     - Alpha: 1
       Class: rviz/RobotModel
       Collision Enabled: false
@@ -163,7 +167,7 @@ Visualization Manager:
     - Alpha: 1
       Buffer Length: 1
       Class: rviz/Path
-      Color: 25; 255; 0
+      Color: 0; 170; 255
       Enabled: true
       Head Diameter: 0.300000012
       Head Length: 0.200000003
@@ -186,7 +190,7 @@ Visualization Manager:
     - Alpha: 1
       Buffer Length: 1
       Class: rviz/Path
-      Color: 25; 255; 0
+      Color: 255; 0; 127
       Enabled: true
       Head Diameter: 0.300000012
       Head Length: 0.200000003

@@ -51,7 +51,7 @@ Visualization Manager:
       Cell Size: 1
       Class: rviz/Grid
       Color: 160; 160; 164
-      Enabled: true
+      Enabled: false
       Line Style:
         Line Width: 0.0299999993
         Value: Lines
@@ -64,7 +64,7 @@ Visualization Manager:
       Plane: XY
       Plane Cell Count: 10000
       Reference Frame: map
-      Value: true
+      Value: false
     - Alpha: 1
       Class: rviz/RobotModel
       Collision Enabled: false
@@ -99,6 +99,18 @@ Visualization Manager:
           Value: true
         lgp_pedestrian_0_axis_aligned:
           Value: true
+        lgp_pedestrian_1:
+          Value: true
+        lgp_pedestrian_1_axis_aligned:
+          Value: true
+        lgp_pedestrian_2:
+          Value: true
+        lgp_pedestrian_2_axis_aligned:
+          Value: true
+        lgp_pedestrian_3:
+          Value: true
+        lgp_pedestrian_3_axis_aligned:
+          Value: true
         map:
           Value: true
       Marker Scale: 0.5
@@ -115,6 +127,18 @@ Visualization Manager:
           lgp_pedestrian_0:
             {}
           lgp_pedestrian_0_axis_aligned:
+            {}
+          lgp_pedestrian_1:
+            {}
+          lgp_pedestrian_1_axis_aligned:
+            {}
+          lgp_pedestrian_2:
+            {}
+          lgp_pedestrian_2_axis_aligned:
+            {}
+          lgp_pedestrian_3:
+            {}
+          lgp_pedestrian_3_axis_aligned:
             {}
       Update Interval: 0
       Value: true
@@ -250,8 +274,17 @@ Visualization Manager:
       Name: Pedestrian_prediction
       Namespaces:
         pedestrian_continue_prediction_0: true
+        pedestrian_continue_prediction_1: true
+        pedestrian_continue_prediction_2: true
+        pedestrian_continue_prediction_3: true
         pedestrian_crossing_prediction_0: true
+        pedestrian_crossing_prediction_1: true
+        pedestrian_crossing_prediction_2: true
+        pedestrian_crossing_prediction_3: true
         pedestrian_mesh_0: true
+        pedestrian_mesh_1: true
+        pedestrian_mesh_2: true
+        pedestrian_mesh_3: true
       Queue Size: 100
       Value: true
     - Alpha: 1
