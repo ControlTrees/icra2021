@@ -16,6 +16,8 @@
 #include <control_tree/core/utility.h>
 #include <control_tree/ros/common.h>
 
+#include <cassert>
+
 // TODO
 // improve obstacle randomization?
 
@@ -392,8 +394,23 @@ public:
                         marker.scale.y = 1.0;
 
                         const double crossing_angle = pedestrian->get_start_position().y > 0 ? 0 : M_PI;
-                        const double final_non_crossing_angle = (M_PI / 2.0) * (pedestrian->is_forward_direction() ? 1.0 : -1.0);
+                        double final_non_crossing_angle = (M_PI / 2.0) * (pedestrian->is_forward_direction() ? 1.0 : -1.0);
+                        if(pedestrian->get_start_position().y < 0 && !pedestrian->is_forward_direction()) // handle particular case otherwise angle interpolation doesn't work
+                        {
+                            final_non_crossing_angle = 3.0 * M_PI / 2.0;
+                        }
                         const double yaw = (1-crossing_probability) * final_non_crossing_angle + crossing_probability * crossing_angle;
+
+                        //std::cout << "crossing_probability:" << crossing_probability << " yaw:" << yaw << std::endl;
+
+                        /////debug
+                        if(pedestrian->get_start_position().y < 0)
+                        {
+                            assert(yaw <= 3.0 * M_PI / 2.0);
+                            assert(M_PI / 2.0 <= yaw);
+                        }
+                        ///
+
 
                         tf2::Quaternion q;
                         q.setRPY(0, 0, yaw);
@@ -531,8 +548,12 @@ private:
 };
 
 // obstacle creation
-std::shared_ptr<Pedestrian> draw_new_pedestrian(double p_crossing, uint id, const Position2D & car_position, tf::TransformListener & tf_listener,
-                                                ros::Publisher & pose_publisher, ros::Publisher & ctrl_publisher)
+std::shared_ptr<Pedestrian> draw_new_pedestrian(double p_crossing,
+                                                uint id,
+                                                const Position2D & car_position,
+                                                tf::TransformListener & tf_listener,
+                                                ros::Publisher & pose_publisher,
+                                                ros::Publisher & ctrl_publisher)
 {
     // draw new OBSTACLE
     //ROS_INFO_STREAM("Draw new pedestrian..");
