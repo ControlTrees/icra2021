@@ -38,7 +38,7 @@ void StopLineQPTree::stopline_callback(const visualization_msgs::MarkerArray::Co
     for(auto i = 0; i < N; ++i)
     {
         /// position and geometry
-        const auto stop = msg->markers[3*i].pose.position.x - 4.3 + 1.5 - 2.5; // saftey distance
+        const auto stop = msg->markers[3*i].pose.position.x - 5.3 + 1.2 - 2.5; // saftey distance
         /// existence probability
         const auto probability = msg->markers[3*i+1].color.a;
 

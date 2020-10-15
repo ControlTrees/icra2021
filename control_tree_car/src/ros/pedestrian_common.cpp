@@ -18,7 +18,7 @@ void log_to_file(std::ofstream & ofs, ros::NodeHandle & n, double car_x, int i, 
 
     std::stringstream ss;
 
-    ss << "N:" << n_non_crossings + n_crossings << " Avg dist between pedestrians:" << car_x / (n_non_crossings + n_crossings) << " Probability:" << p_crossing << " TREE QP avg cost:" << cost << " velocity(m/s):" << velocity << " time(ms):" << time * 1000 << " " << i << " iterations";
+    ss << "N:" << n_crossings << " M:" << n_non_crossings << " M+N:" << n_crossings + n_non_crossings << " ~p:" << double(n_crossings) / (n_crossings + n_non_crossings) << " Avg dist between pedestrians:" << car_x / (n_non_crossings + n_crossings) << " Probability:" << p_crossing << " TREE QP avg cost:" << cost << " velocity(m/s):" << velocity << " time(ms):" << time * 1000 << " " << i << " iterations";
 
     ROS_INFO_STREAM(ss.str());
     ofs << ss.str() << std::endl;
