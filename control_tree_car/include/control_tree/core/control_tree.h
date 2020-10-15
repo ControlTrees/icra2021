@@ -121,9 +121,9 @@ struct Tree1Branch : public TreePb
 {
     Tree1Branch()
     {
-        varss.push_back({0, 1, 2, 3});
+        varss.push_back({0, 1, 2, 3, 4});
 
-        scaless.push_back({1.0, 1.0, 1.0, 1.0});
+        scaless.push_back({1.0, 1.0, 1.0, 1.0, 1.0});
 
         set_n_steps();
     }
@@ -214,13 +214,13 @@ struct TreeNBranches : public TreePb
         int j = 0;
         for(auto i = 0; i < n; ++i)
         {
-            varss.push_back({0, ++j, ++j, ++j});
+            varss.push_back({0, ++j, ++j, ++j, ++j});
         }
 
         double p = 1.0 / n;
         for(auto i = 0; i < n; ++i)
         {
-            scaless.push_back({1.0, p, p, p});
+            scaless.push_back({1.0, p, p, p, p});
         }
 
         set_n_steps();
@@ -232,19 +232,19 @@ struct TreeNBranches : public TreePb
         int j = 0;
         for(auto i = 0; i < n; ++i)
         {
-            varss.push_back({0, ++j, ++j, ++j});
+            varss.push_back({0, ++j, ++j, ++j, ++j});
         }
 
         double q = 1.0;
         for(auto i = 0; i < ps.size(); ++i)
         {
-            scaless.push_back({1.0, ps[i], ps[i], ps[i]});
+            scaless.push_back({1.0, ps[i], ps[i], ps[i], ps[i]});
             q -= ps[i];
         }
 
         assert(q >= 0.0);
 
-        scaless.push_back({1.0, q, q, q});
+        scaless.push_back({1.0, q, q, q, q});
 
         set_n_steps();
     }
