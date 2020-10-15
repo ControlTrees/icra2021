@@ -142,7 +142,7 @@ QP_problem create_paper_1_branch_4_steps_constrained(double p)
     const auto v0 = 13.41;  //13.41; // 48 km/h // 30 mph
     const auto vdesired = 13.41;
 
-    const auto offset = 7.5;
+    const auto offset = 2.5 + 7.5;
     const auto d_safety = 2.5;
     const auto d0 = offset - d_safety + 20;
     const auto d1 = offset - d_safety + 30;
@@ -186,7 +186,7 @@ QP_problem create_paper_4_branches_4_steps_constrained(double p)
     const auto v0 = 13.41;  //13.41; // 48 km/h // 30 mph
     const auto vdesired = 13.41;
 
-    const auto offset = 7.5;
+    const auto offset = 2.5 + 7.5;
     const auto d_safety = 2.5;
     const auto d0 = offset - d_safety + 20;
     const auto d1 = offset - d_safety + 30;
@@ -199,7 +199,7 @@ QP_problem create_paper_4_branches_4_steps_constrained(double p)
     const auto p0 = p;
     const auto p1 = (1-p) * p;
     const auto p2 = (1-p)*(1-p) * p;
-    const auto tree = TreePb::refined(Tree4Branches(p0, p1, p2), n_steps_per_phase);
+    const auto tree = TreePb::refined(TreeNBranches({p0, p1, p2}), n_steps_per_phase);
 
     // INITIAL STATE
     Vector2d x0;

@@ -52,7 +52,7 @@ TEST_F(QPTest, test_paper_4_branches_4_steps_constrained)
     vel_axis.range = "[0:15]";
     acc_axis.range = "[-8:3]";
 
-    plan_OSQP(pb, false, "/home/camille/Phd/Paper/RSS/plots/4_branches.dat");
+    plan_OSQP(pb, false, "/home/camille/Phd/Paper/ICRA-2021/plots/4_branches.dat");
 }
 
 TEST_F(QPTest, test_paper_1_branch_4_steps)
@@ -77,7 +77,7 @@ TEST_F(QPTest, test_paper_multi_probabilities)
         acc_axis.range = "[-8:3]";
 
         std::stringstream ss;
-        ss << "/home/camille/Phd/Paper/RSS/plots/4_branches_" << p << ".dat";
+        ss << "/home/camille/Phd/Paper/ICRA-2021/plots/4_branches_" << p << ".dat";
         
         plan_OSQP(pb, false, ss.str());
     }

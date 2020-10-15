@@ -24,7 +24,17 @@ TEST_F(QPTest, JOINT_test_paper_1_branch_4_steps)
     vel_axis.range = "[0:15]";
     acc_axis.range = "[-8:3]";
 
-    auto U = plan_JointQP(pb, false);//, "/tmp/1_branch.dat");
+    auto U = plan_JointQP(pb, false, "/home/camille/Phd/Paper/ICRA-2021/plots/1_branch.dat");//, "/tmp/1_branch.dat");
+}
+
+TEST_F(QPTest, DEC_paper_4_branches_4_steps_constrained)
+{
+    auto pb = create_paper_4_branches_4_steps_constrained(0.1);
+
+    vel_axis.range = "[0:15]";
+    acc_axis.range = "[-8:3]";
+
+    plan_DecQP(pb, false, "/home/camille/Phd/Paper/ICRA-2021/plots/4_branches.dat");
 }
 
 TEST_F(QPTest, DEC_test_paper_1_branch_4_steps)
@@ -34,7 +44,25 @@ TEST_F(QPTest, DEC_test_paper_1_branch_4_steps)
     vel_axis.range = "[0:15]";
     acc_axis.range = "[-8:3]";
 
-    auto U = plan_DecQP(pb, false);//, "/tmp/1_branch.dat");
+    plan_DecQP(pb, false);//, "/home/camille/Phd/Paper/ICRA-2021/plots/1_branch.dat");
+}
+
+TEST_F(QPTest, DEC_test_paper_multi_probabilities)
+{
+    std::vector<double> ps{0.025, 0.05, 0.1, 0.25, 0.5, 0.75, 1.0};
+
+    for(const auto p: ps)
+    {
+        auto pb = create_paper_4_branches_4_steps_constrained(p);
+
+        vel_axis.range = "[0:15]";
+        acc_axis.range = "[-8:3]";
+
+        std::stringstream ss;
+        ss << "/home/camille/Phd/Paper/ICRA-2021/plots/4_branches_" << p << ".dat";
+
+        plan_DecQP(pb, false, ss.str());
+    }
 }
 
 TEST_F(QPTest, DEC_test_2_branches_4_steps_constrained)
