@@ -10,6 +10,8 @@
 
 #include <control_tree/core/utility.h>
 
+using MsgsType = std::tuple<geometry_msgs::Twist, geometry_msgs::PoseStamped, geometry_msgs::PoseStamped>;
+
 namespace
 {
 geometry_msgs::PoseStamped to_pose_msg(const Pose2D& pose)
@@ -63,7 +65,7 @@ public:
         }
     }
 
-    std::tuple<geometry_msgs::Twist, geometry_msgs::PoseStamped, geometry_msgs::PoseStamped> create_control() const
+    MsgsType create_control() const
     {   
         const auto nominal_v = 5; // scale w according to the ratio v / nominal_v
 
@@ -128,9 +130,6 @@ public:
         ///
         auto target_pose_msg = to_pose_msg(projected);
 
-//        v_filtered_ = 0.7 * v_filtered_ + 0.3 * v;
-//        std::cout << "index:" << index << " v:" << v << "v_filtered_:" << v_filtered_ << std::endl;
-
         geometry_msgs::Twist twist_msg;
         twist_msg.linear.x = v;
         twist_msg.angular.z = w_cmd;
@@ -138,9 +137,9 @@ public:
         return std::make_tuple(twist_msg, target_pose_msg, to_pose_msg(trajectory_[2]));
     }
 
-    std::tuple<geometry_msgs::Twist, geometry_msgs::PoseStamped, geometry_msgs::PoseStamped> create_control_nose_based() const
+    MsgsType create_control_nose_based() const
     {
-        const auto d_nose = 4.3 - 0.9;
+        const auto d_nose = 10.0;
         const auto nominal_v = 5; // scale w according to the ratio v / nominal_v
 
         //// return early if not enough info
@@ -206,7 +205,7 @@ public:
             Eigen::Vector2f n(-sin(projected_nose.yaw), cos(projected_nose.yaw));
             auto d = n.dot(u);
 
-            w_cmd = -d;
+            w_cmd = -0.25 * d;
         }
 
         w_cmd = w_cmd * (v / nominal_v);
@@ -283,6 +282,7 @@ int main(int argc, char **argv)
     int steps_per_phase = 1;
     int trajectory_index = 0;
     bool low_pass_filter = false;
+    bool nose_tracking = false;
 
     LowPassFilter v_filter;
 
@@ -292,6 +292,7 @@ int main(int argc, char **argv)
     n.getParam("/traj_planner/steps_per_phase", steps_per_phase);
     n.getParam("/traj_controller/trajectory_index", trajectory_index);
     n.getParam("/traj_controller/low_pass_filter", low_pass_filter);
+    n.getParam("/traj_controller/nose_tracking", nose_tracking);
 
     ros::Publisher ctrl_publisher = n.advertise<geometry_msgs::Twist>("/lgp_car/vel_cmd", 100);
     ros::Publisher start_planning_publisher = n.advertise<geometry_msgs::PoseStamped>("/lgp_car/start_planning_pose", 100);
@@ -301,6 +302,7 @@ int main(int argc, char **argv)
 
     boost::function<void(const nav_msgs::Path::ConstPtr& msg)> trajectory_callback =
             boost::bind(&TrajectoryController::trajectory_callback, &controller, _1);
+
     auto trajectory_subscriber = n.subscribe("/traj_planner/trajectory_" + std::to_string(trajectory_index), 100, trajectory_callback);
 
     boost::function<void(const nav_msgs::Odometry::ConstPtr& msg)> odometry_callback =
@@ -311,14 +313,16 @@ int main(int argc, char **argv)
 
     while (ros::ok())
     {  
-      auto msgs = controller.create_control();
+
+      MsgsType msgs;
+      if(nose_tracking)
+          msgs = controller.create_control_nose_based();
+      else
+          msgs = controller.create_control();
+
       auto ctrl = std::get<0>(msgs);
       const auto & target = std::get<1>(msgs); // odo proj onto traj
       const auto & start = std::get<2>(msgs); // planning start
-
-      //static int l = 0;
-      //l++;
-      //if(l%5==0) ROS_INFO_STREAM("commanded velocity:" << ctrl.linear.x);
 
       if(low_pass_filter)
           ctrl = v_filter.low_pass_filter_v(ctrl, 1.0 / 30);

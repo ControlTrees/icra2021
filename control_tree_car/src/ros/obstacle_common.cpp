@@ -122,3 +122,40 @@ visualization_msgs::Marker create_collision_marker(double x, double y, double sx
 
     return marker;
 }
+
+//nav_msgs::Path transform(const nav_msgs::Path & trajectory, double tx)
+//{
+//    nav_msgs::Path transformed;
+//    transformed.header = trajectory.header;
+
+//    for(auto i = 0; i < trajectory.poses.size(); ++i)
+//    {
+//        const auto pose = trajectory.poses[i];
+//        const auto x = pose.pose.position.x;
+//        const auto y = pose.pose.position.y;
+//        const auto yaw = get_yaw_from_quaternion(pose.pose.orientation);
+
+//        geometry_msgs::PoseStamped transformed_pose;
+//        //transformed_pose.header = pose.header;
+//        transformed_pose.pose.position.x = x + tx * cos(yaw);
+//        transformed_pose.pose.position.y = y + tx * sin(yaw);
+//        transformed_pose.pose.orientation = pose.pose.orientation;
+
+//        transformed.poses.push_back(transformed_pose);
+//    }
+
+//    return transformed;
+//}
+
+//std::vector<nav_msgs::Path> transform(const std::vector<nav_msgs::Path> & trajectories, double tx)
+//{
+//    std::vector<nav_msgs::Path> transformed;
+//    transformed.reserve(trajectories.size());
+
+//    for(const auto & trajectory: trajectories)
+//    {
+//        transformed.push_back(transform(trajectory, tx));
+//    }
+
+//    return transformed;
+//}

@@ -40,6 +40,16 @@ int main(int argc, char **argv)
                     n.advertise<nav_msgs::Path>("/traj_planner/trajectory_" + std::to_string(i + 1), 1000)
                     );
     }
+
+    // transformed trajectories
+//    std::vector<ros::Publisher> transformed_trajectory_publishers;
+//    for(auto i = 0; i < BehaviorType::n_branches(n_obstacles, tree); ++i)
+//    {
+//        transformed_trajectory_publishers.push_back(
+//                    n.advertise<nav_msgs::Path>("/traj_planner/transformed_trajectory_" + std::to_string(i + 1), 1000)
+//                    );
+//    }
+    //
     ros::Publisher road_publisher = n.advertise<visualization_msgs::MarkerArray>("/environment/road_model_array", 1000);
 
     BehaviorManager manager;
@@ -78,6 +88,14 @@ int main(int argc, char **argv)
         {
             trajectory_publishers[i].publish(trajectories[i]);
         }
+
+        // transform trajectories
+//        std::vector<nav_msgs::Path> transform_trajectories = transform(trajectories, 4.0);
+//        for(auto i = 0; i < transform_trajectories.size(); ++i)
+//        {
+//            transformed_trajectory_publishers[i].publish(transform_trajectories[i]);
+//        }
+        //
 
         if((i - 10) % 50 == 0)
         {
