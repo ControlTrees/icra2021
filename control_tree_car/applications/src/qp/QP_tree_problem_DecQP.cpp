@@ -37,7 +37,7 @@ QP_tree_problem_DecQP::QP_tree_problem_DecQP(const MPC_model & mpc, double u_min
   : QP_tree_solver_base(mpc, u_min, u_max)
   , options(PARALLEL, true, NOOPT, false)
 {
-  options.opt.verbose = 1;
+  options.opt.verbose = 0;
   options.opt.aulaMuInc = 1;
 }
 

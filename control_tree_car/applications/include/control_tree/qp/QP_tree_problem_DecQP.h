@@ -7,7 +7,7 @@
 
 #include <unordered_map>
 
-#include <Optimization/qp_lagrangian.h>
+#include <OptimDec/qp_lagrangian.h>
 
 
 /*

@@ -20,8 +20,6 @@
     <node pkg="control_tree_car" type="pedestrian_popping_control_node" name="pedestrian" output="screen">
     </node>
 
-    <?ignore
     <include file="$(find control_tree_car)/launch/display_pedestrian.launch">
     </include>
-    ?>
 </launch>
