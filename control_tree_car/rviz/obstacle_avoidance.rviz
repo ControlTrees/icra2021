@@ -13,6 +13,7 @@ Panels:
         - /trajectory_31
         - /Odometry1/Shape1
         - /RoadModel1
+        - /trajectory_transformed1
       Splitter Ratio: 0.5
     Tree Height: 769
   - Class: rviz/Selection
@@ -27,6 +28,7 @@ Panels:
   - Class: rviz/Views
     Expanded:
       - /Current View1
+      - /Current View1/Focal Point1
     Name: Views
     Splitter Ratio: 0.5
   - Class: rviz/Time
@@ -91,10 +93,6 @@ Visualization Manager:
           Value: true
         lgp_obstacle_0_axis_aligned:
           Value: true
-        lgp_obstacle_1:
-          Value: true
-        lgp_obstacle_1_axis_aligned:
-          Value: true
         map:
           Value: true
       Marker Scale: 0.5
@@ -112,17 +110,13 @@ Visualization Manager:
             {}
           lgp_obstacle_0_axis_aligned:
             {}
-          lgp_obstacle_1:
-            {}
-          lgp_obstacle_1_axis_aligned:
-            {}
       Update Interval: 0
       Value: true
     - Alpha: 1
       Buffer Length: 1
       Class: rviz/Path
       Color: 255; 0; 127
-      Enabled: true
+      Enabled: false
       Head Diameter: 0.300000012
       Head Length: 0.200000003
       Length: 0.300000012
@@ -140,7 +134,7 @@ Visualization Manager:
       Shaft Length: 0.100000001
       Topic: /traj_planner/trajectory_0
       Unreliable: false
-      Value: true
+      Value: false
     - Alpha: 1
       Buffer Length: 1
       Class: rviz/Path
@@ -280,7 +274,7 @@ Visualization Manager:
       Axes Radius: 0.100000001
       Class: rviz/Pose
       Color: 0; 0; 200
-      Enabled: true
+      Enabled: false
       Head Length: 0.300000012
       Head Radius: 0.100000001
       Name: Pose
@@ -289,7 +283,7 @@ Visualization Manager:
       Shape: Arrow
       Topic: /lgp_car/target_pose
       Unreliable: false
-      Value: true
+      Value: false
     - Class: rviz/MarkerArray
       Enabled: true
       Marker Topic: /lgp_obstacle_belief/marker_array
@@ -306,6 +300,29 @@ Visualization Manager:
         "": true
       Queue Size: 100
       Value: true
+    - Alpha: 1
+      Buffer Length: 1
+      Class: rviz/Path
+      Color: 255; 255; 255
+      Enabled: false
+      Head Diameter: 0.300000012
+      Head Length: 0.200000003
+      Length: 0.300000012
+      Line Style: Billboards
+      Line Width: 0.0500000007
+      Name: trajectory_transformed
+      Offset:
+        X: 0
+        Y: 0
+        Z: 0
+      Pose Color: 255; 85; 255
+      Pose Style: None
+      Radius: 0.0299999993
+      Shaft Diameter: 0.100000001
+      Shaft Length: 0.100000001
+      Topic: /traj_planner/transformed_trajectory_1
+      Unreliable: false
+      Value: false
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -331,14 +348,14 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/XYOrbit
-      Distance: 7.68226576
+      Distance: 9.48700237
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.0599999987
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0
+        X: 3
         Y: 0
         Z: 0
       Focal Shape Fixed Size: true
@@ -346,10 +363,10 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Pitch: 0.280398667
+      Pitch: 0.200399235
       Target Frame: lgp_car
       Value: XYOrbit (rviz)
-      Yaw: 3.25539446
+      Yaw: 3.22539473
     Saved: ~
 Window Geometry:
   Displays:

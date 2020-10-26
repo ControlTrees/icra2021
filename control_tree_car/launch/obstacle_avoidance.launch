@@ -1,11 +1,17 @@
 <launch>
+    <arg name="p_obstacle" default="0.25" />
+    <arg name="certainty_distance_offset" default="10.0" />
+    <arg name="tree" default="true" />
+
     <param name="/traj_planner/steps_per_phase" type="int" value="4" />
-    <param name="/p_obstacle" type="double" value="0.25" />
+    <param name="/p_obstacle" type="double" value="$(arg p_obstacle)" />
     <param name="/n_obstacles" type="int" value="2" />
-    <param name="/tree" type="bool" value="true" />
+    <param name="/certainty_distance_offset" type="double" value="$(arg certainty_distance_offset)" />
+    <param name="/tree" type="bool" value="$(arg tree)" />
     <param name="/road_width" type="double" value="3.5" />
     <param name="/traj_controller/trajectory_index" type="int" value="1" />
     <param name="/traj_controller/low_pass_filter" type="boolean" value="true" />
+    <param name="/traj_controller/nose_tracking" type="boolean" value="false" />
 
     <node pkg="control_tree_car" type="obstacle_avoidance_tree_node" name="obstacle_avoidance" output="screen">
     </node>
@@ -13,7 +19,7 @@
     <node pkg="control_tree_car" type="trajectory_controller_node" name="trajectory_controller" output="screen">
     </node>
 
-    <node pkg="control_tree_car" type="obstacle_popping_control_node" name="obstacle" output="screen">
+    <node pkg="control_tree_car" type="obstacle_popping_control_node" name="obstacle_popping" output="screen">
     </node>
 
     <node pkg="control_tree_car" type="obstacle_avoidance_evaluation_node" name="evaluation" output="screen">

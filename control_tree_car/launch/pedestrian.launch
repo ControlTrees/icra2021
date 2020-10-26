@@ -1,7 +1,11 @@
 <launch>
-    <param name="/n_pedestrians" type="int" value="4" />
-    <param name="/n_branches" type="int" value="5" />
-    <param name="/p_crossing" type="double" value="0.125" />
+    <arg name="n_pedestrians" default="4" />
+    <arg name="n_branches" default="5" />
+    <arg name="p_crossing" default="0.05" />
+    
+    <param name="/n_pedestrians" type="int" value="$(arg n_pedestrians)" />
+    <param name="/n_branches" type="int" value="$(arg n_branches)" />
+    <param name="/p_crossing" type="double" value="$(arg p_crossing)" />
     <param name="/traj_planner/steps_per_phase" type="int" value="4" />
     <param name="/traj_controller/trajectory_index" type="int" value="11" />
     <param name="/traj_controller/low_pass_filter" type="boolean" value="false" />
@@ -16,6 +20,8 @@
     <node pkg="control_tree_car" type="pedestrian_popping_control_node" name="pedestrian" output="screen">
     </node>
 
+    <?ignore
     <include file="$(find control_tree_car)/launch/display_pedestrian.launch">
     </include>
+    ?>
 </launch>
