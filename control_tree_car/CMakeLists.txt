@@ -6,6 +6,7 @@ project(control_tree_car)
 
 catkin_package()
 
-add_subdirectory(solver)
 add_subdirectory(applications)
+add_subdirectory(externals)
+
 
