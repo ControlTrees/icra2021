@@ -8,7 +8,6 @@ project(${project_name})
 
 #find Eigen
 find_package(Eigen3 REQUIRED)
-find_package(CGAL)
 find_package(osqp REQUIRED)
 find_package(catkin REQUIRED COMPONENTS roscpp rospy roslib std_msgs nav_msgs tf)
 find_package(Boost 1.40.0 COMPONENTS filesystem system iostreams REQUIRED)
@@ -28,7 +27,6 @@ target_link_libraries(${project_name}
 ${catkin_LIBRARIES}
 ${Boost_LIBRARIES}
 common
-CGAL::CGAL
 osqp::osqp
 Core
 Optim

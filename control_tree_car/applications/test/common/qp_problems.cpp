@@ -4,7 +4,6 @@
 #include <iostream>
 #include <chrono>
 
-#include <qp/QP_tree_problem_CGAL.h>
 #include <qp/QP_tree_problem_OSQP.h>
 #include <qp/QP_tree_problem_DecQP.h>
 
@@ -422,19 +421,6 @@ VectorXd QPTest::plan_OSQP(const QP_problem &pb, bool _plot, const std::string &
     // plot
     if(_plot) plot_XU(X, U, pb);
     if(filename.size()) save_XU(X, U, pb, filename);
-
-    return U;
-}
-
-VectorXd QPTest::plan_CGAL(const QP_problem &pb, bool _plot)
-{
-    QP_tree_problem_CGAL solver(pb.model, u_min, u_max);
-
-    const auto & U = solver.solve(pb.x0, pb.xd, pb.k, pb.tree.n_steps, pb.tree.varss, pb.tree.scaless);
-    const auto & X = pb.model.predict_trajectory(pb.x0, U, pb.tree.varss);
-
-    // plot
-    if(_plot) plot_XU(X, U, pb);
 
     return U;
 }

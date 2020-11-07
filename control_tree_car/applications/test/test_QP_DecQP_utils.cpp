@@ -84,7 +84,7 @@ TEST(Constraints, Compress)
   k.add_constraint(1, Vector2d(10, 10), Vector2d(1, 1), {-1});
 
   IntA var, global_to_branch;
-  auto masks = get_compressed_masks(7, 1, tree.varss, var, global_to_branch);
+  auto masks = get_compressed_masks(9, 1, tree.varss, var, global_to_branch);
 
   auto ks = get_compressed_constraints(k, var, global_to_branch);
 

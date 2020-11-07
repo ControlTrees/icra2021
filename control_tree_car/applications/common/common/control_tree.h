@@ -133,11 +133,11 @@ struct Tree2Branches : public TreePb
 {
     Tree2Branches(double p)
     {
-        varss.push_back({0, 1, 2, 3});
-        varss.push_back({0, 4, 5, 6});
+        varss.push_back({0, 1, 2, 3, 4});
+        varss.push_back({0, 5, 6, 7, 8});
 
-        scaless.push_back({1.0, p, p, p});
-        scaless.push_back({1.0, 1.0-p, 1.0-p, 1.0-p});
+        scaless.push_back({1.0, p, p, p, p});
+        scaless.push_back({1.0, 1.0-p, 1.0-p, 1.0-p, 1.0-p});
 
         set_n_steps();
     }
@@ -167,16 +167,16 @@ struct Tree4Branches : public TreePb
     {
         assert(p + q + r <= 1.0);
 
-        varss.push_back({0, 1, 2, 3});
-        varss.push_back({0, 4, 5, 6});
-        varss.push_back({0, 7, 8, 9});
-        varss.push_back({0, 10, 11, 12});
+        varss.push_back({0, 1, 2, 3, 4});
+        varss.push_back({0, 5, 6, 7, 8});
+        varss.push_back({0, 9, 10, 11, 12});
+        varss.push_back({0, 13, 14, 15, 16});
 
-        scaless.push_back({1.0, p, p, p});
-        scaless.push_back({1.0, q, q, q});
-        scaless.push_back({1.0, r, r, r});
+        scaless.push_back({1.0, p, p, p, p});
+        scaless.push_back({1.0, q, q, q, q});
+        scaless.push_back({1.0, r, r, r, r});
         double P = 1.0 - p - q - r;
-        scaless.push_back({1.0, P, P, P});
+        scaless.push_back({1.0, P, P, P, P});
 
         set_n_steps();
     }

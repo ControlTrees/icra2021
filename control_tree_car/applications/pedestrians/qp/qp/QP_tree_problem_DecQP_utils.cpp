@@ -97,6 +97,8 @@ std::vector<arr> get_compressed_masks(int n_steps, int dim, const std::vector<In
     }
   }
 
+  std::cout << "D" << std::endl;
+
   return masks;
 }
 

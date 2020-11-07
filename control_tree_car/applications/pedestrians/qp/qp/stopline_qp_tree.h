@@ -20,7 +20,6 @@
 
 #include <qp/MPC_model.h>
 #include <qp/control_tree_plot.h>
-#include <qp/QP_tree_problem_CGAL.h>
 #include <qp/QP_tree_problem_OSQP.h>
 #include <qp/QP_tree_problem_DecQP.h>
 
@@ -88,4 +87,4 @@ private:
 
 VectorXd emergency_brake(const double v, const TreePb &, int steps_per_phase, double u);
 std::vector<double> fuse_probabilities(const std::vector<Stopline> &, int n); // n = n_branches -1
-
+VectorXd emergency_brake(double v, int n_phases, int steps_per_phase, double u);

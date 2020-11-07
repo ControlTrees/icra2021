@@ -17,8 +17,6 @@
 #include <visualization_msgs/MarkerArray.h>
 
 #include <qp/MPC_model.h>
-#include <qp/QP_problem.h>
-
 
 class StopLineQPLinear : public BehaviorBase
 {
@@ -55,7 +53,7 @@ private:
     bool optimization_run_;
 };
 
-VectorXd emergency_brake(double v, int n_phases, int steps_per_phase, double u);
+
 
 
 

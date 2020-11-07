@@ -360,4 +360,27 @@ std::vector<double> fuse_probabilities(const std::vector<Stopline> & stoplines, 
     return probabilities;
 }
 
+VectorXd emergency_brake(double v, int n_phases, int steps_per_phase, double u)
+{
+    VectorXd U = VectorXd::Zero(n_phases * steps_per_phase);
 
+    for(auto i = 0; i < U.rows(); ++i)
+    {
+        double remaining_braking_time = fabs(v / u);
+
+        if(remaining_braking_time > 1.0 / steps_per_phase)
+        {
+            U[i] = u;
+            v += u / steps_per_phase;
+        }
+        else
+        {
+            // last step
+            U[i] = -v / steps_per_phase;
+            v = 0;
+            break;
+        }
+    }
+
+    return U;
+}

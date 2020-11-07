@@ -1,7 +1,6 @@
 #include <common/control_tree.h>
 
 #include <qp/stopline_qp_tree.h>
-#include <qp/stopline_qp_linear.h>
 
 #include <gtest/gtest.h>
 
