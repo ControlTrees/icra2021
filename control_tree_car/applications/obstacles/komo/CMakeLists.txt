@@ -25,6 +25,7 @@ target_include_directories(${project_name} PUBLIC ".")
 target_link_libraries(${project_name}
 ${catkin_LIBRARIES}
 ${Boost_LIBRARIES}
+common
 pthread
 )
 
