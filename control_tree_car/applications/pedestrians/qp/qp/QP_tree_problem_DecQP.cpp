@@ -62,8 +62,9 @@ VectorXd QP_tree_problem_DecQP::solve(const Vector2d & x0, const Vector2d & xd, 
   std::vector<std::shared_ptr<QP_Problem>> pbs; pbs.reserve(masks.size());
 
   std::vector<std::future<std::shared_ptr<QP_Problem>>> futures;
+
   futures.reserve(masks.size());
-  for(auto i = 0; i < masks.size(); ++i)
+  for(uint i = 0; i < masks.size(); ++i)
   {
     futures.push_back(
           std::async(std::launch::async,

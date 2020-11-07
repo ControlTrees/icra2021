@@ -72,7 +72,7 @@ VectorXd MPC_model::check_constraints(const Vector2d & x0, const VectorXd & U, c
     VectorXd SU = get_S(n_steps) * U;
     VectorXd Tx0 = get_T(n_steps) * x0;
 
-    for(auto i = 0; i < n_steps; ++i)
+    for(uint i = 0; i < n_steps; ++i)
     {
         Xmax(2*i) = xmax(0);
         Xmax(2*i+1) = xmax(1);

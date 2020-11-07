@@ -21,7 +21,7 @@ struct TreePb
         refined_tree.varss = std::vector<IntA>(tree.varss.size());
         refined_tree.scaless = std::vector<Arr>(tree.scaless.size());
 
-        for(auto i = 0; i < tree.varss.size(); ++i)
+        for(uint i = 0; i < tree.varss.size(); ++i)
         {
             const auto & vars = tree.varss[i];
             const auto & scales = tree.scaless[i];
@@ -31,9 +31,9 @@ struct TreePb
             refined_vars.reserve(vars.size() * n_steps_per_phase);
             refined_scales.reserve(scales.size() * n_steps_per_phase);
 
-            for(auto j = 0; j < vars.size(); ++j)
+            for(uint j = 0; j < vars.size(); ++j)
             {
-                for(auto s = 0; s < n_steps_per_phase; ++s)
+                for(int s = 0; s < n_steps_per_phase; ++s)
                 {
                     refined_vars.push_back(n_steps_per_phase*vars[j] + s);
                     refined_scales.push_back(scales[j]);
@@ -55,7 +55,7 @@ struct TreePb
         refined_tree->varss = std::vector<IntA>(tree->varss.size());
         refined_tree->scaless = std::vector<Arr>(tree->scaless.size());
 
-        for(auto i = 0; i < tree->varss.size(); ++i)
+        for(uint i = 0; i < tree->varss.size(); ++i)
         {
             const auto & vars = tree->varss[i];
             const auto & scales = tree->scaless[i];
@@ -65,9 +65,9 @@ struct TreePb
             refined_vars.reserve(vars.size() * n_steps_per_phase);
             refined_scales.reserve(scales.size() * n_steps_per_phase);
 
-            for(auto j = 0; j < vars.size(); ++j)
+            for(uint j = 0; j < vars.size(); ++j)
             {
-                for(auto s = 0; s < n_steps_per_phase; ++s)
+                for(int s = 0; s < n_steps_per_phase; ++s)
                 {
                     refined_vars.push_back(n_steps_per_phase*vars[j] + s);
                     refined_scales.push_back(scales[j]);
@@ -212,13 +212,13 @@ struct TreeNBranches : public TreePb
     TreeNBranches(int n)
     {
         int j = 0;
-        for(auto i = 0; i < n; ++i)
+        for(int i = 0; i < n; ++i)
         {
             varss.push_back({0, ++j, ++j, ++j, ++j});
         }
 
         double p = 1.0 / n;
-        for(auto i = 0; i < n; ++i)
+        for(int i = 0; i < n; ++i)
         {
             scaless.push_back({1.0, p, p, p, p});
         }
@@ -230,13 +230,13 @@ struct TreeNBranches : public TreePb
     {
         auto n = ps.size() + 1;
         int j = 0;
-        for(auto i = 0; i < n; ++i)
+        for(uint i = 0; i < n; ++i)
         {
             varss.push_back({0, ++j, ++j, ++j, ++j});
         }
 
         double q = 1.0;
-        for(auto i = 0; i < ps.size(); ++i)
+        for(uint i = 0; i < ps.size(); ++i)
         {
             scaless.push_back({1.0, ps[i], ps[i], ps[i], ps[i]});
             q -= ps[i];

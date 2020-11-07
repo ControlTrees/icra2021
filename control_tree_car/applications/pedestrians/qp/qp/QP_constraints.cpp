@@ -11,7 +11,7 @@ MatrixXd Constraints::getSextract() const
     std::list< int > active_rows;
     std::vector<int> rows_activity_flag(2 * n_steps);
 
-    for(auto c = 0; c < xmaxs.size(); ++c)
+    for(uint c = 0; c < xmaxs.size(); ++c)
     {
         const auto& mask = std::get<2>(xmaxs[c]);
         const auto& indices = std::get<3>(xmaxs[c]);
@@ -48,7 +48,7 @@ VectorXd Constraints::getXmax() const
 {
     MatrixXd Xmax = Eigen::VectorXd::Constant(2 * n_steps, std::numeric_limits<double>::max());
 
-    for(auto c = 0; c < xmaxs.size(); ++c)
+    for(uint c = 0; c < xmaxs.size(); ++c)
     {
         const auto& xmax = std::get<1>(xmaxs[c]);
         const auto& mask = std::get<2>(xmaxs[c]);
@@ -69,7 +69,7 @@ VectorXd Constraints::getXmax() const
     }
 
     // following is necessary??
-    for(auto i = 0; i < Xmax.rows(); ++i)
+    for(uint i = 0; i < Xmax.rows(); ++i)
     {
         if(Xmax(i) == std::numeric_limits<double>::max())
         {

@@ -4,9 +4,9 @@ arr convert(const MatrixXd& M)
 {
   arr m(M.rows(), M.cols());
 
-  for(auto i = 0; i < M.rows(); ++i)
+  for(uint i = 0; i < M.rows(); ++i)
   {
-    for(auto j = 0; j < M.cols(); ++j)
+    for(uint j = 0; j < M.cols(); ++j)
     {
       m(i, j) = M(i,j);
     }
@@ -19,7 +19,7 @@ VectorXd convert(const arr& v)
 {
   VectorXd V(v.d0);
 
-  for(auto i = 0; i < V.rows(); ++i)
+  for(uint i = 0; i < V.rows(); ++i)
   {
     V(i) = v(i);
   }
@@ -31,9 +31,9 @@ arr createK(const MatrixXd& KA)
 {
   arr K(2 * KA.rows(), KA.cols());
 
-  for(auto i = 0; i < KA.rows(); ++i)
+  for(uint i = 0; i < KA.rows(); ++i)
   {
-    for(auto j = 0; j < KA.cols(); ++j)
+    for(uint j = 0; j < KA.cols(); ++j)
     {
       K(i, j) = KA(i,j);
       K(i + KA.rows(), j) = -KA(i,j);
@@ -47,7 +47,7 @@ arr createU(const VectorXd& Up, const VectorXd& Lo)
 {
   arr u(2 * Up.rows());
 
-  for(auto i = 0; i < Up.rows(); ++i)
+  for(uint i = 0; i < Up.rows(); ++i)
   {
     u(i) = Up[i];
     u(i + Up.rows()) = -Lo[i];
@@ -60,7 +60,7 @@ IntA to_local(const IntA& global_indices, const IntA& global_to_branch)
 {
   IntA local_indices(global_indices.size());
 
-  for(auto j = 0; j < global_indices.size(); ++j)
+  for(uint j = 0; j < global_indices.size(); ++j)
   {
     local_indices[j] = global_to_branch[global_indices[j]];
   }
@@ -74,7 +74,7 @@ std::vector<arr> get_compressed_masks(int n_steps, int dim, const std::vector<In
 
   var.resize(varss.front().size());
 
-  for(auto i = 0; i < var.size(); ++i)
+  for(uint i = 0; i < var.size(); ++i)
   {
     var[i] = i;
   }
@@ -82,22 +82,20 @@ std::vector<arr> get_compressed_masks(int n_steps, int dim, const std::vector<In
   std::vector<arr> masks(varss.size(), zeros(n_steps * dim));
   global_to_branch = IntA(n_steps);
 
-  for(auto i = 0; i < varss.size(); ++i)
+  for(uint i = 0; i < varss.size(); ++i)
   {
     const auto& vars = varss[i];
     auto& mask = masks[i];
 
-    for(auto j = 0; j < vars.size(); ++j)
+    for(uint j = 0; j < vars.size(); ++j)
     {
-      for(auto k = 0; k < dim; ++k)
+      for(uint k = 0; k < dim; ++k)
       {
         mask(dim * vars[j] + k) = 1.0;
         global_to_branch[vars[j]] = j;
       }
     }
   }
-
-  std::cout << "D" << std::endl;
 
   return masks;
 }
@@ -106,7 +104,7 @@ std::vector<Arr> get_compressed_scales(const std::vector<Arr>& joint_scaless)
 {
   std::vector<Arr> scaless(joint_scaless.size());
 
-  for(auto i = 0; i < joint_scaless.size(); ++i)
+  for(uint i = 0; i < joint_scaless.size(); ++i)
   {
     scaless[i] = Arr(joint_scaless[i].size(), joint_scaless[i].back());
   }
@@ -123,7 +121,7 @@ arr get_belief_state(const std::vector<Arr>& joint_scaless)
 {
     arr bs = zeros(joint_scaless.size());
 
-    for(auto i = 0; i < joint_scaless.size(); ++i)
+    for(uint i = 0; i < joint_scaless.size(); ++i)
     {
       bs(i) = joint_scaless[i].back();
     }
@@ -136,7 +134,7 @@ std::unordered_map<int, Constraints> get_compressed_constraints(const Constraint
   std::unordered_map<int, Constraints> constraints;
   constraints.reserve(k.xmaxs.size());
 
-  for(auto i = 0; i < k.xmaxs.size(); ++i)
+  for(uint i = 0; i < k.xmaxs.size(); ++i)
   {
     const auto& c = k.xmaxs[i];
     const auto& global_indices = std::get<3>(c);

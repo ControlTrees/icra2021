@@ -6,7 +6,7 @@ csc * create_csc_matrix(const MatrixXd & M)
     std::list<int> col_starts;
 
     int k = 0;
-    for(auto J = 0; J < M.cols(); ++J)
+    for(uint J = 0; J < M.cols(); ++J)
     {
         col_starts.push_back(k);
         for(auto I = 0; I < M.rows(); ++I)
@@ -53,7 +53,7 @@ static c_float * create_c_float_array(const VectorXd & C)
 {
     c_float * q = new c_float[C.rows()];
 
-    for(auto I = 0; I < C.rows(); ++I)
+    for(uint I = 0; I < C.rows(); ++I)
     {
         q[I] = C(I);
     }
@@ -66,7 +66,7 @@ static c_float * create_default_c_float_array(int rows, double value)
 {
     c_float * q = new c_float[rows];
 
-    for(auto I = 0; I < rows; ++I)
+    for(uint I = 0; I < rows; ++I)
     {
         q[I] = value;
     }

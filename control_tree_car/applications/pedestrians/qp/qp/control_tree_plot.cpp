@@ -28,7 +28,7 @@ void save(const std::function<double(int i)> & value_provider,
           double dt,
           const IntA & vars, std::ostream & file)
 {
-    for(int i=0; i<vars.size(); i+=1)
+    for(uint i=0; i<vars.size(); i+=1)
     {
         auto x = i * dt;
         auto y = value_provider(vars[i]);
@@ -61,7 +61,7 @@ void TreePlot::update(const std::vector<IntA> & varss,
     gp << "set xrange [0:16]\nset yrange " << yrange_ << "\n";
     gp << "plot ";
 
-    for(auto i = 0; i < varss.size(); ++i)
+    for(uint i = 0; i < varss.size(); ++i)
     {
         gp << "'-' with lines title '" << name_ << "-" << i << "'";
         gp << " lc rgb '"<< color_code(i, scales[i].back()) <<"'";
@@ -79,7 +79,7 @@ void TreePlot::update(const std::vector<IntA> & varss,
     for(const auto& vars : varss)
     {
         std::vector<std::pair<double, double> > xy_pts;
-        for(int i=0; i<vars.size(); i+=1)
+        for(uint i=0; i<vars.size(); i+=1)
         {
             double x = i;
             double y = value_provider(vars[i]);

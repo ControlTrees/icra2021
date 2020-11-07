@@ -20,7 +20,7 @@ struct Constraints // specific 2d state
     {
         IntA indices_global(indices_branch.size());
 
-        for(auto i = 0; i < indices_branch.size(); ++i) // local -> global
+        for(uint i = 0; i < indices_branch.size(); ++i) // local -> global
         {
             int j = indices_branch[i];
             if(j == -1) j = varss[branch].size() - 1;
@@ -35,7 +35,7 @@ struct Constraints // specific 2d state
         // refine the varss
         auto refined_varss = std::vector<IntA>(constraints.varss.size());
 
-        for(auto i = 0; i < constraints.varss.size(); ++i)
+        for(uint i = 0; i < constraints.varss.size(); ++i)
         {
             const auto & vars = constraints.varss[i];
 
@@ -56,16 +56,16 @@ struct Constraints // specific 2d state
         // refine the xmaxs
        auto refined_xmaxs = std::vector<std::tuple<int, Eigen::Vector2d, Eigen::Vector2d, IntA>>(constraints.xmaxs.size());
 
-       for(auto i = 0; i < constraints.xmaxs.size(); ++i)
+       for(uint i = 0; i < constraints.xmaxs.size(); ++i)
        {
             const auto & indices = std::get<3>(constraints.xmaxs[i]);
 
             IntA refined_indices;
             refined_indices.reserve(indices.size() * n_steps_per_phase);
 
-            for(auto j = 0; j < indices.size(); ++j)
+            for(uint j = 0; j < indices.size(); ++j)
             {
-                for(auto s = 0; s < n_steps_per_phase; ++s)
+                for(uint s = 0; s < n_steps_per_phase; ++s)
                 {
                     refined_indices.push_back(n_steps_per_phase*indices[j] + s);
                 }
