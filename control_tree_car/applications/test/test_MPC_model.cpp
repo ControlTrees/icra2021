@@ -51,7 +51,7 @@ TEST(MPC_model_tests, test_R_simple_tree)
 
     EXPECT_EQ(R_bar(0,0), model_.R(0));
     EXPECT_EQ(R_bar(1,1), p * model_.R(0));
-    EXPECT_EQ(R_bar(4,4), (1-p) * model_.R(0));
+    EXPECT_EQ(R_bar(5,5), (1-p) * model_.R(0));
 }
 
 TEST(MPC_model_tests, test_Q_simple_tree)
@@ -66,7 +66,7 @@ TEST(MPC_model_tests, test_Q_simple_tree)
 
     EXPECT_EQ(Q_bar(1,1), model_.Q(1, 1));
     EXPECT_EQ(Q_bar(2*1+1,2*1+1), p * model_.Q(1, 1));
-    EXPECT_EQ(Q_bar(2*4+1,2*4+1), (1-p) * model_.Q(1, 1));
+    EXPECT_EQ(Q_bar(2*5+1,2*5+1), (1-p) * model_.Q(1, 1));
 }
 
 TEST(MPC_model_tests, test_T_simple_tree)
@@ -83,10 +83,12 @@ TEST(MPC_model_tests, test_T_simple_tree)
     EXPECT_EQ(T.block(2, 0, 2, 2), model_.A.pow(2)); // 1->2
     EXPECT_EQ(T.block(2*2, 0, 2, 2), model_.A.pow(3)); // 2->3
     EXPECT_EQ(T.block(2*3, 0, 2, 2), model_.A.pow(4)); // 3->4
+    EXPECT_EQ(T.block(2*4, 0, 2, 2), model_.A.pow(5)); // 4->5
 
-    EXPECT_EQ(T.block(2*3+2*1, 0, 2, 2), model_.A.pow(2)); // 1->5
-    EXPECT_EQ(T.block(2*3+2*2, 0, 2, 2), model_.A.pow(3)); // 5->6
-    EXPECT_EQ(T.block(2*3+2*3, 0, 2, 2), model_.A.pow(4)); // 6->7
+    EXPECT_EQ(T.block(2*4+2*1, 0, 2, 2), model_.A.pow(2)); // 1->5
+    EXPECT_EQ(T.block(2*4+2*2, 0, 2, 2), model_.A.pow(3)); // 5->6
+    EXPECT_EQ(T.block(2*4+2*3, 0, 2, 2), model_.A.pow(4)); // 6->7
+    EXPECT_EQ(T.block(2*4+2*4, 0, 2, 2), model_.A.pow(5)); // 7->8
 }
 
 TEST(MPC_model_tests, test_T_simple_tree_N_steps_per_phase)
@@ -137,8 +139,14 @@ TEST(MPC_model_tests, test_S_simple_tree)
     EXPECT_EQ(S.block(2*3, 2, 2, 1), model_.A.pow(1) * model_.B); // 3->4
     EXPECT_EQ(S.block(2*3, 3, 2, 1), model_.A.pow(0) * model_.B); // 3->4
 
-    EXPECT_EQ(S.block(2*4, 0, 2, 1), model_.A.pow(1) * model_.B); // 1->5
-    EXPECT_EQ(S.block(2*4, 4, 2, 1), model_.B); // 1->5
+    EXPECT_EQ(S.block(2*4, 0, 2, 1), model_.A.pow(4) * model_.B); // 4->5
+    EXPECT_EQ(S.block(2*4, 1, 2, 1), model_.A.pow(3) * model_.B); // 4->5
+    EXPECT_EQ(S.block(2*4, 2, 2, 1), model_.A.pow(2) * model_.B); // 4->5
+    EXPECT_EQ(S.block(2*4, 3, 2, 1), model_.A.pow(1) * model_.B); // 4->5
+    EXPECT_EQ(S.block(2*4, 4, 2, 1), model_.A.pow(0) * model_.B); // 4->5
+
+    EXPECT_EQ(S.block(2*5, 0, 2, 1), model_.A.pow(1) * model_.B); // 1->6
+    EXPECT_EQ(S.block(2*5, 5, 2, 1), model_.B); // 1->6
 }
 
 TEST(TreeBb, refinement)

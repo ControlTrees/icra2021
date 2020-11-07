@@ -107,11 +107,11 @@ struct Tree2Branches2Steps : public TreePb
 {
     Tree2Branches2Steps(double p)
     {
-        varss.push_back({0, 1, 2, 3, 4, 5, 6, 7});
-        varss.push_back({0, 1, 8, 9, 10, 11, 12, 13});
+        varss.push_back({0, 1, 2, 3, 4, 5, 6, 7, 8, 9});
+        varss.push_back({0, 1, 10, 11, 12, 13, 14, 15, 16, 17});
 
-        scaless.push_back({1.0, 1.0, p, p, p, p, p, p});
-        scaless.push_back({1.0, 1.0, 1.0-p, 1.0-p, 1.0-p, 1.0-p, 1.0-p, 1.0-p});
+        scaless.push_back({1.0, 1.0, p, p, p, p, p, p, p, p});
+        scaless.push_back({1.0, 1.0, 1.0-p, 1.0-p, 1.0-p, 1.0-p, 1.0-p, 1.0-p, 1.0-p, 1.0-p});
 
         set_n_steps();
     }

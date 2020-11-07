@@ -27,7 +27,7 @@ TEST(QP_constraints, test_constraints_with_elements_specification)
 
     Constraints k(tree.n_steps, tree.varss);
 
-    k.add_constraint(0, Vector2d(10, 10), Vector2d(1, 1), {3});
+    k.add_constraint(0, Vector2d(10, 10), Vector2d(1, 1), {4});
     k.add_constraint(1, Vector2d(10, 10), Vector2d(1, 1), {-1});
 
     EXPECT_TRUE(k.validate());
@@ -35,12 +35,12 @@ TEST(QP_constraints, test_constraints_with_elements_specification)
     auto Sextract = k.getSextract();
 
     // branch 1
-    EXPECT_EQ(Sextract(0, 3*2+0), 1);
-    EXPECT_EQ(Sextract(1, 3*2+1), 1);
+    EXPECT_EQ(Sextract(0, 4*2+0), 1);
+    EXPECT_EQ(Sextract(1, 4*2+1), 1);
 
     // branch 2
-    EXPECT_EQ(Sextract(2, 6*2+0), 1);
-    EXPECT_EQ(Sextract(3, 6*2+1), 1);
+    EXPECT_EQ(Sextract(2, 8*2+0), 1);
+    EXPECT_EQ(Sextract(3, 8*2+1), 1);
 
     std::cout << "Sextract:\n" << Sextract << std::endl;
 }
@@ -72,8 +72,8 @@ TEST(QP_constraints, test_constraints_refinement)
         EXPECT_EQ(get<3>(l.xmaxs[i]).size(), 2 * get<3>(k.xmaxs[i]).size());
     }
 
-    EXPECT_EQ(std::get<3>(l.xmaxs[0]), IntA({0, 1, 2, 3, 4, 5, 6, 7}));
-    EXPECT_EQ(std::get<3>(l.xmaxs[1]), IntA({12, 13}));
+    EXPECT_EQ(std::get<3>(l.xmaxs[0]), IntA({0, 1, 2, 3, 4, 5, 6, 7, 8, 9}));
+    EXPECT_EQ(std::get<3>(l.xmaxs[1]), IntA({16, 17}));
 }
 
 TEST(QP_constraints, test_Sextract_if_no_constraints)
@@ -114,10 +114,13 @@ TEST(QP_constraints, test_Sextract_construction)
     EXPECT_EQ(Sextract(1, 2), 1);
     EXPECT_EQ(Sextract(2, 4), 1);
     EXPECT_EQ(Sextract(3, 6), 1);
+    EXPECT_EQ(Sextract(4, 8), 1);
 
-    EXPECT_EQ(Sextract(4, 1), 1); // second branch
-    EXPECT_EQ(Sextract(5, 9), 1);
+    EXPECT_EQ(Sextract(5, 1), 1); // second branch
     EXPECT_EQ(Sextract(6, 11), 1);
+    EXPECT_EQ(Sextract(7, 13), 1);
+    EXPECT_EQ(Sextract(8, 15), 1);
+    EXPECT_EQ(Sextract(9, 17), 1);
 
     std::cout << "Sextract:\n" << Sextract << std::endl;
 }
