@@ -11,7 +11,11 @@ find_package(Eigen3 REQUIRED)
 find_package(catkin REQUIRED COMPONENTS roscpp rospy roslib std_msgs nav_msgs tf)
 find_package(Boost 1.40.0 COMPONENTS filesystem system iostreams REQUIRED)
 
-include_directories(${EIGEN3_INCLUDE_DIR} ${catkin_INCLUDE_DIRS})
+set(MLR_LIBRARIES_DIR "/home/camille/git/catkin_ws/src/icra_2021/control_tree_car/externals/rai/lib")
+set(MLR_INCLUDE_DIR "/home/camille/git/catkin_ws/src/icra_2021/control_tree_car/externals/rai/rai")
+
+link_directories(${MLR_LIBRARIES_DIR})
+include_directories(${EIGEN3_INCLUDE_DIR} ${catkin_INCLUDE_DIRS} ${MLR_INCLUDE_DIR})
 #################################
 # Define executable
 #################################
@@ -25,6 +29,8 @@ target_include_directories(${project_name} PUBLIC ".")
 target_link_libraries(${project_name}
 ${catkin_LIBRARIES}
 ${Boost_LIBRARIES}
+KOMO
+Kin
 common
 pthread
 )

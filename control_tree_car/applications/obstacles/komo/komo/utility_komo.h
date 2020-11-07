@@ -7,7 +7,7 @@
 
 #include <Kin/kin.h>
 
-#include <core/utility.h>
+#include <common/utility.h>
 #include <unordered_map>
 
 class Objective;
