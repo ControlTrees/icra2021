@@ -1,9 +1,9 @@
-#include <control_tree/qp/QP_tree_problem_CGAL.h>
+#include <qp/QP_tree_problem_CGAL.h>
 
 #include <chrono>
 
-#include <control_tree/core/control_tree.h>
-#include <control_tree/qp/control_tree_plot.h>
+#include <common/control_tree.h>
+#include <qp/control_tree_plot.h>
 #include "common/qp_problems.h"
 
 #include <gtest/gtest.h>

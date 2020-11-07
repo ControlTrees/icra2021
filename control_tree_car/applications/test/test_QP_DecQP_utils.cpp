@@ -1,12 +1,9 @@
-//#include <control_tree/qp/QP_tree_problem_DecQP.h>
-
-#include <chrono>
-
-#include <control_tree/core/control_tree.h>
-#include <control_tree/qp/control_tree_plot.h>
-#include <control_tree/qp/QP_tree_problem_DecQP.h>
+#include <common/control_tree.h>
+#include <qp/control_tree_plot.h>
+#include <qp/QP_tree_problem_DecQP.h>
 #include "common/qp_problems.h"
 
+#include <chrono>
 #include <gtest/gtest.h>
 
 namespace

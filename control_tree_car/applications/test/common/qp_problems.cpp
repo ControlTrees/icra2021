@@ -4,9 +4,9 @@
 #include <iostream>
 #include <chrono>
 
-#include <control_tree/qp/QP_tree_problem_CGAL.h>
-#include <control_tree/qp/QP_tree_problem_OSQP.h>
-#include <control_tree/qp/QP_tree_problem_DecQP.h>
+#include <qp/QP_tree_problem_CGAL.h>
+#include <qp/QP_tree_problem_OSQP.h>
+#include <qp/QP_tree_problem_DecQP.h>
 
 QP_problem create_2_branches_2_steps_constrained(double p)
 {

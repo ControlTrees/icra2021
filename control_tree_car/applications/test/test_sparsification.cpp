@@ -1,4 +1,4 @@
-#include <control_tree/qp/QP_tree_problem_OSQP.h>
+#include <qp/QP_tree_problem_OSQP.h>
 
 #include <gtest/gtest.h>
 

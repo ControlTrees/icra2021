@@ -1,4 +1,4 @@
-#include <control_tree/ros/obstacle_common.h>
+#include <nodes/obstacle_common.h>
 
 #include <gtest/gtest.h>
 

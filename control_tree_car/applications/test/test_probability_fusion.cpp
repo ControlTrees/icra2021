@@ -1,4 +1,4 @@
-#include <control_tree/qp/stopline_qp_tree.h>
+#include <qp/stopline_qp_tree.h>
 
 #include <gtest/gtest.h>
 

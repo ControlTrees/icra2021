@@ -1,7 +1,7 @@
-#include <control_tree/core/control_tree.h>
+#include <common/control_tree.h>
 
-#include <control_tree/qp/stopline_qp_tree.h>
-#include <control_tree/qp/stopline_qp_linear.h>
+#include <qp/stopline_qp_tree.h>
+#include <qp/stopline_qp_linear.h>
 
 #include <gtest/gtest.h>
 
@@ -16,9 +16,11 @@ TEST(Emergency_brake_trajectory, control_vector_size)
 
 TEST(Emergency_brake_trajectory, null_speed)
 {
+    std::cout << "HERE" << std::endl;
+
     auto U = emergency_brake(0.0, 4, 4, -6.0);
 
-    EXPECT_EQ(U, VectorXd::Zero(4 * 4, -6.0));
+    EXPECT_EQ(U, VectorXd::Zero(4 * 4));
 }
 
 TEST(Emergency_brake_trajectory, normal_speed)
@@ -27,7 +29,7 @@ TEST(Emergency_brake_trajectory, normal_speed)
 
     EXPECT_EQ(U[0], -6.0);
 
-    std::cout << U << std::endl;
+    //std::cout << U << std::endl;
 }
 
 TEST(Emergency_brake_trajectory_tree, normal_speed)
@@ -38,7 +40,7 @@ TEST(Emergency_brake_trajectory_tree, normal_speed)
 
     EXPECT_EQ(U[0], -6.0);
 
-    std::cout << U << std::endl;
+    //std::cout << U << std::endl;
 }
 
 TEST(Emergency_brake_trajectory_tree, foo)
@@ -49,7 +51,7 @@ TEST(Emergency_brake_trajectory_tree, foo)
 
     EXPECT_LE(U[0], 0);
 
-    std::cout << U << std::endl;
+    //std::cout << U << std::endl;
 }
 
 ////////////////////////////////

@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "nav_msgs/Path.h"
+#include <nav_msgs/Path.h>
 
 class BehaviorManager;
 
