@@ -3,9 +3,10 @@
 #include <tf/transform_listener.h>
 
 #include <common/behavior_manager.h>
+#include <common/common.h>
+
 #include <qp/stopline_qp_tree.h>
 #include <nodes/pedestrian_common.h>
-#include <nodes/common.h>
 
 int main(int argc, char **argv)
 {
