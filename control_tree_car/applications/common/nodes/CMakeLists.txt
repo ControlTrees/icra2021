@@ -21,7 +21,7 @@ ${catkin_INCLUDE_DIRS}
 #################################
 # Define executable
 #################################
-add_definitions(-O3 -Wall -DRAI_LAPACK -DRAI_EIGEN -DRAI_PTHREAD -Wno-terminate -fPIC -std=c++11)
+add_definitions(-O3 -Wall -DRAI_LAPACK -DRAI_EIGEN -DRAI_PTHREAD -Wno-terminate -fPIC -std=c++14)
 
 # Trajectory controller
 add_executable(trajectory_controller_node nodes/trajectory_controller_node.cpp)

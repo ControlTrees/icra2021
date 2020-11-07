@@ -21,7 +21,7 @@ ${catkin_INCLUDE_DIRS}
 #################################
 # Define executable
 #################################
-add_definitions(-O3 -Wall -DRAI_LAPACK -DRAI_EIGEN -DRAI_PTHREAD -Wno-terminate -fPIC -std=c++11)
+add_definitions(-O3 -Wall -DRAI_LAPACK -DRAI_EIGEN -DRAI_PTHREAD -Wno-terminate -fPIC -std=c++14)
 
 # Ros common utilities
 file(GLOB ros_common_src "nodes/pedestrian_common.h" "nodes/pedestrian_common.cpp")
