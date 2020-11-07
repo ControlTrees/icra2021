@@ -1,10 +1,9 @@
 cmake_minimum_required(VERSION 3.5)
 
-add_subdirectory(common)
-add_subdirectory(pedestrians)
-
+add_subdirectory(qp)
+add_subdirectory(nodes)
 ##################################
-# Locate MLR libs
+# Depedencies
 ##################################
 
 #find Eigen
@@ -13,26 +12,6 @@ add_subdirectory(pedestrians)
 # Boost
 #find_package(Boost 1.40.0 COMPONENTS filesystem system iostreams REQUIRED)
 
-#include_directories(
-#${catkin_INCLUDE_DIRS}
-#${EIGEN3_INCLUDE_DIR}
-#"/home/camille/Dev/mlr/rai/rai"
-#"/home/camille/Dev/mlr/share/projects/17-camille-obsTask/libs/MotionPlanning"
-#"/home/camille/Dev/mlr/share/projects/17-camille-obsTask/libs/GeometricUtilityTasks"
-#"/home/camille/Dev/mlr/share/projects/17-camille-obsTask/libs/MathUtility"
-#"/home/camille/Dev/mlr/share/projects/17-camille-obsTask/libs/CollisionAvoidance"
-#"/home/camille/Dev/mlr/share/projects/17-camille-obsTask/libs/Optimization/include"
-#) 
-#link_directories(
-#"/home/camille/Dev/mlr/rai/lib"
-#"/home/camille/Dev/mlr_build/libs/MotionPlanning"
-#"/home/camille/Dev/mlr_build/libs/GeometricUtilityTasks"
-#"/home/camille/Dev/mlr_build/libs/MathUtility"
-#"/home/camille/Dev/mlr_build/libs/CollisionAvoidance"
-#"/home/camille/Dev/mlr_build/libs/Optimization"
-#)
-
-#add_definitions(-O3 -Wall -DRAI_LAPACK -DRAI_EIGEN -DRAI_PTHREAD -Wno-terminate -fPIC -std=c++11)
 
 #CGAL
 #find_package(CGAL)
@@ -40,11 +19,12 @@ add_subdirectory(pedestrians)
 #OSQP
 #find_package(osqp REQUIRED)
 
-## Build traj planner
-#include_directories(include ${catkin_INCLUDE_DIRS})
+#include_directories(
+#${EIGEN3_INCLUDE_DIR}
+#${catkin_INCLUDE_DIRS}
+#)
 
-## COMMON
-#add_subdirectory(common)
+#add_definitions(-O3 -Wall -DRAI_LAPACK -DRAI_EIGEN -DRAI_PTHREAD -Wno-terminate -fPIC -std=c++11)
 
 ## QP
 #file(GLOB qp_lib_src "include/control_tree/qp/*.h" "src/qp/*.cpp")
@@ -84,8 +64,7 @@ add_subdirectory(pedestrians)
 #add_library(ros_common_lib STATIC ${ros_common_src})
 #target_link_libraries(ros_common_lib
 #${catkin_LIBRARIES}
-#common
-# )
+ #)
 
 ## Pedestrian
 #add_executable(pedestrian_tree_qp_node src/ros/pedestrian_tree_qp_node.cpp)
@@ -96,7 +75,7 @@ add_subdirectory(pedestrians)
 
 #add_executable(pedestrian_popping_control_node src/ros/pedestrian_popping_control_node.cpp)
 #target_link_libraries(pedestrian_popping_control_node
-#common
+#core_lib
 #ros_common_lib
 # )
 

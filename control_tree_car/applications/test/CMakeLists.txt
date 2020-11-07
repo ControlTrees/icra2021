@@ -31,7 +31,7 @@ foreach(test ${tests})
     add_executable(${test_name} ${test})
     target_link_libraries(${test_name}
                           qp_lib
-                          core_lib
+                          common
                           utility_lib
                           #komo_lib
 			  ros_common_lib
