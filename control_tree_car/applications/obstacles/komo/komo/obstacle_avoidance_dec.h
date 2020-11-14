@@ -1,6 +1,6 @@
 #pragma once
 
-#include <control_tree/core/behavior_base.h>
+#include <common/behavior_base.h>
 
 #include <math.h>
 #include <boost/bind.hpp>
@@ -19,7 +19,6 @@
 #include <visualization_msgs/MarkerArray.h>
 
 #include <KOMO/komo.h>
-#include <komo_wrapper.h>
 #include <komo/utility_komo.h>
 
 #include <tree_builder.h>

@@ -24,7 +24,7 @@
 #include <axis_bound.h>
 #include <circular_obstacle.h>
 
-#include <control_tree/komo/velocity_axis.h>
+#include <komo/velocity_axis.h>
 
 
 class ObstacleAvoidanceLinear : public BehaviorBase

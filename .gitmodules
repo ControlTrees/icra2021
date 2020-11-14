@@ -1,3 +1,9 @@
 [submodule "control_tree_car/externals/solver"]
 	path = control_tree_car/externals/solver
 	url = git@github.com:ControlTrees/solver.git
+[submodule "control_tree_car/externals/rai"]
+	path = control_tree_car/externals/rai
+	url = git@github.com:ControlTrees/rai.git
+[submodule "control_tree_car/externals/tamp"]
+	path = control_tree_car/externals/tamp
+	url = git@github.com:ControlTrees/tamp.git

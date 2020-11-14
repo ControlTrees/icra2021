@@ -3,8 +3,8 @@
 #include <memory>
 
 #include <tf/transform_datatypes.h>
-#include "nav_msgs/Odometry.h"
-#include "nav_msgs/Path.h"
+#include <nav_msgs/Odometry.h>
+#include <nav_msgs/Path.h>
 
 #include <common/behavior_manager.h>
 #include <common/behavior_base.h>
@@ -62,4 +62,3 @@ std::vector<nav_msgs::Path> BehaviorManager::get_trajectories() const
 
     return current_behavior_->get_trajectories();
 }
-
