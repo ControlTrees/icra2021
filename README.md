@@ -21,3 +21,29 @@ catkin_make
 ## Execute tests
 
 ## Launch examples
+
+### Pedestrian example
+Open two terminals in the catkin workspace.
+
+In the first terminal, type the following command, it will launch the planner and the visualization RViz.
+```bash
+roslaunch control_tree_car pedestrian.launch
+```
+
+In the second terminal, type the following command, it will launch the simulator.
+```bash
+gzserver src/icra_2021/lgp_car_gazebo_plugin/world/pedestrian_4.world
+```
+
+### Obstacle avoidance example
+Open two terminals in the catkin workspace.
+
+In the first terminal, type the following command, it will launch the planner and the visualization RViz.
+```bash
+roslaunch control_tree_car obstacle_avoidance.launch
+```
+
+In the second terminal, type the following command, it will launch the simulator.
+```bash
+gzserver src/icra_2021/lgp_car_gazebo_plugin/world/obstacle_avoidance_2.world
+```
