@@ -32,7 +32,7 @@ ${Boost_LIBRARIES}
 KOMO
 Kin
 common
+GeometricUtilityTasks
+MotionPlanning
 pthread
 )
-
-

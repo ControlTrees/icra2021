@@ -1,4 +1,4 @@
-#include <common/obstacle_common.h>
+#include <nodes/obstacle_common.h>
 #include <common/utility.h>
 
 #include <fstream>

@@ -25,6 +25,6 @@ common
 osqp::osqp
 Core
 Optim
-OptimDec
+Optimization
 pthread
 )

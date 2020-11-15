@@ -20,5 +20,5 @@ add_executable(trajectory_controller_node nodes/trajectory_controller_node.cpp)
 target_link_libraries(trajectory_controller_node
 ${catkin_LIBRARIES}
 common
-ros_common_lib
+#ros_common_lib
 )

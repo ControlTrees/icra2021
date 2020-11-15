@@ -1,4 +1,4 @@
 cmake_minimum_required(VERSION 3.5)
 
-#add_subdirectory(komo)
-#add_subdirectory(nodes)
+add_subdirectory(komo)
+add_subdirectory(nodes)

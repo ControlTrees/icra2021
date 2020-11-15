@@ -1,11 +1,11 @@
 #include <ros/package.h>
 #include <tf/transform_listener.h>
 
-#include <control_tree/core/behavior_manager.h>
-#include <control_tree/komo/obstacle_avoidance_tree.h>
-#include <control_tree/komo/obstacle_avoidance_dec.h>
-#include <control_tree/ros/obstacle_common.h>
-#include <control_tree/ros/common.h>
+#include <common/behavior_manager.h>
+#include <komo/obstacle_avoidance_tree.h>
+#include <komo/obstacle_avoidance_dec.h>
+#include <nodes/obstacle_common.h>
+#include <common/common.h>
 
 //typedef ObstacleAvoidanceTree BehaviorType;
 typedef ObstacleAvoidanceDec BehaviorType;
