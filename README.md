@@ -14,6 +14,9 @@ Car dynamic is simulated with Gazebo.
 
 ### other depedencies
 
+In addition, the following packages are necessary: gnuplot, libjsoncpp-dev, libx11-dev, liblapack-dev, libf2c2-dev, libeigen3-dev, libglew-dev, freeglut3-dev.
+They can be installed by calling `sudo apt install PACKAGE_NAME`.
+
 # Build
 clone, with submodules
 
