@@ -42,6 +42,8 @@ In the second terminal, type the following command, it will launch the simulator
 gzserver src/icra_2021/lgp_car_gazebo_plugin/world/pedestrian_4.world
 ```
 
+![](control_tree_car/data/doc/pedestrians.png)
+
 ### Obstacle avoidance example
 Open two terminals in the catkin workspace.
 
