@@ -1,6 +1,6 @@
 #pragma once
 
-#include <core/behavior_base.h>
+#include <common/behavior_base.h>
 
 #include <math.h>
 #include <boost/bind.hpp>

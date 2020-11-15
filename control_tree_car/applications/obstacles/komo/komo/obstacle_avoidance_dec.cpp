@@ -1,7 +1,7 @@
-#include <control_tree/komo/obstacle_avoidance_dec.h>
-#include <control_tree/core/behavior_manager.h>
-#include <control_tree/core/utility.h>
-#include <control_tree/komo/velocity_axis.h>
+#include <komo/obstacle_avoidance_dec.h>
+#include <common/behavior_manager.h>
+#include <common/utility.h>
+#include <komo/velocity_axis.h>
 
 #include <velocity.h>
 #include <axis_bound.h>

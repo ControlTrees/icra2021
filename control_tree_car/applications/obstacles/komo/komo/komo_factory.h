@@ -11,7 +11,6 @@
 #include <Eigen/Dense>
 
 #include <KOMO/komo.h>
-#include <komo_wrapper.h>
 #include <komo/utility_komo.h>
 
 #include <circular_obstacle.h>

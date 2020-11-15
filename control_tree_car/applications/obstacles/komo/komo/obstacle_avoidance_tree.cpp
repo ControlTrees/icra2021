@@ -1,10 +1,10 @@
 #include <komo/obstacle_avoidance_tree.h>
 
-#include <core/behavior_manager.h>
+#include <common/behavior_manager.h>
 
 #include <komo/velocity_axis.h>
 
-#include <core/utility.h>
+#include <common/utility.h>
 #include <komo/utility_komo.h>
 
 

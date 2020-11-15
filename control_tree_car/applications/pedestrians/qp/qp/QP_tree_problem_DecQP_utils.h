@@ -1,8 +1,7 @@
 #pragma once
 
-#include <qp/QP_constraints.h>
 #include <Core/array.h>
-
+#include <qp/QP_constraints.h>
 #include <unordered_map>
 
 arr convert(const MatrixXd& M);
