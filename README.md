@@ -1,26 +1,29 @@
-# icra_2021
-
 This repo contains the code for 2 examples of the ICRA 2021 submission.
 
 [Accompanying video](https://youtu.be/Ju5hv2gIlxw)
 
-## Dependencies
+# Dependencies
 
-ros
+### ros
+The planner is intergated as a ros node. It has been developped with ros kinetic but should be compatible with merely any recent ros distro.
+[Ros installation](https://www.ros.org/install/)
 
-gazebo
+### gazebo
+Car dynamic is simulated with Gazebo.
+[Gazebo installation](http://gazebosim.org/tutorials?tut=ros_wrapper_versions&cat=connect_ros)
 
-install models
+### other depedencies
 
+# Build
 clone, with submodules
 
-## Build
+The car, obstacle and pedestrian models can be installed forllowing the
 
 build rai
 
 catkin_make
 
-## Execute tests
+# Execute tests
 Open a terminal in the folder corresponding to the `control_tree_car` package in `build` folder of the catkin workspace.
 This is typically `${CATKIN_WORKSPACE}/build/icra_2021/control_tree_car` where `CATKIN_WORKSPACE` is the root of the catkin workspace.
 
@@ -29,7 +32,7 @@ The tests can be launched using ctest:
 ctest .
 ```
 
-## Launch examples
+# Launch examples
 
 ### Pedestrian example
 Open two terminals in the catkin workspace.
