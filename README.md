@@ -19,6 +19,12 @@ build rai
 catkin_make
 
 ## Execute tests
+Open a terminal in the folder corresponding to the `control_tree_car` package in `build` folder of the catkin workspace.
+This is typically `${CATKIN_WORKSPACE}/build/icra_2021/control_tree_car` where `CATKIN_WORKSPACE` is the root of the catkin workspace.
+
+```bash
+ctest .
+```
 
 ## Launch examples
 
