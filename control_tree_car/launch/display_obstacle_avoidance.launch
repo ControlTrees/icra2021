@@ -1,6 +1,6 @@
 <launch>
 
-  <arg name="model" default="$(find control_tree_car)/urdf/car.urdf"/>
+  <arg name="model" default="$(find control_tree_car)/data/urdf/car.urdf"/>
   <arg name="gui" default="true" />
   <arg name="rvizconfig" default="$(find control_tree_car)/rviz/obstacle_avoidance.rviz" />
 
