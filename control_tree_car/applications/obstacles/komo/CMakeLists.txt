@@ -2,24 +2,15 @@ cmake_minimum_required(VERSION 3.5)
 
 get_filename_component(project_name ${CMAKE_CURRENT_SOURCE_DIR} NAME)
 project(${project_name})
-##################################
-# Locate MLR libs
-##################################
 
-#find Eigen
-find_package(Eigen3 REQUIRED)
-find_package(catkin REQUIRED COMPONENTS roscpp rospy roslib std_msgs nav_msgs tf)
+##################################
+# Locate depedencies
+##################################
 find_package(Boost 1.40.0 COMPONENTS filesystem system iostreams REQUIRED)
 
-set(MLR_LIBRARIES_DIR "/home/camille/git/catkin_ws/src/icra_2021/control_tree_car/externals/rai/lib")
-set(MLR_INCLUDE_DIR "/home/camille/git/catkin_ws/src/icra_2021/control_tree_car/externals/rai/rai")
-
-link_directories(${MLR_LIBRARIES_DIR})
-include_directories(${EIGEN3_INCLUDE_DIR} ${catkin_INCLUDE_DIRS} ${MLR_INCLUDE_DIR})
 #################################
 # Define executable
 #################################
-
 add_definitions(-O3 -Wall -DRAI_LAPACK -DRAI_EIGEN -DRAI_PTHREAD -Wno-terminate -fPIC -std=c++14)
 
 file(GLOB_RECURSE SOURCES *.cpp *.h)
