@@ -56,3 +56,5 @@ In the second terminal, type the following command, it will launch the simulator
 ```bash
 gzserver src/icra_2021/lgp_car_gazebo_plugin/world/obstacle_avoidance_2.world
 ```
+
+![Image](control_tree_car/data/doc/obstacles.png)
