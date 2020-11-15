@@ -12,6 +12,10 @@ The planner is intergated as a ros node. It has been developped with ros kinetic
 Car dynamic is simulated with Gazebo.
 [Gazebo installation](http://gazebosim.org/tutorials?tut=ros_wrapper_versions&cat=connect_ros)
 
+### osqp
+We use the QP solver OSQP as a baseline (see paper).
+[OSQP installation](https://osqp.org/docs/installation/cc++)
+
 ### other depedencies
 
 In addition, the following packages are necessary: gnuplot, libjsoncpp-dev, libx11-dev, liblapack-dev, libf2c2-dev, libeigen3-dev, libglew-dev, freeglut3-dev.
