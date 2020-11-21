@@ -2,7 +2,7 @@ This repo contains the code for 2 examples of the ICRA 2021 submission.
 
 [Accompanying video](https://youtu.be/Ju5hv2gIlxw)
 
-A standalone version of the solver can be found there: [Solver only](https://github.com/ControlTrees/solver).is
+A standalone version of the solver can be found by following the link [Solver only](https://github.com/ControlTrees/solver).
 This version needs way less dependencies (e.g. no ros) and doesn't contain the examples of the paper.
 
 
@@ -32,11 +32,18 @@ git clone --recursive git@github.com:ControlTrees/icra2021.git
 ```
 This will clone the code related to the examples and two submodules (https://github.com/ControlTrees/rai, and https://github.com/ControlTrees/tamp).
 
+### install gazebo models
+The car, obstacle and pedestrian gazebo models are part of the repository and must be copied to the gazebo folder containing all models.
+This gazebo folder is typicall under `~/.gazebo/models`.
+```bash
+cd icra2021/lgp_car_models
+cp -r * ~/.gazebo/models
+```
 
-The car, obstacle and pedestrian models can be installed forllowing the
-
+### build RAI
 build rai
 
+### build ros nodes
 catkin_make
 
 # Execute tests
