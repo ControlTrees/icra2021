@@ -49,7 +49,10 @@ make
 The build can take a few minutes.
 
 ### build ros nodes
+The rest of the code can be built as standard ros nodes using `catkin_make` in the source directory of the catkin workspace.
+```bash
 catkin_make
+```
 
 # Execute tests
 Open a terminal in the folder corresponding to the `control_tree_car` package in `build` folder of the catkin workspace.
