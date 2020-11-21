@@ -41,7 +41,12 @@ cp -r * ~/.gazebo/models
 ```
 
 ### build RAI
-build rai
+The rai submodule doesn't use cmake as build system, it has to be build separatly.
+```bash
+cd ../control_tree_car/externals/rai
+make
+```
+The build can take a few minutes.
 
 ### build ros nodes
 catkin_make
