@@ -2,6 +2,10 @@ This repo contains the code for 2 examples of the ICRA 2021 submission.
 
 [Accompanying video](https://youtu.be/Ju5hv2gIlxw)
 
+A standalone version of the solver can be found there: [Solver only](https://github.com/ControlTrees/solver).is
+This version needs way less dependencies (e.g. no ros) and doesn't contain the examples of the paper.
+
+
 # Dependencies
 
 ### ros
@@ -16,13 +20,18 @@ Car dynamic is simulated with Gazebo.
 We use the QP solver OSQP as a baseline (see paper).
 [OSQP installation](https://osqp.org/docs/installation/cc++)
 
-### other depedencies
+### other dependencies
 
 In addition, the following packages are necessary: gnuplot, libjsoncpp-dev, libx11-dev, liblapack-dev, libf2c2-dev, libeigen3-dev, libglew-dev, freeglut3-dev.
 They can be installed by calling `sudo apt install PACKAGE_NAME`.
 
 # Build
-clone, with submodules
+Clone the repository and its submodules into your catkin workspace:
+```bash
+git clone --recursive git@github.com:ControlTrees/icra2021.git
+```
+This will clone the code related to the examples and two submodules (https://github.com/ControlTrees/rai, and https://github.com/ControlTrees/tamp).
+
 
 The car, obstacle and pedestrian models can be installed forllowing the
 
